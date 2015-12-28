@@ -1,0 +1,171 @@
+CRUISE REPORT HEADER & CERTIFICATION
+CRUISE#: 03100      SALE#: 03100
+SALENAME: Big Elk Recon
+RUN DATE & TIME: 10/31/2013 9:50:56 AM
+ 
+Year: 2004    Region: 02   Forest: 02   District: 06
+Remarks: 
+FILENAME: C:\Development\CSharp\CruiseDesign\test files\TestRecon.cruise
+REPORTS: A1 A10 A2 A5 A9 B1 CP1 CS1 DP1 DS1 UC1 
+
+
+
+
+
+
+                            **************************** CRUISE CERTIFICATION ****************************
+
+                                I certify that the timber for the Big Elk Recon timber sale
+                                has been designated and cruised by the procedures and standards in
+                                FSH 2409.12, Timber Cruising Handbook.  Records of checks are on file
+                                at the District Ranger Office,
+
+
+
+                                ___________________                 ___________________________________
+                                RANGER DISTRICT                     (name of headquarters town)
+
+
+                                ___________________                 ______________
+                                DISTRICT RANGER                     DATE
+
+                            *****************************************************************************
+
+
+
+
+
+
+
+
+Developed and Maintained By:
+USDA FOREST SERVICE                                                                                             VERSION: 09.24.2013B
+WASHINGTON OFFICE TIMBER MANAGEMENT                                                              VOLUME LIBRARY VERSION: 09.23.2013
+FORT COLLINS, COLORADO (970)295-5776                                                             NATIONAL CRUISE PROCESSING PROGRAM
+
+VOLUME EQUATION TABLE                                                                                                       PAGE 2
+CRUISE#: 03100      SALE#: 03100
+SALENAME: Big Elk Recon                                                                                          VERSION: 09.24.2013B
+RUN DATE & TIME: 10/31/2013 9:50:56 AM                                                             VOLUME LIBRARY VERSION: 09.23.2013
+
+
+                                                               PRIMARY                     SECONDARY
+                                                       ******* PRODUCT ********      ****** PRODUCT ******
+                                            TOTAL       MIN                             MIN
+                     VOLUME       STUMP     CUBIC       TOP                             TOP
+     SPECIES  PROD   EQUATION     HEIGHT    VOLUME      DIB   BDFT  CUFT  CORDS         DIB   BDFT  CUFT  CORDS   BIOMASS
+______________________________________________________________________________________________________________________________________
+     PP        01    200FW2W122    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     WF        01    200FW2W015    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     ES        01    407FW2W093    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     DF        01    200FW2W202    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     SAF       01    I00FW2W019    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     LP        01    200FW2W108    1.0        NO        6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     LPP       02    200FW2W108    1.0        YES       4.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     ESP       02    407FW2W093    1.0        YES       4.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     DFP       03    200FW2W202    1.0        YES       4.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     DFS       03    200FW2W202    0.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     LPR       01    200FW2W108    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+     LPD       01    200FW2W108    1.0        YES       6.0   NO    YES   NO            0.0   NO    NO    NO       NO     
+
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+A10 >>>> No biomass data for this report
+>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+UC1: VOLUME BY SPECIES WITHIN CUTTING UNIT FOR EACH STRATUM-SAWTIMBER                                                       PAGE 3
+FOR CUT TREES ONLY
+CRUISE#: 03100      SALE#: 03100
+SALENAME: Big Elk Recon                                                                                          VERSION: 09.24.2013B
+RUN DATE & TIME: 10/31/2013 9:50:56 AM                                                             VOLUME LIBRARY VERSION: 09.23.2013
+
+
+                               ***************************************** PRIMARY PRODUCT ******************************************
+                                 AVGDEF
+         S                                      GROSS      NET
+  S      P         U            %       %                             ************************ STRATA LEVEL ***********************
+  T      E                                      BDFT       BDFT       EST.
+  R   U  C      P  O            B       C
+  A   N  I      R  F            D       U       CUFT       CUFT       NO OF      ** GROSS VOLUME **     ** NET VOLUME **
+  T   I  E      O               F       F
+  A   T  S      D  M            T       T       RATIO      RATIO      TREES       BDFT        CUFT       BDFT      CUFT      CORDS
+______________________________________________________________________________________________________________________________________
+  1   1 LP     01 03            0      11      0.0000     0.0000       9854          0      196346          0    172795  
+  1   1 SAF    01 03            0      15      0.0000     0.0000       1217          0       23988          0     20385  
+              _________________________________________________________________________________________________________________________
+              UNIT   1  TOTAL   0      12      0.0000     0.0000      11070          0      220334          0    193179        0.00
+ 
+  1   2 LP     01 03            0      11      0.0000     0.0000      14262          0      284185          0    250098  
+  1   2 SAF    01 03            0      15      0.0000     0.0000       1761          0       34720          0     29504  
+              _________________________________________________________________________________________________________________________
+              UNIT   2  TOTAL   0      12      0.0000     0.0000      16023          0      318905          0    279602        0.00
+ 
+              _________________________________________________________________________________________________________________________
+             STRATA  1  TOTAL   0      12      0.0000     0.0000      27093          0      539239          0    472781        0.00
+ 
+______________________________________________________________________________________________________________________________________
+______________________________________________________________________________________________________________________________________
+  2   3 ES     01 03            0      15      0.0000     0.0000        692          0       29900          0     25193  
+  2   3 LP     01 03            0      11      0.0000     0.0000       1004          0       26841          0     23646  
+  2   3 SAF    01 03            0      11      0.0000     0.0000        277          0       10318          0      9175  
+              _________________________________________________________________________________________________________________________
+              UNIT   3  TOTAL   0      13      0.0000     0.0000       1973          0       67059          0     58015        0.00
+ 
+  2   4 ES     01 03            0      15      0.0000     0.0000        334          0       14410          0     12141  
+  2   4 LP     01 03            0      11      0.0000     0.0000        484          0       12935          0     11396  
+  2   4 SAF    01 03            0      11      0.0000     0.0000        133          0        4972          0      4422  
+              _________________________________________________________________________________________________________________________
+              UNIT   4  TOTAL   0      13      0.0000     0.0000        951          0       32317          0     27959        0.00
+ 
+              _________________________________________________________________________________________________________________________
+             STRATA  2  TOTAL   0      13      0.0000     0.0000       2924          0       99376          0     85974        0.00
+ 
+______________________________________________________________________________________________________________________________________
+______________________________________________________________________________________________________________________________________
+  3   3 ESP    02 03            0       0      0.0000     0.0000       1037          0        2482          0      2482  
+  3   3 LPP    02 03            0       0      0.0000     0.0000       1314          0        3858          0      3858  
+              _________________________________________________________________________________________________________________________
+              UNIT   3  TOTAL   0       0      0.0000     0.0000       2351          0        6340          0      6340        0.00
+ 
+  3   4 ESP    02 03            0       0      0.0000     0.0000        500          0        1196          0      1196  
+  3   4 LPP    02 03            0       0      0.0000     0.0000        633          0        1859          0      1859  
+              _________________________________________________________________________________________________________________________
+              UNIT   4  TOTAL   0       0      0.0000     0.0000       1133          0        3055          0      3055        0.00
+ 
+
+UC1: VOLUME BY SPECIES WITHIN CUTTING UNIT FOR EACH STRATUM-SAWTIMBER                                                       PAGE 4
+FOR CUT TREES ONLY
+CRUISE#: 03100      SALE#: 03100
+SALENAME: Big Elk Recon                                                                                          VERSION: 09.24.2013B
+RUN DATE & TIME: 10/31/2013 9:50:56 AM                                                             VOLUME LIBRARY VERSION: 09.23.2013
+
+
+                               ***************************************** PRIMARY PRODUCT ******************************************
+                                 AVGDEF
+         S                                      GROSS      NET
+  S      P         U            %       %                             ************************ STRATA LEVEL ***********************
+  T      E                                      BDFT       BDFT       EST.
+  R   U  C      P  O            B       C
+  A   N  I      R  F            D       U       CUFT       CUFT       NO OF      ** GROSS VOLUME **     ** NET VOLUME **
+  T   I  E      O               F       F
+  A   T  S      D  M            T       T       RATIO      RATIO      TREES       BDFT        CUFT       BDFT      CUFT      CORDS
+______________________________________________________________________________________________________________________________________
+              _________________________________________________________________________________________________________________________
+             STRATA  3  TOTAL   0       0      0.0000     0.0000       3484          0        9395          0      9395        0.00
+ 
+______________________________________________________________________________________________________________________________________
+______________________________________________________________________________________________________________________________________
+
+
+                        TOTALS ------    EST. NO        ***** GROSS VOLUME *****      ****** NET VOLUME ******
+                                         OF TREES          BDFT           CUFT           BDFT           CUFT          CORDS
+                                        ________________________________________________________________________________________
+                                            33501             0         648010              0         568150           0.00
+                                        ________________________________________________________________________________________
+
+
+
+* FOR TREE-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON THE # OF TREES TALLIED OR THE SUM OF KPIS THAT FALL WITHIN
+THE CUTTING UNIT.  FOR AREA-BASED SAMPLES, THE CUTTING UNIT VOLUME IS BASED ON AN AVERAGE VOLUME PER ACRE AT THE STRATA
+LEVEL TIMES THE NUMBER OF ACRES IN THE CUTTING UNIT.
+*R = RECOVERED VOLUME ADDED TO NET SECONDARY VOLUME.
+*FOR CRUISE METHOD 3P ONLY, THE COLUMN Est. # of Trees for sawtimber WILL SHOW ZERO INSTEAD OF ACTUAL TALLY.

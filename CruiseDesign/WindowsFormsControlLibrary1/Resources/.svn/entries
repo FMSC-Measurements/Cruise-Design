@@ -1,0 +1,44 @@
+8
+
+dir
+0
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc/CruiseDesign/trunk/CruiseDesign/WindowsFormsControlLibrary1/Resources
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc
+add
+
+
+
+
+
+
+
+svn:special svn:externals svn:needs-lock
+
+Cruisedesign48.gif
+file
+
+
+
+add
+
+
+
+
+
+has-props
+has-prop-mods
+
+bar2.gif
+file
+
+
+
+add
+
+
+
+
+
+has-props
+has-prop-mods
+
