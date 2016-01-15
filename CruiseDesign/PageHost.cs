@@ -174,7 +174,7 @@ namespace CruiseDesign.Controls
             //hide current control
             if (this.selectedControl != null)
             {
-                this.selectedControl.Visible = false;
+               // this.selectedControl.Visible = false;
             }
 
             this.selectedControl = value;

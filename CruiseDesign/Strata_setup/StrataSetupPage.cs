@@ -98,7 +98,7 @@ namespace CruiseDesign.Strata_setup
               MessageBox.Show("Need to add at least one Sample Group", "Information");
               return;
            }
-             
+           this.textBoxSGsetDescr.Focus(); 
            Owner.GoToUnitPage();
         }
 

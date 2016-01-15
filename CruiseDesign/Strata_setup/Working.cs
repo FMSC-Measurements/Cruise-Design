@@ -74,7 +74,14 @@ namespace CruiseDesign.Strata_setup
       private void copyTablesToDesign(dataFiles df)
       {
          // copy Sale table
-         df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.SALE._NAME, null, OnConflictOption.Ignore);
+//         df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.SALE._NAME, null, OnConflictOption.Ignore);
+         var sale = rDAL.Read<SaleDO>("Sale", null, null);
+         foreach (SaleDO sl in sale)
+         {
+            sl.DAL = df.cdDAL;
+            sl.Save();
+         }
+
          //copy CuttingUnit table
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.CUTTINGUNIT._NAME, null, OnConflictOption.Ignore);
          //copy TreeDefaultValues table

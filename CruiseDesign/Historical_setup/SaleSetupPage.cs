@@ -32,11 +32,11 @@ namespace CruiseDesign.Historical_setup
       bool canCreate;
 
       
-      public DAL tmpDAL { get; set; }
 
       struct dataFiles
       {
          public DAL cdDAL { get; set; }
+         public DAL tmpDAL { get; set; }
          public string tpFile;
          public string SaleNumber;
          public string Name;
@@ -140,7 +140,7 @@ namespace CruiseDesign.Historical_setup
       {
          try
          {
-            tmpDAL = new DAL(df.tpFile);
+            df.tmpDAL = new DAL(df.tpFile);
          }
          catch (System.IO.IOException ie)
          {
@@ -160,27 +160,27 @@ namespace CruiseDesign.Historical_setup
       private void copyTemplateData(dataFiles df)
       {
          //copy TreeDefaultValues table
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
          //copy globals table
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
          //copy logfieldsetupdefault
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
          //copy messagelog
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
          //copy reports
-         df.cdDAL.DirectCopy(tmpDAL, "Reports", null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, "Reports", null, OnConflictOption.Ignore);
          //copy treefieldsetupdefault
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
          //copy volumeequations
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
          //copy treeauditvalue
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
          //copy treedefaultvaluetreeauditvalue
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
          //copy tally
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
          //copy cruise methods
-         df.cdDAL.DirectCopy(tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
+         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
  
       }
 
@@ -213,8 +213,8 @@ namespace CruiseDesign.Historical_setup
       }
       private void Finish()
       {
-         if(tmpDAL != null)
-            tmpDAL.Dispose();
+         if(df.tmpDAL != null)
+            df.tmpDAL.Dispose();
          //if (cdDAL != null)
          //   cdDAL.Dispose();
          Close();
