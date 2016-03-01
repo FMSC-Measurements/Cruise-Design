@@ -86,7 +86,13 @@ namespace CruiseDesign.Historical_setup
             {
                return;
             }
-
+            Owner.Sale = new SaleDO(Owner.hDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+            string sUOM = Owner.Sale.DefaultUOM;
+            if (sUOM != Owner.UOM)
+            {
+               MessageBox.Show("Cruise does not have same UOM.\nCannot import data.", "Warning");
+               return;
+            }
             //set binding list for stratum
             Owner.histStratum = new BindingList<StratumDO>(Owner.hDAL.Read<StratumDO>("Stratum", null, null));
             bindingSourceStratum.DataSource = Owner.histStratum;

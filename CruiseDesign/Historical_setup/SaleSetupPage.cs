@@ -45,6 +45,7 @@ namespace CruiseDesign.Historical_setup
          public string Forest;
          public string District;
          public string DefaultUOM;
+         public bool LogEnabled;
       };
       dataFiles df;
 
@@ -101,6 +102,10 @@ namespace CruiseDesign.Historical_setup
          df.Forest = forNum;
          df.District = textBoxDist.Text.ToString();
          df.DefaultUOM = defUOM;
+         if (checkBoxLogData.Checked)
+            df.LogEnabled = true;
+         else
+            df.LogEnabled = false;
          // create backgroundworker
          this.backgroundWorker1.RunWorkerAsync(df);
 
@@ -195,7 +200,7 @@ namespace CruiseDesign.Historical_setup
          sale.District = df.District;
          sale.DefaultUOM = df.DefaultUOM;
          sale.Remarks = "Historical Design";
-
+         sale.LogGradingEnabled = df.LogEnabled;
          sale.Save();
      
       }

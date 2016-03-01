@@ -51,6 +51,7 @@
          this.labelWorking = new System.Windows.Forms.Label();
          this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
          this.pictureBox1 = new System.Windows.Forms.PictureBox();
+         this.checkBoxLogData = new System.Windows.Forms.CheckBox();
          this.groupBox1.SuspendLayout();
          ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
          this.SuspendLayout();
@@ -78,6 +79,7 @@
          // groupBox1
          // 
          this.groupBox1.BackColor = System.Drawing.SystemColors.ButtonFace;
+         this.groupBox1.Controls.Add(this.checkBoxLogData);
          this.groupBox1.Controls.Add(this.label7);
          this.groupBox1.Controls.Add(this.label6);
          this.groupBox1.Controls.Add(this.label5);
@@ -299,6 +301,16 @@
          this.pictureBox1.TabStop = false;
          this.pictureBox1.Visible = false;
          // 
+         // checkBoxLogData
+         // 
+         this.checkBoxLogData.AutoSize = true;
+         this.checkBoxLogData.Location = new System.Drawing.Point(322, 175);
+         this.checkBoxLogData.Name = "checkBoxLogData";
+         this.checkBoxLogData.Size = new System.Drawing.Size(136, 20);
+         this.checkBoxLogData.TabIndex = 14;
+         this.checkBoxLogData.Text = "Log Data Enabled";
+         this.checkBoxLogData.UseVisualStyleBackColor = true;
+         // 
          // SaleSetupPage
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -350,5 +362,6 @@
       private System.Windows.Forms.Label labelWorking;
       private System.Windows.Forms.PictureBox pictureBox1;
       private System.ComponentModel.BackgroundWorker backgroundWorker1;
+      private System.Windows.Forms.CheckBox checkBoxLogData;
    }
 }

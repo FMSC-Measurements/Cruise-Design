@@ -313,7 +313,7 @@ namespace CruiseDesign.Design_Pages
             {
                
                currentSgStats.SampleSize1 = cStats.getSampleSize(sgErr, sgCV);
-               getN2();
+               setFirstStagePlots(currentSgStats.SampleSize1);
             }
             else if (stage == 12 || stage == 22)
             {
@@ -1222,6 +1222,7 @@ namespace CruiseDesign.Design_Pages
          foreach (StratumStatsDO thisStrStats in cdStratumStats)
          {
             int errCnt = 0;
+ 
             List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", thisStrStats.StratumStats_CN));
             foreach (SampleGroupStatsDO thisSgStats in mySgStats)
             {
@@ -1288,8 +1289,46 @@ namespace CruiseDesign.Design_Pages
          }          
          return (false);
       }
+      private bool checkPlotSz()
+      {
+         string sMsg = "Errors Found \n\n";
+         // loop through all sample groups
+         int errCnt = 0;
+         foreach (StratumStatsDO thisStrStats in cdStratumStats)
+         {
+            if (thisStrStats.Method == "PCM" || thisStrStats.Method == "P3P" || thisStrStats.Method == "PNT" || thisStrStats.Method == "3PPNT")
+            {
+               if (thisStrStats.BasalAreaFactor <= 0)
+               {
+                  errCnt++;
+                  sMsg += "Missing BAF: Stratum ";
+                  sMsg += thisStrStats.Code;
+                  sMsg += "\n";
+               }
+            }
+            else if (thisStrStats.Method == "FIX" || thisStrStats.Method == "F3P" || thisStrStats.Method == "FCM")
+            {
+               if (thisStrStats.FixedPlotSize <= 0)
+               {
+                  errCnt++;
+                  sMsg += "Missing FPS: Stratum ";
+                  sMsg += thisStrStats.Code;
+                  sMsg += "\n";
+               }
+            }
+         }
+         if (errCnt > 0)
+         {
+            MessageBox.Show(sMsg, "Errors Found\nPlease correct before continuing.");
+            return (true);
+         }
+         return (false);
+      }
+
       private void buttonReport_Click(object sender, EventArgs e)
       {
+         if (checkPlotSz())
+            return;
          // instance of report
          Reports.ReportForm reportForm = new CruiseDesign.Reports.ReportForm(cdStratumStats.Count());
          //Reports.ReportViewer reportForm = new CruiseDesign.Reports.ReportViewer();
@@ -1433,7 +1472,10 @@ namespace CruiseDesign.Design_Pages
 
       private void buttonFScruiser_Click(object sender, EventArgs e)
       {
-        
+         // check for errors
+         if (checkPlotSz())
+            return;
+
          CreateProduction pDlg = new CreateProduction(this);
 
          pDlg.ShowDialog();

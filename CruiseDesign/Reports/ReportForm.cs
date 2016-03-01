@@ -23,7 +23,7 @@ namespace CruiseDesign.Reports
       //Bitmap memoryImage;
       int layoutPrintStartHeight, layoutPrintEndHeight, layoutStartWidth, strCnt = 0;
       int[] strHeights;
-
+      int sHts;
       public ReportForm(int strNum)
       {
          InitializeComponent();
@@ -55,14 +55,14 @@ namespace CruiseDesign.Reports
          Label labelPlot;
          Label labelSpacing;
          // create label for Stratum number
-         Label labelStratum = new Label() { Text = "Stratum:  " + Code, Padding = new Padding(3,0,0,0),AutoSize = true};
-         labelStratum.Font = new System.Drawing.Font("Microsoft Sans Serif", 12.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+         Label labelStratum = new Label() { Text = "Stratum:  " + Code + "    Units: " + units, Padding = new Padding(3, 0, 0, 0), AutoSize = true };
+         labelStratum.Font = new System.Drawing.Font("Times New Roman", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.flowLayoutPanel1.Controls.Add(labelStratum);
          // create label for Units
-         Label labelUnits = new Label() { Text = "Units: " + units, Padding = new Padding(3, 0, 0, 0), AutoSize = true };
-         this.flowLayoutPanel1.Controls.Add(labelUnits);
+         //Label labelUnits = new Label() { Text = "Units: " + units, Padding = new Padding(3, 0, 0, 0), AutoSize = true };
+         //this.flowLayoutPanel1.Controls.Add(labelUnits);
          // create table
-         TableLayoutPanel table1 = new TableLayoutPanel() { ColumnCount = 2, RowCount = 1, Size = new Size(770, 160), BackColor = Color.WhiteSmoke };
+         TableLayoutPanel table1 = new TableLayoutPanel() { ColumnCount = 2, RowCount = 1, Size = new Size(725, 130), BackColor = Color.WhiteSmoke };
          table1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
          table1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 50F));
          table1.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
@@ -115,6 +115,7 @@ namespace CruiseDesign.Reports
          panel2.Controls.Add(labelAcres);
 
          this.flowLayoutPanel1.Controls.Add(table1);
+         
       }
 
       public void createSgTable_100(int sgCnt, string meth)
@@ -123,7 +124,8 @@ namespace CruiseDesign.Reports
          if (meth == "100") plots = "Trees";
          int depth = 25 * (sgCnt + 1);
 
-         table2 = new TableLayoutPanel() { ColumnCount = 7, RowCount = sgCnt + 1, Size = new Size(770, depth), BackColor = Color.WhiteSmoke};
+//         table2 = new TableLayoutPanel() { ColumnCount = 7, RowCount = sgCnt + 1, Size = new Size(750, depth), BackColor = Color.WhiteSmoke};
+         table2 = new TableLayoutPanel() { ColumnCount = 7, RowCount = sgCnt + 1, Size = new Size(725, depth)};
          for (int i = 0; i < sgCnt + 1; i++)
             this.table2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 75));
@@ -173,7 +175,7 @@ namespace CruiseDesign.Reports
          if (meth == "3P") freq = "KZ ";
          int depth = 25 * (sgCnt+1);
 
-         table2 = new TableLayoutPanel() { ColumnCount = 9, RowCount = sgCnt + 1, Size = new Size(770, depth), BackColor = Color.WhiteSmoke };
+         table2 = new TableLayoutPanel() { ColumnCount = 9, RowCount = sgCnt + 1, Size = new Size(725, depth)};
          for (int i = 0; i < sgCnt + 1; i++)
             this.table2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 75));
@@ -229,7 +231,7 @@ namespace CruiseDesign.Reports
       {
          int depth = 25 * (sgCnt + 1);
 
-         table2 = new TableLayoutPanel() { ColumnCount = 12, RowCount = sgCnt + 1, Size = new Size(770, depth), BackColor = Color.WhiteSmoke };
+         table2 = new TableLayoutPanel() { ColumnCount = 12, RowCount = sgCnt + 1, Size = new Size(725, depth) };
          for (int i = 0; i < sgCnt + 1; i++)
             this.table2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 75));
@@ -301,7 +303,7 @@ namespace CruiseDesign.Reports
       {
          string plot = "Plots";
          string trees = "Trees";
-         string freq = "Frequency";
+         string freq = "Freq";
          if (meth == "3PPNT")
          {
             plot = "3P Plots";
@@ -314,18 +316,18 @@ namespace CruiseDesign.Reports
          }
          int depth = 25 * (sgCnt + 1);
 
-         table2 = new TableLayoutPanel() { ColumnCount = 10, RowCount = sgCnt + 1, Size = new Size(770, depth), BackColor = Color.WhiteSmoke };
+         table2 = new TableLayoutPanel() { ColumnCount = 10, RowCount = sgCnt + 1, Size = new Size(725, depth) };
          for (int i = 0; i < sgCnt + 1; i++)
             this.table2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 24));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 75));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 65));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 50));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 50));
-         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
-         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 80));
+         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 50));
+         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
+         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 60));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 85));
-         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 85));
-         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 85));
+         table2.ColumnStyles.Add(new ColumnStyle(SizeType.Absolute, 75));
          table2.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 100F));
          table2.CellBorderStyle = TableLayoutPanelCellBorderStyle.Single;
          Panel panel0 = new Panel() { Dock = DockStyle.Fill };
@@ -358,9 +360,9 @@ namespace CruiseDesign.Reports
          panel3.Controls.Add(labeltree);
          Label labelfreq = new Label() { Text = freq, AutoSize = true };
          panel4.Controls.Add(labelfreq);
-         Label labelins = new Label() { Text = "CV 1 Stg", AutoSize = true };
+         Label labelins = new Label() { Text = "CV 1", AutoSize = true };
          panel5.Controls.Add(labelins);
-         Label labelcv = new Label() { Text = "CV 2 Stg", AutoSize = true };
+         Label labelcv = new Label() { Text = "CV 2", AutoSize = true };
          panel6.Controls.Add(labelcv);
          Label labeltpa = new Label() { Text = "Trees/acre", AutoSize = true };
          panel7.Controls.Add(labeltpa);
@@ -557,7 +559,7 @@ namespace CruiseDesign.Reports
          this.flowLayoutPanel1.Controls.Add(labelSpace);
          strHeights[strCnt] = flowLayoutPanel1.DisplayRectangle.Height;
          strCnt++;
-
+         
       }
 
       private void printToolStripMenuItem_Click(object sender, EventArgs e)
@@ -572,6 +574,7 @@ namespace CruiseDesign.Reports
       {
          printDialog1.Document = printDocument1;
          printDocument1.PrintPage += this.printDocument1_PrintPage;
+
          layoutStartWidth = 0;
          // find page height
 
@@ -588,7 +591,7 @@ namespace CruiseDesign.Reports
             do
             {
                cnt++;
-               endHt = startHt + 1012;
+               endHt = startHt + 1000;
                layoutPrintStartHeight = startHt;
                
                for (int i = 0; i < strCnt; i++)
@@ -597,7 +600,7 @@ namespace CruiseDesign.Reports
                      layoutPrintEndHeight = strHeights[i];
                }
 
-               this.Height = (layoutPrintEndHeight - layoutPrintStartHeight) + 25;
+               this.Height = (layoutPrintEndHeight - layoutPrintStartHeight)+25;
                flowLayoutPanel1.AutoScrollPosition = new Point(0, layoutPrintStartHeight);
 
 
@@ -613,10 +616,14 @@ namespace CruiseDesign.Reports
       {
          //float x = e.MarginBounds.Left;
          //float y = e.MarginBounds.Top;
+         //printDocument1.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
+         //printDocument1.PrinterSettings.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
 
-         Bitmap bmp = new Bitmap(flowLayoutPanel1.Width, layoutPrintEndHeight-layoutPrintStartHeight);
-         flowLayoutPanel1.DrawToBitmap(bmp, new Rectangle(0, 0, flowLayoutPanel1.Width, layoutPrintEndHeight - layoutPrintStartHeight));
-         e.Graphics.DrawImage((Image)bmp,0,0);
+//         Bitmap bmp = new Bitmap(flowLayoutPanel1.Width, layoutPrintEndHeight - layoutPrintStartHeight);
+         Bitmap bmp = new Bitmap(752, layoutPrintEndHeight - layoutPrintStartHeight);
+         flowLayoutPanel1.DrawToBitmap(bmp, new Rectangle(0, 0, 736, layoutPrintEndHeight - layoutPrintStartHeight));
+//         flowLayoutPanel1.DrawToBitmap(bmp, new Rectangle(0, 0, flowLayoutPanel1.Width, layoutPrintEndHeight - layoutPrintStartHeight));
+         e.Graphics.DrawImage((Image)bmp, 25, 25);
       }
 
       private void saveToolStripButton_Click(object sender, EventArgs e)
