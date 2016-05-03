@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using CruiseDesign.Strata_setup;
 using CruiseDesign.Historical_setup;
 using CruiseDesign.Stats;
+using CruiseDesign.ProductionDesign;
 using CruiseDAL;
 
 namespace CruiseDesign
@@ -21,7 +22,10 @@ namespace CruiseDesign
         public string dalPathCruise;
         public string dalPathDesign;
         bool reconExists = true;
-        bool canCreateNew = false;
+        bool prodFile = false;
+        public bool canCreateNew = false;
+        bool openDAL = false;
+        public int errFlag;
 
         public CruiseDesignMain(string[] args)
         {
@@ -73,22 +77,25 @@ namespace CruiseDesign
                   Text = openFileDialogDesign.SafeFileName;
                   dalPathDesign = openFileDialogDesign.FileName;
                   // check for design file vs production cruise
-                  if(Text.Contains(".cruise"))
+                  if (Text.Contains(".cruise"))
                   {
-                     MessageBox.Show("Open Production Not Completed at this Time", "Information");
-                     return;
-                  }
-
-                  // does .cruise file exist
-                  if (doesFileExist("cruise"))
-                  {
-                     // check for historical design in Sale - Purpose
-                     reconExists = true;
+                     prodFile = true;
+                     reconExists = false;
+                     canCreateNew = false;
                   }
                   else
-                     reconExists = false;
-                  canCreateNew = false;
-
+                  {
+                     // does .cruise file exist
+                     if (doesFileExist("cruise"))
+                     {
+                        // check for historical design in Sale - Purpose
+                        reconExists = true;
+                     }
+                     else
+                        reconExists = false;
+                     canCreateNew = false;
+                     prodFile = false;
+                  }
                   if (openDesignFile())
                   {
                      buttonSetup.Enabled = true;
@@ -96,26 +103,44 @@ namespace CruiseDesign
                      buttonTools.Enabled = true;
                   }
                   else
-                     MessageBox.Show("Unable to open the design file", "Information");
+                     MessageBox.Show("Unable to open the file.", "Information");
 
                }
             }
 // SETUP TAB    Setup Using Recon  +++++++++++++       
             else if (ButtonSelect == 2)
             {
-               StrataSetupWizard strDlg = new StrataSetupWizard(this, dalPathCruise, reconExists);
+               if (prodFile)
+               {
+                  MessageBox.Show("Production File Found.\nNo changes to the current design allowed.\n", "Warning", MessageBoxButtons.OK);
+                  return;
+               }
+
+               StrataSetupWizard strDlg = new StrataSetupWizard(this, dalPathCruise, reconExists, prodFile, canCreateNew);
                strDlg.Owner = this;
 
                //        strDlg.dalFile = dalPath;
                strDlg.ShowDialog(this);
+
+               if (canCreateNew)
+               {
+                  this.cdDAL = new DAL(dalPathDesign, false);
+               }
+
+            
             }
 //DESIGN TAB    Design Cruise +++++++++++++++            
             else if (ButtonSelect == 3)
             {
+               if (prodFile)
+               {
+                  MessageBox.Show("Production File Found.\nCannot modify selection frequencies.\n", "Warning", MessageBoxButtons.OK);
+                  return;
+               }
                //MessageBox.Show("Design Cruise Selected", "Information");
                Cursor.Current = Cursors.WaitCursor;
 
-               Design_Pages.Processing pDlg = new CruiseDesign.Design_Pages.Processing(this, dalPathCruise, reconExists);
+               Design_Pages.Processing pDlg = new CruiseDesign.Design_Pages.Processing(this, dalPathCruise, reconExists, prodFile);
                pDlg.ShowDialog();
 
                Cursor.Current = this.Cursor;
@@ -123,12 +148,14 @@ namespace CruiseDesign
                Design_Pages.DesignMain dmDlg = new CruiseDesign.Design_Pages.DesignMain(this, dalPathCruise);
                dmDlg.ShowDialog(this);
 
+
+
                // call DesignCruiseForm
 
             }
 //TOOLS TAB  Compare with Production Cruise +++++++++++++           
             else if (ButtonSelect == 4)
-               MessageBox.Show("Compare with Production Selected", "Information");
+               MessageBox.Show("Compare Production Cruise with Design file./nFuture Enhancement.", "Information");
 
         }
 
@@ -137,28 +164,36 @@ namespace CruiseDesign
         {
            // Main form  
            if (ButtonSelect == 0)
-            {
-              // MessageBox.Show("Deleted", "Information");
-              //      Open Historical File +++++++++++++
-            }
+           {
+
+           }
 // FILE TAB - Open production cruise ++++++++++++++
            else if (ButtonSelect == 1)
             {
                //   Create new design database +++++++++++++++++
-               MessageBox.Show("Open Production Not Completed at this Time", "Information");
-               //buttonSetup.Enabled = true;
-               //buttonDesign.Enabled = true;
-               //buttonTools.Enabled = true;
+               //MessageBox.Show("Open Production Not Completed at this Time", "Information");
             }  
 
 // SETUP TAB   Historical Setup +++++++++++++++++
             else if (ButtonSelect == 2)
             {
+
+               if (prodFile)
+               {
+                  MessageBox.Show("Production File Found.\nCannot modify cruise design.\n", "Warning", MessageBoxButtons.OK);
+                  return;
+               }
                //MessageBox.Show("Historical Setup", "Information");
                //  Pass in dalPathDesign
                HistoricalSetupWizard hsDlg = new HistoricalSetupWizard(this,canCreateNew);
                hsDlg.Owner = this; 
                hsDlg.ShowDialog(this);
+
+               if (canCreateNew)
+               {
+                  this.cdDAL = new DAL(dalPathDesign, false);
+               }
+
                buttonSetup.Enabled = true;
                buttonDesign.Enabled = true;
                buttonTools.Enabled = true;
@@ -166,10 +201,30 @@ namespace CruiseDesign
             }
 //DESIGN TAB +++++++++++++++++
            else if (ButtonSelect == 3)
-                MessageBox.Show("Add Additional Samples Selected", "Information");
-//TOOLS TAB ++++++++++++++++++
+           {
+              //MessageBox.Show("Add Additional Samples Selected", "Information");
+              Cursor.Current = Cursors.WaitCursor;
+
+              Design_Pages.Processing pDlg = new CruiseDesign.Design_Pages.Processing(this, dalPathCruise, reconExists, prodFile);
+
+              if (errFlag == 1)
+              {
+                 Cursor.Current = this.Cursor;
+                 return;
+              }
+
+              pDlg.ShowDialog();
+
+              Cursor.Current = this.Cursor;
+
+
+              ProductionDesign.ProductionDesignMain dmDlg = new CruiseDesign.ProductionDesign.ProductionDesignMain(this);
+              dmDlg.ShowDialog(this);
+
+           }
+           //TOOLS TAB ++++++++++++++++++
            else if (ButtonSelect == 4)
-                MessageBox.Show("Set Default Directories Selected", "Information");
+              MessageBox.Show("Set Default Directories Selected", "Information");
         }
 
 //Row Three  -------------------------------------------------------------------------------
@@ -229,7 +284,7 @@ namespace CruiseDesign
                      Cursor.Current = this.Cursor;
 
                      wDlg.ShowDialog();
-
+                     
                      buttonSetup.Enabled = true;
                      buttonDesign.Enabled = true;
                      buttonTools.Enabled = true;

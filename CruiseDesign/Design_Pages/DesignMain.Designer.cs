@@ -146,7 +146,6 @@
            this.contextMenuStripSG = new System.Windows.Forms.ContextMenuStrip(this.components);
            this.saveTreesAndVolumePerAcreToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
            this.saveTreesPerPlotToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-           this.recalculateErrorsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
            this.bindingSourceSgStats = new System.Windows.Forms.BindingSource(this.components);
            this.panel1 = new System.Windows.Forms.Panel();
            this.textBoxError = new System.Windows.Forms.TextBox();
@@ -198,6 +197,8 @@
            this.dataGridViewTextBoxColumn28 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.dataGridViewTextBoxColumn29 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.dataGridViewTextBoxColumn30 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.dataGridViewTextBoxColumn31 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.dataGridViewTextBoxColumn32 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.tableLayoutPanel1.SuspendLayout();
            this.splitContainer1.Panel1.SuspendLayout();
            this.splitContainer1.Panel2.SuspendLayout();
@@ -622,19 +623,19 @@
             this.saveDesignToolStripMenuItem,
             this.loadDesignToolStripMenuItem});
            this.contextMenuStripStr.Name = "contextMenuStripStr";
-           this.contextMenuStripStr.Size = new System.Drawing.Size(153, 70);
+           this.contextMenuStripStr.Size = new System.Drawing.Size(140, 48);
            // 
            // saveDesignToolStripMenuItem
            // 
            this.saveDesignToolStripMenuItem.Name = "saveDesignToolStripMenuItem";
-           this.saveDesignToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+           this.saveDesignToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
            this.saveDesignToolStripMenuItem.Text = "Save Design";
            this.saveDesignToolStripMenuItem.Click += new System.EventHandler(this.saveDesignToolStripMenuItem_Click);
            // 
            // loadDesignToolStripMenuItem
            // 
            this.loadDesignToolStripMenuItem.Name = "loadDesignToolStripMenuItem";
-           this.loadDesignToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+           this.loadDesignToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
            this.loadDesignToolStripMenuItem.Text = "Load Design";
            this.loadDesignToolStripMenuItem.Click += new System.EventHandler(this.loadDesignToolStripMenuItem_Click);
            // 
@@ -1080,31 +1081,27 @@
            // 
            this.contextMenuStripSG.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.saveTreesAndVolumePerAcreToolStripMenuItem,
-            this.saveTreesPerPlotToolStripMenuItem,
-            this.recalculateErrorsToolStripMenuItem});
+            this.saveTreesPerPlotToolStripMenuItem});
            this.contextMenuStripSG.Name = "contextMenuStripSG";
            this.contextMenuStripSG.Size = new System.Drawing.Size(242, 70);
            // 
            // saveTreesAndVolumePerAcreToolStripMenuItem
            // 
+           this.saveTreesAndVolumePerAcreToolStripMenuItem.AutoToolTip = true;
            this.saveTreesAndVolumePerAcreToolStripMenuItem.Name = "saveTreesAndVolumePerAcreToolStripMenuItem";
            this.saveTreesAndVolumePerAcreToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
            this.saveTreesAndVolumePerAcreToolStripMenuItem.Text = "Save Trees and Volume per acre";
+           this.saveTreesAndVolumePerAcreToolStripMenuItem.ToolTipText = "Save current values to all methods";
            this.saveTreesAndVolumePerAcreToolStripMenuItem.Click += new System.EventHandler(this.saveTreesAndVolumePerAcreToolStripMenuItem_Click);
            // 
            // saveTreesPerPlotToolStripMenuItem
            // 
+           this.saveTreesPerPlotToolStripMenuItem.AutoToolTip = true;
            this.saveTreesPerPlotToolStripMenuItem.Name = "saveTreesPerPlotToolStripMenuItem";
            this.saveTreesPerPlotToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
            this.saveTreesPerPlotToolStripMenuItem.Text = "Save Trees per Plot";
+           this.saveTreesPerPlotToolStripMenuItem.ToolTipText = "Save current trees per plot to all plot methods.";
            this.saveTreesPerPlotToolStripMenuItem.Click += new System.EventHandler(this.saveTreesPerPlotToolStripMenuItem_Click);
-           // 
-           // recalculateErrorsToolStripMenuItem
-           // 
-           this.recalculateErrorsToolStripMenuItem.Name = "recalculateErrorsToolStripMenuItem";
-           this.recalculateErrorsToolStripMenuItem.Size = new System.Drawing.Size(241, 22);
-           this.recalculateErrorsToolStripMenuItem.Text = "Recalculate For Stratum Error";
-           this.recalculateErrorsToolStripMenuItem.Click += new System.EventHandler(this.recalculateErrorsToolStripMenuItem_Click);
            // 
            // bindingSourceSgStats
            // 
@@ -1524,6 +1521,20 @@
            this.dataGridViewTextBoxColumn30.Name = "dataGridViewTextBoxColumn30";
            this.dataGridViewTextBoxColumn30.Visible = false;
            // 
+           // dataGridViewTextBoxColumn31
+           // 
+           this.dataGridViewTextBoxColumn31.DataPropertyName = "Tag";
+           this.dataGridViewTextBoxColumn31.HeaderText = "Tag";
+           this.dataGridViewTextBoxColumn31.Name = "dataGridViewTextBoxColumn31";
+           this.dataGridViewTextBoxColumn31.Visible = false;
+           // 
+           // dataGridViewTextBoxColumn32
+           // 
+           this.dataGridViewTextBoxColumn32.DataPropertyName = "Tag";
+           this.dataGridViewTextBoxColumn32.HeaderText = "Tag";
+           this.dataGridViewTextBoxColumn32.Name = "dataGridViewTextBoxColumn32";
+           this.dataGridViewTextBoxColumn32.Visible = false;
+           // 
            // DesignMain
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1691,12 +1702,13 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStripSG;
         private System.Windows.Forms.ToolStripMenuItem saveTreesAndVolumePerAcreToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem saveTreesPerPlotToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem recalculateErrorsToolStripMenuItem;
         private System.Windows.Forms.ContextMenuStrip contextMenuStripStr;
         private System.Windows.Forms.ToolStripMenuItem saveDesignToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem loadDesignToolStripMenuItem;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn29;
         private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn30;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn31;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn32;
        //        private FMSC.Controls.SideLabelTextBox TextBoxError;
     }
 }

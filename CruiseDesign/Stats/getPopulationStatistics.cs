@@ -669,20 +669,17 @@ namespace CruiseDesign.Stats
                   vBarPlot = 0;
                   int plotTreeCount = 0;
                   vExpFac = 0;
+
                   foreach (TreeDefaultValueDO curTdv in curSgStats.TreeDefaultValueStats)
                   {
-                     var myTreeList = (from tcv in rTreeCalcJoin
-                                       where tcv.Tree.SampleGroup.PrimaryProduct == curSgStats.PrimaryProduct
-                                       && tcv.Tree.Plot_CN == curPlot.Plot_CN
-                                       && tcv.Tree.Species == curTdv.Species
-                                       && tcv.Tree.LiveDead == curTdv.LiveDead
-                                       select tcv).ToList();
-
+                     double maxDbh = 200;
+                     double minDbh = 0;
                      if (curSgStats.MinDbh > 0 && curSgStats.MaxDbh > 0)
                      {
-                        double maxDbh = curSgStats.MaxDbh + 0.0499;
-                        double minDbh = curSgStats.MinDbh - 0.0500;
-                        myTreeList = (from tcv in rTreeCalcJoin
+                        maxDbh = curSgStats.MaxDbh + 0.0499;
+                        minDbh = curSgStats.MinDbh - 0.0500;
+                     }
+                        var myTreeList = (from tcv in rTreeCalcJoin
                                       where tcv.Tree.SampleGroup.PrimaryProduct == curSgStats.PrimaryProduct
                                       && tcv.Tree.Plot_CN == curPlot.Plot_CN
                                       && tcv.Tree.Species == curTdv.Species
@@ -690,7 +687,7 @@ namespace CruiseDesign.Stats
                                       && tcv.Tree.DBH >= minDbh
                                       && tcv.Tree.DBH <= maxDbh
                                       select tcv).ToList();
-                     }
+                     
 
                      // load Unit, Plot, Tree, DBH, THT, Volume into list
                      //check MinDbh and MaxDbh
@@ -836,11 +833,12 @@ namespace CruiseDesign.Stats
          float totalVolumeAcre, totalVolume, wtCV1, wtCv2, volumeAcre, strTpp;
          float cv1, cv2, wtErr, sgErr, treesAcre, totCost;
          long sampleSize1, sampleSize2;
-         
+         bool plotFlag;
          //loop through SampleGroupStats
          myStratumStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", stratumCN));
          foreach (StratumStatsDO thisStrStats in myStratumStats)
          {
+            plotFlag = true;
             mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", thisStrStats.StratumStats_CN));
             // loop through sample groups
             //totalVolumeAcre = getTotals(mySgStats);
@@ -848,7 +846,13 @@ namespace CruiseDesign.Stats
             totalVolume = totalVolumeAcre * totalAcres;
             strTpp = mySgStats.Sum(P => P.TreesPerPlot);
             treesAcre = mySgStats.Sum(P => P.TreesPerAcre);
-            sampleSize1 = mySgStats.Sum(P => P.SampleSize1);
+            if (thisStrStats.Method == "STR" || thisStrStats.Method == "3P" || thisStrStats.Method == "S3P")
+            {
+               sampleSize1 = mySgStats.Sum(P => P.SampleSize1);
+               plotFlag = false;
+            }
+            else
+               sampleSize1 = 0;
             sampleSize2 = mySgStats.Sum(P => P.SampleSize2); 
             wtCV1 = 0;
             wtCv2 = 0;
@@ -856,7 +860,8 @@ namespace CruiseDesign.Stats
             foreach (SampleGroupStatsDO thisSgStats in mySgStats)
             {
                //sum volumes, trees/acre, sample sizes
-               //sampleSize1 += thisSgStats.SampleSize1;
+               if(plotFlag)
+                  sampleSize1 += thisSgStats.SampleSize1;
                //sampleSize2 += thisSgStats.SampleSize2;
 
                volumeAcre = thisSgStats.VolumePerAcre;

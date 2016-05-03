@@ -21,20 +21,33 @@ namespace CruiseDesign.Design_Pages
          public DAL cdDAL { get; set; }
          public string rFile;
          public bool reconExists;
+         public bool prodFile;
       };
       dataFiles df;
       int err = 0;
 
 
-      public Processing(CruiseDesignMain Main, string dalPathRecon, bool recExists)
+      public Processing(CruiseDesignMain Main, string dalPathRecon, bool recExists, bool prodFile)
       {
          this.Main = Main;
-
+         Main.errFlag = 0;
          InitializeComponent();
+         // check if file is processed
+         if(prodFile)
+         {
+            if (!checkProcessedFile(Main.cdDAL))
+            {
+               // if not, set error code, return
+               Main.errFlag = 1;
+               MessageBox.Show("Cruise Not Processed. Please Process Cruise Before Continuing.", "Warning");
+               return;
+            }
+         }
 
          df.cdDAL = Main.cdDAL;
          df.rFile = dalPathRecon;
          df.reconExists = recExists;
+         df.prodFile = prodFile;
 
          this.backgroundWorker1.RunWorkerAsync(df);
          // background worker
@@ -42,16 +55,36 @@ namespace CruiseDesign.Design_Pages
       }
 
       public CruiseDesignMain Main { get; set; }
+
+      private bool checkProcessedFile(DAL pDAL)
+      {
+         // get LCD file
+         List<LCDDO> selectedLCD = pDAL.Read<LCDDO>("LCD", null, null);
+
+         // if NULL, return false
+         if (selectedLCD.Count == 0)
+            return (false);
+         
+         // else, return true
+         return (true);
+      }
       
       private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
       {
          
-         getPopulationStatistics getStats = new getPopulationStatistics();
          dataFiles holdDF;
          holdDF = (dataFiles)e.Argument;
-         
-         getStats.getPopulationStats(holdDF.rFile,holdDF.cdDAL,holdDF.reconExists, err);
 
+         if (holdDF.prodFile)
+         {
+            getProductionStatistics getProd = new getProductionStatistics();
+            getProd.getProductionStats(holdDF.cdDAL, err);
+         }
+         else
+         {
+            getPopulationStatistics getStats = new getPopulationStatistics();
+            getStats.getPopulationStats(holdDF.rFile, holdDF.cdDAL, holdDF.reconExists, err);
+         }
       }
 
       private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)

@@ -80,7 +80,7 @@ namespace CruiseDesign.Strata_setup
 
            Owner.newStratum = new StratumDO(Owner.cdDAL);
            Owner.newStratum.Method = "100";
-
+           Owner.newStratum.Code = "";
            Owner.cdStratum.Add(Owner.newStratum);
 
            bindingSourceStratum.DataSource = Owner.cdStratum;
@@ -178,14 +178,53 @@ namespace CruiseDesign.Strata_setup
            return (true);
         }
 
+       private bool checkNestedPlots(StratumDO myRSt)
+       {
+           int nestNum = 0;
+           string myMeth = "";
+           float myBAF = 0;
+           float myFIX = 0;
+            //loop through each unit
+           myRSt.CuttingUnits.Populate();
+           foreach (CuttingUnitDO rcu in myRSt.CuttingUnits)
+           {
+              rcu.Strata.Populate();
+              if (rcu.Strata.Count() > 1)
+              {
+                 // check for different method/plot sizes
+                 foreach (StratumDO mySt in rcu.Strata)
+                 {
+                    if (nestNum == 0)
+                    {
+                       myMeth = mySt.Method;
+                       myBAF = mySt.BasalAreaFactor;
+                       myFIX = mySt.FixedPlotSize;
+                       nestNum++;
+                    }
+                    else
+                    {
+                       if (myMeth != mySt.Method)
+                          return (true);
+                       float diff = myBAF - mySt.BasalAreaFactor;
+                       if (diff > 1 || diff < -1)
+                          return (true);
+                       diff = myFIX - mySt.FixedPlotSize;
+                       if (diff > 1 || diff < -1)
+                          return (true);
+                    }
+                 }
+              }
+           }
+           return (false);
+        }
+
         private void addReconStratum(bool addSG)
         {
            // use historical data logic
            WaitForm waitFrm = new WaitForm();
-
            Cursor.Current = Cursors.WaitCursor;
            waitFrm.Show();
-
+           int nestPlots = 0;
            // open recon file
            List<StratumDO> reconStratum = new List<StratumDO>(Owner.rDAL.Read<StratumDO>("Stratum", null, null));
            foreach (StratumDO myRSt in reconStratum)
@@ -193,80 +232,89 @@ namespace CruiseDesign.Strata_setup
               // add stratum
               Owner.newStratum = new StratumDO(Owner.cdDAL);
 
-              // copy stratum from recon
-              Owner.newStratum.Code = myRSt.Code;
-              Owner.newStratum.Method = "100";
-              Owner.newStratum.Description = myRSt.Description;
-
               // set unit codes
-              myRSt.CuttingUnits.Populate();
-              float totalAcres = 0;
-              foreach (CuttingUnitDO rcu in myRSt.CuttingUnits)
+              if (!checkNestedPlots(myRSt))
               {
-                 Owner.myCuttingUnit = Owner.cdDAL.ReadSingleRow<CuttingUnitDO>("CuttingUnit", "WHERE Code = ?", rcu.Code);
-                 Owner.newStratum.CuttingUnits.Add(Owner.myCuttingUnit);
-                 float acres = Owner.myCuttingUnit.Area;
-                 totalAcres += acres;
-              }
-              Owner.newStratum.Save();
-              Owner.newStratum.CuttingUnits.Save();
-
-              //check for tree vs plot and one vs two stage methods
-              // copy stratumstats to design
-              Owner.newStratumStats = new StratumStatsDO(Owner.cdDAL);
-              //         Owner.currentStratumStats.Stratum = Owner.currentStratum;
-              Owner.newStratumStats.Stratum_CN = Owner.newStratum.Stratum_CN;
-              Owner.newStratumStats.Code = Owner.newStratum.Code;
-              Owner.newStratumStats.Description = Owner.newStratum.Description;
-              Owner.newStratumStats.Method = "100";
-              Owner.newStratumStats.SgSetDescription = "";
-              Owner.newStratumStats.SgSet = 1;
-              Owner.newStratumStats.Used = 2;
-              Owner.newStratumStats.TotalAcres = totalAcres;
-              Owner.newStratumStats.Save();
-
-              Owner.cdStratum.Add(Owner.newStratum);
-              if (addSG)
-              {
-                 List<SampleGroupDO> reconSG = new List<SampleGroupDO>(Owner.rDAL.Read<SampleGroupDO>("SampleGroup", "WHERE Stratum_CN = ?", myRSt.Stratum_CN));
-
-                 //           getSampleGroupStats();
-                 foreach (SampleGroupDO myRsg in reconSG)
+                 myRSt.CuttingUnits.Populate();
+                 float totalAcres = 0;
+                 foreach (CuttingUnitDO rcu in myRSt.CuttingUnits)
                  {
-                    // create samplegroupstats
-                    Owner.newSgStats = new SampleGroupStatsDO(Owner.cdDAL);
-                    //set foriegn key
-                    Owner.newSgStats.StratumStats = Owner.newStratumStats;
-                    Owner.newSgStats.SgSet = 1;
-                    Owner.newSgStats.Code = myRsg.Code;
-                    Owner.newSgStats.CutLeave = myRsg.CutLeave;
-                    Owner.newSgStats.UOM = myRsg.UOM;
-                    Owner.newSgStats.PrimaryProduct = myRsg.PrimaryProduct;
-                    Owner.newSgStats.SecondaryProduct = myRsg.SecondaryProduct;
-                    Owner.newSgStats.DefaultLiveDead = myRsg.DefaultLiveDead;
-                    Owner.newSgStats.Description = myRsg.Description;
-
-                    Owner.newSgStats.Save();
-
-                    // loop through TDV information
-
-                    myRsg.TreeDefaultValues.Populate();
-                    foreach (TreeDefaultValueDO tdv in myRsg.TreeDefaultValues)
-                    {
-                       // check with current TDV values
-                       Owner.newTreeDefault = Owner.cdDAL.ReadSingleRow<TreeDefaultValueDO>("TreeDefaultValue", "WHERE Species = ? AND PrimaryProduct = ? AND LiveDead = ?", tdv.Species, tdv.PrimaryProduct, tdv.LiveDead);
-                       // if exists, create link
-                       Owner.newSgStats.TreeDefaultValueStats.Add(Owner.newTreeDefault);
-                    }
-
-                    Owner.newSgStats.Save();
-                    Owner.newSgStats.TreeDefaultValueStats.Save();
-
+                    Owner.myCuttingUnit = Owner.cdDAL.ReadSingleRow<CuttingUnitDO>("CuttingUnit", "WHERE Code = ?", rcu.Code);
+                    Owner.newStratum.CuttingUnits.Add(Owner.myCuttingUnit);
+                    float acres = Owner.myCuttingUnit.Area;
+                    totalAcres += acres;
                  }
+                 // copy stratum from recon
+                 Owner.newStratum.Code = myRSt.Code;
+                 Owner.newStratum.Method = "100";
+                 Owner.newStratum.Description = myRSt.Description;
+
+                 Owner.newStratum.Save();
+                 Owner.newStratum.CuttingUnits.Save();
+
+                 //check for tree vs plot and one vs two stage methods
+                 // copy stratumstats to design
+                 Owner.newStratumStats = new StratumStatsDO(Owner.cdDAL);
+                 //         Owner.currentStratumStats.Stratum = Owner.currentStratum;
+                 Owner.newStratumStats.Stratum_CN = Owner.newStratum.Stratum_CN;
+                 Owner.newStratumStats.Code = Owner.newStratum.Code;
+                 Owner.newStratumStats.Description = Owner.newStratum.Description;
+                 Owner.newStratumStats.Method = "100";
+                 Owner.newStratumStats.SgSetDescription = "";
+                 Owner.newStratumStats.SgSet = 1;
+                 Owner.newStratumStats.Used = 2;
+                 Owner.newStratumStats.TotalAcres = totalAcres;
+                 Owner.newStratumStats.Save();
+
+                 Owner.cdStratum.Add(Owner.newStratum);
+                 if (addSG)
+                 {
+                    List<SampleGroupDO> reconSG = new List<SampleGroupDO>(Owner.rDAL.Read<SampleGroupDO>("SampleGroup", "WHERE Stratum_CN = ?", myRSt.Stratum_CN));
+
+                    //           getSampleGroupStats();
+                    foreach (SampleGroupDO myRsg in reconSG)
+                    {
+                       // create samplegroupstats
+                       Owner.newSgStats = new SampleGroupStatsDO(Owner.cdDAL);
+                       //set foriegn key
+                       Owner.newSgStats.StratumStats = Owner.newStratumStats;
+                       Owner.newSgStats.SgSet = 1;
+                       Owner.newSgStats.Code = myRsg.Code;
+                       Owner.newSgStats.CutLeave = myRsg.CutLeave;
+                       Owner.newSgStats.UOM = myRsg.UOM;
+                       Owner.newSgStats.PrimaryProduct = myRsg.PrimaryProduct;
+                       Owner.newSgStats.SecondaryProduct = myRsg.SecondaryProduct;
+                       Owner.newSgStats.DefaultLiveDead = myRsg.DefaultLiveDead;
+                       Owner.newSgStats.Description = myRsg.Description;
+
+                       Owner.newSgStats.Save();
+
+                       // loop through TDV information
+
+                       myRsg.TreeDefaultValues.Populate();
+                       foreach (TreeDefaultValueDO tdv in myRsg.TreeDefaultValues)
+                       {
+                          // check with current TDV values
+                          Owner.newTreeDefault = Owner.cdDAL.ReadSingleRow<TreeDefaultValueDO>("TreeDefaultValue", "WHERE Species = ? AND PrimaryProduct = ? AND LiveDead = ?", tdv.Species, tdv.PrimaryProduct, tdv.LiveDead);
+                          // if exists, create link
+                          Owner.newSgStats.TreeDefaultValueStats.Add(Owner.newTreeDefault);
+                       }
+
+                       Owner.newSgStats.Save();
+                       Owner.newSgStats.TreeDefaultValueStats.Save();
+
+                    }
+                 }
+              }
+              else
+              {
+                 nestPlots++;
               }
            }
            waitFrm.Close();
            Cursor.Current = this.Cursor;
+           if (nestPlots > 0)
+              MessageBox.Show("Some units had nested plots with different cruise methods or plot sizes.\n Those strata could not be created.","Information");
         }
 
 
@@ -305,7 +353,7 @@ namespace CruiseDesign.Strata_setup
            }
  
            // determine if Stratum Code is entered
-           if (Owner.currentStratum.Code.Length <= 0)
+           if (Owner.currentStratum.Code.Length <= 0 || Owner.currentStratum.Code == null)
            {
               MessageBox.Show("Enter Stratum Code", "Information");
               return(-1);

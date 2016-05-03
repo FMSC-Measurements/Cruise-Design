@@ -28,10 +28,11 @@ namespace CruiseDesign.Strata_setup
 
          // get the unique set of product numbers
          setProductBox();
+
       }
 
       String columnName = "not set";
-      string product;
+      public string product;
       public StrataSetupWizard Owner { get; set; }
       public BindingList<TreeDefaultValueDO> newTDV { get; set; }
       public List<TreeDefaultValueDO> ppList { get; set; }
@@ -221,6 +222,7 @@ namespace CruiseDesign.Strata_setup
 
               Owner.cdSgStats.Add(Owner.currentSgStats);
               product = "01";
+
                          
            }
            else
@@ -246,11 +248,13 @@ namespace CruiseDesign.Strata_setup
               Owner.currentSgStats.StratumStats = Owner.currentStratumStats;
 
               Owner.cdSgStats.Add(Owner.currentSgStats);
-          }
+           }
 
            //bindingSourceCurrentSgStats.DataSource = Owner.currentSgStats;
 
            bindingSourceSgStats.DataSource = Owner.cdSgStats;
+           Owner.currentSgStats.TreeDefaultValueStats.Clear();
+           setTreeDefaultValue(product);
            
         }
 
@@ -322,6 +326,7 @@ namespace CruiseDesign.Strata_setup
          //MessageBox.Show("CellBeginEdit");
 //         columnName = this.dataGridViewSG.Columns[e.ColumnIndex].Name;
       }
+ 
       private void dataGridViewSG_CellValueChanged(object sender, DataGridViewCellEventArgs e)
       {
          columnName = this.dataGridViewSG.Columns[e.ColumnIndex].Name;
@@ -333,6 +338,7 @@ namespace CruiseDesign.Strata_setup
             setTreeDefaultValue(product);
          }
       }
+ 
       private void dataGridViewSG_RowEnter(object sender, DataGridViewCellEventArgs e)
       {
          //MessageBox.Show("RowEnter");
@@ -345,7 +351,7 @@ namespace CruiseDesign.Strata_setup
             setTreeDefaultValue(product);
          }
       }
-      private void setTreeDefaultValue(String prod)
+      public void setTreeDefaultValue(String prod)
       {
          //Owner.cdTreeDefaults.Clear();
 //         foreach (TreeDefaultValueDO myTDV in Owner.myTreeDefaultList)
@@ -366,5 +372,7 @@ namespace CruiseDesign.Strata_setup
 
          Owner.cdSgStats.Remove(Owner.currentSgStats);
       }
-    }
+
+       
+   }
 }

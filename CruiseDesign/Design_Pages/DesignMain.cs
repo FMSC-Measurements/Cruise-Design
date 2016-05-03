@@ -21,38 +21,7 @@ namespace CruiseDesign.Design_Pages
       public DesignMain(CruiseDesignMain Main, string dalPathRecon)
       {
          InitializeComponent();
-     /*    if (dalPathRecon.Length > 0)
-         {
-            reconExists = true;
-            try
-            {
-               this.rDAL = new DAL(dalPathRecon);
-            }
-            catch (System.IO.IOException e)
-            {
-               Logger.Log.E(e);
-            }
-            catch (System.Exception e)
-            {
-               Logger.Log.E(e);
-            }
-         }
-         else
-            this.reconExists = false;
-         try
-         {
-            this.cdDAL = new DAL(dalPathDesign);
-         }
-         catch (System.IO.IOException e)
-         {
-            Logger.Log.E(e);
-            //TODO display error message to user
-         }
-         catch (System.Exception e)
-         {
-            Logger.Log.E(e);
-         }
-         */
+
          cdDAL = Main.cdDAL;
          InitializeDatabaseTables();
          InitializeDataBindings();
@@ -94,6 +63,7 @@ namespace CruiseDesign.Design_Pages
       float totAcres;
       double saleCost;
       int crewCost, crewSize, costPaint, paintTrees, travelTime, timeTree, timePlot, walkRate;
+      bool optimized = false;
 
       private void InitializeDatabaseTables()
       {
@@ -273,6 +243,8 @@ namespace CruiseDesign.Design_Pages
             bindingSourceStratumStats.DataSource = cdStratumStats;
 
             getSaleError();
+            optimized = false;
+
          }
 
       }
@@ -285,6 +257,7 @@ namespace CruiseDesign.Design_Pages
       private void dataGridViewSgStats_CellEndEdit(object sender, DataGridViewCellEventArgs e)
       {
          long n, n2;
+         float totalTrees;
          double sgCV, sgCV2, sgErr;
          //string meth = currentStratumStats.Method;
          // check for sgError, SampleSize1, SampleSize2, CV1, CV2, TreesPerAcre, VolumePerAcre, TreesPerPlot, AverageHeight, Sampling Frequency, KZ
@@ -410,7 +383,7 @@ namespace CruiseDesign.Design_Pages
             float tpp = currentSgStats.TreesPerPlot;
             if (meth == "STR" || meth == "S3P")
             {
-               float totalTrees = tpa * totAcres;
+               totalTrees = tpa * totAcres;
                if (sFreq > totalTrees)
                {
                   currentSgStats.SampleSize1 = 1;
@@ -423,16 +396,27 @@ namespace CruiseDesign.Design_Pages
             }
             else if (meth == "FCM" || meth == "PCM")
             {
-               float totalTrees = Convert.ToInt32(tpp * currentSgStats.SampleSize1);
+               totalTrees = Convert.ToInt32(tpp * currentSgStats.SampleSize1);
                if (sFreq > totalTrees)
                {
                   currentSgStats.SampleSize2 = 1;
                   currentSgStats.SamplingFrequency = Convert.ToInt32(totalTrees);
+                  currentSgStats.BigBAF = Convert.ToSingle(sFreq * currentStratumStats.BasalAreaFactor);
+                  currentSgStats.BigFIX = Convert.ToInt32(sFreq * currentStratumStats.FixedPlotSize);
                }
                else if (sFreq == 0)
+               {
                   currentSgStats.SampleSize2 = Convert.ToInt32(totalTrees);
+                  currentSgStats.BigFIX = Convert.ToInt32(currentStratumStats.FixedPlotSize);
+                  currentSgStats.BigBAF = currentStratumStats.BasalAreaFactor;
+               }
                else
+               {
                   currentSgStats.SampleSize2 = Convert.ToInt32(totalTrees / sFreq);
+                  currentSgStats.BigBAF = Convert.ToSingle(sFreq * currentStratumStats.BasalAreaFactor);
+                  currentSgStats.BigFIX = Convert.ToInt32(sFreq * currentStratumStats.FixedPlotSize);
+               }
+
             }
             getSgErr(stage);
          }
@@ -451,7 +435,7 @@ namespace CruiseDesign.Design_Pages
 
             if (meth == "3P")
             {
-               float totalTrees = tpa * totAcres;
+               totalTrees = tpa * totAcres;
                float totalVol = vpa * totAcres;
                
                if (kz > totalVol)
@@ -499,7 +483,7 @@ namespace CruiseDesign.Design_Pages
             }
             else if (meth == "F3P")
             {
-               float totalTrees = tpp * n;
+               totalTrees = tpp * n;
                float totalVol = (vpa / tpa) * totalTrees;
 
                if (kz > totalVol)
@@ -543,9 +527,29 @@ namespace CruiseDesign.Design_Pages
             getSgErr(stage);
          
          }
-         else if (sColEdit == "BigBAF ")
+         else if (sColEdit == "BigBAF")
          {
             // calcuate sample size2, sgError
+            // divide bigbaf by baf to fing freq (int)
+            long sFreq = Convert.ToInt32(currentSgStats.BigBAF / currentStratumStats.BasalAreaFactor);
+            totalTrees = Convert.ToInt32(currentSgStats.TreesPerPlot * currentSgStats.SampleSize1);
+            if (sFreq > totalTrees)
+            {
+               currentSgStats.SampleSize2 = 1;
+               currentSgStats.SamplingFrequency = Convert.ToInt32(totalTrees);
+            }
+            else if (sFreq == 0)
+            {
+               currentSgStats.SampleSize2 = Convert.ToInt32(totalTrees);
+            }
+            else
+            {
+               currentSgStats.SampleSize2 = Convert.ToInt32(totalTrees / sFreq);
+            }
+            currentSgStats.SamplingFrequency = sFreq;
+            
+            // use freq to find size2
+
          }
 
          getStratumStats();
@@ -925,7 +929,14 @@ namespace CruiseDesign.Design_Pages
 
       private void buttonOptimize_Click(object sender, EventArgs e)
       {
+         if (optimized)
+         {
+            var result = MessageBox.Show("Design has already been optimized.\nIf you continue, you will lose all your changes to the current design.\nContinue?", "Question", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+            if (result == DialogResult.No)
+               return;
+         }
          Cursor.Current = Cursors.WaitCursor;
+         optimized = true;
 
          if (checkForErrors())
             return;
@@ -1060,6 +1071,8 @@ namespace CruiseDesign.Design_Pages
                   if (sgSamp1 < 3) sgSamp1 = 3;
                   sgSamp2 = (long)(thisSgStats.TreesPerPlot * sgSamp1);
 
+                  if (sgSamp1 > sgSamp2Stage1) sgSamp2Stage1 = sgSamp1;
+
                   sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0);
                }
                else if (stage == 10)
@@ -1151,13 +1164,15 @@ namespace CruiseDesign.Design_Pages
                }
                thisSgStats.Save();
             }
-            if (stage == 22)
+            if (stage > 20)
             {
+               wtErr = 0;
                //loop back through
                foreach (SampleGroupStatsDO thisSgStats in mySgStats)
                {
                   // set each sample size to sgSamp2Stage
                   strSample1 = sgSamp2Stage1;
+                  
                   sgSamp2Stage2 = thisSgStats.SampleSize2;
                   strSample2 += sgSamp2Stage2;
                   // set frequencies
@@ -1182,7 +1197,11 @@ namespace CruiseDesign.Design_Pages
                         thisSgStats.KZ = 1;
                   }
                   thisSgStats.SampleSize1 = sgSamp2Stage1;
-                  thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp2Stage1, sgSamp2Stage2), 2));
+                  if(stage == 22)
+                     thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp2Stage1, sgSamp2Stage2), 2));
+                  else
+                     thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sgSamp2Stage1, 0),2));
+
                // calc combined stratum error
                   thisSgStats.Save();
                   wtErr += (double)Math.Pow((thisSgStats.SgError * (thisSgStats.VolumePerAcre * thisStrStats.TotalAcres)), 2);
@@ -1505,7 +1524,7 @@ namespace CruiseDesign.Design_Pages
          DesignSaveForm sDlg = new DesignSaveForm();
          if (sDlg.ShowDialog() == DialogResult.OK)
          {
-            MessageBox.Show("Save file");
+            MessageBox.Show("Not implemented at this time.");
             
          }
 
@@ -1585,5 +1604,6 @@ namespace CruiseDesign.Design_Pages
 
       }
       #endregion
-   }
+
+    }
 }

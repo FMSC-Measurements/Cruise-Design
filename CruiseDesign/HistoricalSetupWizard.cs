@@ -41,7 +41,7 @@ namespace CruiseDesign
          }
          */
          cdDAL = Main.cdDAL;
-
+         createNew = canCreateNew;
          setSalePurpose();
 
          InitializeDataBindings();
@@ -53,7 +53,7 @@ namespace CruiseDesign
 
       public ArrayList selectedUnits = new ArrayList();
       public String histFile,UOM;
-
+      public bool createNew;
       // add the binding lists
       public DAL cdDAL { get; set; }
       public DAL hDAL { get; set; }
@@ -224,6 +224,11 @@ namespace CruiseDesign
       public void Finish()
       {
             this.DialogResult = DialogResult.OK;
+            if (createNew)
+            {
+               if (cdDAL != null)
+                  cdDAL.Dispose();
+            }
             //if (cdDAL != null)
             //   cdDAL.Dispose();
             this.Close();

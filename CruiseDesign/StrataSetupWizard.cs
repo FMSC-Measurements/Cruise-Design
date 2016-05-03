@@ -16,7 +16,7 @@ namespace CruiseDesign
 
    public partial class StrataSetupWizard : Form
    {
-      public bool reconExists;
+      public bool reconExists, createNew;
       public string sUOM;
       #region Fields
       private UnitSetupPage unitPage = null;
@@ -26,10 +26,11 @@ namespace CruiseDesign
       #endregion
 
       #region Constructor
-      public StrataSetupWizard(CruiseDesignMain Main, string dalPathRecon, bool recExists)
+      public StrataSetupWizard(CruiseDesignMain Main, string dalPathRecon, bool recExists, bool prodFile, bool canCreateNew)
       {
          this.Main = Main;
          this.cdDAL = Main.cdDAL;
+         this.createNew = canCreateNew;
 
          InitializeComponent();
          reconExists = recExists;
@@ -54,10 +55,8 @@ namespace CruiseDesign
          else
          {
             MessageBox.Show("No Recon File Found.\nMake sure Recon file is in same Folder as the design file.\nDesign can still be created manually, but no Recon data will be used.", "Warning", MessageBoxButtons.OK);
-            
-            
          }
-
+         
          //check for historical data
                
          InitializeDataBindings();
@@ -162,6 +161,34 @@ namespace CruiseDesign
            strataPage.textBoxSGset.Text = currentStratumStats.SgSet.ToString();
            strataPage.textBoxSGsetDescr.Text = currentStratumStats.SgSetDescription;
            strataPage.textBoxStratum.Text = currentStratumStats.Code;
+           // check for no sample groups
+           if (cdSgStats.Count <= 0)
+           {
+              // add a blank sample group
+              currentSgStats = new SampleGroupStatsDO(cdDAL);
+
+              currentSgStats.SgSet = 1; ;
+              currentSgStats.Code = " ";
+              currentSgStats.PrimaryProduct = "01";
+              currentSgStats.SecondaryProduct = "02";
+              currentSgStats.DefaultLiveDead = "L";
+              currentSgStats.CutLeave = "C";
+              currentSgStats.UOM = sUOM;
+
+              currentSgStats.StratumStats = currentStratumStats;
+
+              cdSgStats.Add(currentSgStats);
+              strataPage.product = "01";
+              strataPage.setTreeDefaultValue("01");
+           }
+           else
+           {
+               // find product for first sample group
+              strataPage.product = cdSgStats[0].PrimaryProduct;
+              strataPage.setTreeDefaultValue(strataPage.product);
+
+           }
+
            pageHost1.Display(strataPage);
         }
        // view all stratum page
@@ -227,8 +254,11 @@ namespace CruiseDesign
         }
       public void Finish()
       {
-         //if (cdDAL != null)
-           // cdDAL.Dispose();
+         if (createNew)
+         {
+            if (cdDAL != null)
+               cdDAL.Dispose();
+         }
          if (rDAL != null)
             rDAL.Dispose();
          this.DialogResult = DialogResult.OK;

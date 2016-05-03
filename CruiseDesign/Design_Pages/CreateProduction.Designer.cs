@@ -76,8 +76,10 @@
          this.tagDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
          this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
          this.panel3 = new System.Windows.Forms.Panel();
-         this.checkBoxBigBAF = new System.Windows.Forms.CheckBox();
-         this.checkBoxFreq = new System.Windows.Forms.CheckBox();
+         this.radioButton3 = new System.Windows.Forms.RadioButton();
+         this.radioButton2 = new System.Windows.Forms.RadioButton();
+         this.radioButton1 = new System.Windows.Forms.RadioButton();
+         this.button1 = new System.Windows.Forms.Button();
          this.label2 = new System.Windows.Forms.Label();
          this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
          this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
@@ -101,7 +103,7 @@
          this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
          this.panel4.Location = new System.Drawing.Point(3, 352);
          this.panel4.Name = "panel4";
-         this.panel4.Size = new System.Drawing.Size(494, 39);
+         this.panel4.Size = new System.Drawing.Size(508, 39);
          this.panel4.TabIndex = 3;
          // 
          // pictureBox1
@@ -109,7 +111,7 @@
          this.pictureBox1.Image = global::CruiseDesign.Properties.Resources.bouncingProgressBar;
          this.pictureBox1.Location = new System.Drawing.Point(117, 9);
          this.pictureBox1.Name = "pictureBox1";
-         this.pictureBox1.Size = new System.Drawing.Size(215, 21);
+         this.pictureBox1.Size = new System.Drawing.Size(277, 21);
          this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
          this.pictureBox1.TabIndex = 2;
          this.pictureBox1.TabStop = false;
@@ -117,8 +119,9 @@
          // 
          // buttonCreate
          // 
+         this.buttonCreate.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
          this.buttonCreate.BackColor = System.Drawing.SystemColors.ButtonFace;
-         this.buttonCreate.Location = new System.Drawing.Point(338, 3);
+         this.buttonCreate.Location = new System.Drawing.Point(400, 3);
          this.buttonCreate.Name = "buttonCreate";
          this.buttonCreate.Size = new System.Drawing.Size(108, 33);
          this.buttonCreate.TabIndex = 1;
@@ -143,7 +146,7 @@
          this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
          this.panel2.Location = new System.Drawing.Point(3, 118);
          this.panel2.Name = "panel2";
-         this.panel2.Size = new System.Drawing.Size(494, 19);
+         this.panel2.Size = new System.Drawing.Size(508, 19);
          this.panel2.TabIndex = 1;
          // 
          // labelRecon
@@ -165,7 +168,7 @@
          this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
          this.panel1.Location = new System.Drawing.Point(3, 3);
          this.panel1.Name = "panel1";
-         this.panel1.Size = new System.Drawing.Size(494, 64);
+         this.panel1.Size = new System.Drawing.Size(508, 64);
          this.panel1.TabIndex = 0;
          // 
          // label1
@@ -179,10 +182,11 @@
          // 
          // buttonBrowse
          // 
+         this.buttonBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
          this.buttonBrowse.BackColor = System.Drawing.SystemColors.ButtonFace;
-         this.buttonBrowse.Location = new System.Drawing.Point(365, 20);
+         this.buttonBrowse.Location = new System.Drawing.Point(407, 20);
          this.buttonBrowse.Name = "buttonBrowse";
-         this.buttonBrowse.Size = new System.Drawing.Size(75, 29);
+         this.buttonBrowse.Size = new System.Drawing.Size(98, 29);
          this.buttonBrowse.TabIndex = 1;
          this.buttonBrowse.Text = "Browse";
          this.buttonBrowse.UseVisualStyleBackColor = false;
@@ -192,7 +196,7 @@
          // 
          this.textBoxFile.Location = new System.Drawing.Point(9, 27);
          this.textBoxFile.Name = "textBoxFile";
-         this.textBoxFile.Size = new System.Drawing.Size(353, 22);
+         this.textBoxFile.Size = new System.Drawing.Size(392, 22);
          this.textBoxFile.TabIndex = 0;
          this.textBoxFile.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
          // 
@@ -214,7 +218,7 @@
          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 25F));
          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
          this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 45F));
-         this.tableLayoutPanel1.Size = new System.Drawing.Size(500, 394);
+         this.tableLayoutPanel1.Size = new System.Drawing.Size(514, 394);
          this.tableLayoutPanel1.TabIndex = 0;
          // 
          // selectedItemsGridView1
@@ -262,7 +266,7 @@
          this.selectedItemsGridView1.RowHeadersVisible = false;
          this.selectedItemsGridView1.SelectedItems = null;
          this.selectedItemsGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-         this.selectedItemsGridView1.Size = new System.Drawing.Size(494, 203);
+         this.selectedItemsGridView1.Size = new System.Drawing.Size(508, 203);
          this.selectedItemsGridView1.TabIndex = 4;
          this.selectedItemsGridView1.VirtualMode = true;
          // 
@@ -507,38 +511,59 @@
          // panel3
          // 
          this.panel3.BackColor = System.Drawing.Color.LemonChiffon;
-         this.panel3.Controls.Add(this.checkBoxBigBAF);
-         this.panel3.Controls.Add(this.checkBoxFreq);
+         this.panel3.Controls.Add(this.radioButton3);
+         this.panel3.Controls.Add(this.radioButton2);
+         this.panel3.Controls.Add(this.radioButton1);
+         this.panel3.Controls.Add(this.button1);
          this.panel3.Controls.Add(this.label2);
          this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
          this.panel3.Location = new System.Drawing.Point(3, 73);
          this.panel3.Name = "panel3";
-         this.panel3.Size = new System.Drawing.Size(494, 39);
+         this.panel3.Size = new System.Drawing.Size(508, 39);
          this.panel3.TabIndex = 5;
          // 
-         // checkBoxBigBAF
+         // radioButton3
          // 
-         this.checkBoxBigBAF.AutoSize = true;
-         this.checkBoxBigBAF.Location = new System.Drawing.Point(280, 12);
-         this.checkBoxBigBAF.Name = "checkBoxBigBAF";
-         this.checkBoxBigBAF.Size = new System.Drawing.Size(146, 20);
-         this.checkBoxBigBAF.TabIndex = 2;
-         this.checkBoxBigBAF.Text = "BigBAF / Small FPS";
-         this.checkBoxBigBAF.UseVisualStyleBackColor = true;
-         this.checkBoxBigBAF.CheckedChanged += new System.EventHandler(this.checkBoxBigBAF_CheckedChanged);
+         this.radioButton3.AutoSize = true;
+         this.radioButton3.Location = new System.Drawing.Point(328, 11);
+         this.radioButton3.Name = "radioButton3";
+         this.radioButton3.Size = new System.Drawing.Size(116, 20);
+         this.radioButton3.TabIndex = 7;
+         this.radioButton3.Text = "Meas/Cnt Plots";
+         this.radioButton3.UseVisualStyleBackColor = true;
          // 
-         // checkBoxFreq
+         // radioButton2
          // 
-         this.checkBoxFreq.AutoSize = true;
-         this.checkBoxFreq.Checked = true;
-         this.checkBoxFreq.CheckState = System.Windows.Forms.CheckState.Checked;
-         this.checkBoxFreq.Location = new System.Drawing.Point(171, 12);
-         this.checkBoxFreq.Name = "checkBoxFreq";
-         this.checkBoxFreq.Size = new System.Drawing.Size(91, 20);
-         this.checkBoxFreq.TabIndex = 1;
-         this.checkBoxFreq.Text = "Frequency";
-         this.checkBoxFreq.UseVisualStyleBackColor = true;
-         this.checkBoxFreq.CheckedChanged += new System.EventHandler(this.checkBoxFreq_CheckedChanged);
+         this.radioButton2.AutoSize = true;
+         this.radioButton2.Location = new System.Drawing.Point(220, 11);
+         this.radioButton2.Name = "radioButton2";
+         this.radioButton2.Size = new System.Drawing.Size(102, 20);
+         this.radioButton2.TabIndex = 6;
+         this.radioButton2.Text = "BigBAF/FPS";
+         this.radioButton2.UseVisualStyleBackColor = true;
+         // 
+         // radioButton1
+         // 
+         this.radioButton1.AutoSize = true;
+         this.radioButton1.Checked = true;
+         this.radioButton1.Location = new System.Drawing.Point(160, 11);
+         this.radioButton1.Name = "radioButton1";
+         this.radioButton1.Size = new System.Drawing.Size(54, 20);
+         this.radioButton1.TabIndex = 5;
+         this.radioButton1.TabStop = true;
+         this.radioButton1.Text = "Freq";
+         this.radioButton1.UseVisualStyleBackColor = true;
+         // 
+         // button1
+         // 
+         this.button1.BackColor = System.Drawing.SystemColors.ButtonFace;
+         this.button1.Location = new System.Drawing.Point(470, 8);
+         this.button1.Name = "button1";
+         this.button1.Size = new System.Drawing.Size(21, 27);
+         this.button1.TabIndex = 4;
+         this.button1.Text = "?";
+         this.button1.UseVisualStyleBackColor = false;
+         this.button1.Click += new System.EventHandler(this.button1_Click);
          // 
          // label2
          // 
@@ -570,11 +595,13 @@
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
          this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-         this.ClientSize = new System.Drawing.Size(500, 394);
+         this.ClientSize = new System.Drawing.Size(514, 394);
          this.Controls.Add(this.tableLayoutPanel1);
          this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
          this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
          this.Margin = new System.Windows.Forms.Padding(4);
+         this.MaximumSize = new System.Drawing.Size(530, 432);
+         this.MinimumSize = new System.Drawing.Size(530, 432);
          this.Name = "CreateProduction";
          this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
          this.Text = "CreateProduction";
@@ -607,10 +634,16 @@
       private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
       private System.Windows.Forms.SaveFileDialog saveFileDialog1;
       private System.Windows.Forms.BindingSource bindingSource1;
-      public FMSC.Controls.SelectedItemsGridView selectedItemsGridView1;
       private System.ComponentModel.BackgroundWorker backgroundWorker1;
       private System.Windows.Forms.PictureBox pictureBox1;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
+      private System.Windows.Forms.Panel panel3;
+      private System.Windows.Forms.Label label2;
+      private System.Windows.Forms.Button button1;
+      private System.Windows.Forms.RadioButton radioButton3;
+      private System.Windows.Forms.RadioButton radioButton2;
+      private System.Windows.Forms.RadioButton radioButton1;
+      public FMSC.Controls.SelectedItemsGridView selectedItemsGridView1;
       private System.Windows.Forms.DataGridViewTextBoxColumn validatorDataGridViewTextBoxColumn;
       private System.Windows.Forms.DataGridViewTextBoxColumn stratumStatsCNDataGridViewTextBoxColumn;
       private System.Windows.Forms.DataGridViewTextBoxColumn stratumCNDataGridViewTextBoxColumn;
@@ -643,10 +676,6 @@
       private System.Windows.Forms.DataGridViewTextBoxColumn selfDataGridViewTextBoxColumn;
       private System.Windows.Forms.DataGridViewTextBoxColumn errorDataGridViewTextBoxColumn;
       private System.Windows.Forms.DataGridViewTextBoxColumn tagDataGridViewTextBoxColumn;
-      private System.Windows.Forms.Panel panel3;
-      private System.Windows.Forms.CheckBox checkBoxBigBAF;
-      private System.Windows.Forms.CheckBox checkBoxFreq;
-      private System.Windows.Forms.Label label2;
 
 
    }

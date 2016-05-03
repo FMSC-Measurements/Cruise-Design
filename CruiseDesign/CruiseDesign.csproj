@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
+    <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{1E7546EE-F99A-4185-8029-A2C60781781F}</ProjectGuid>
     <OutputType>WinExe</OutputType>
@@ -13,6 +13,7 @@
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>cruisetree_design2.ico</ApplicationIcon>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -25,7 +26,6 @@
     <MapFileExtensions>true</MapFileExtensions>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
-    <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
@@ -174,6 +174,18 @@
     <Compile Include="PageHost.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="ProductionDesign\ProductionDesignMain.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ProductionDesign\ProductionDesignMain.Designer.cs">
+      <DependentUpon>ProductionDesignMain.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Reports\ReportAdditional.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Reports\ReportAdditional.Designer.cs">
+      <DependentUpon>ReportAdditional.cs</DependentUpon>
+    </Compile>
     <Compile Include="Reports\ReportForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -188,6 +200,7 @@
     </Compile>
     <Compile Include="Stats\calcStats.cs" />
     <Compile Include="Stats\getPopulationStatistics.cs" />
+    <Compile Include="Stats\getProductionStatistics.cs" />
     <Compile Include="StrataSetupWizard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -246,6 +259,14 @@
     </EmbeddedResource>
     <EmbeddedResource Include="PageHost.resx">
       <DependentUpon>PageHost.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ProductionDesign\ProductionDesignMain.resx">
+      <DependentUpon>ProductionDesignMain.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Reports\ReportAdditional.resx">
+      <DependentUpon>ReportAdditional.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Reports\ReportForm.resx">

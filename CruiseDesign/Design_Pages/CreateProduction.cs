@@ -49,11 +49,13 @@ namespace CruiseDesign.Design_Pages
       public DAL rDAL { get; set; }
       public DAL fsDAL { get; set; }
       public BindingList<StratumStatsDO> reconStratum { get; set; }
+      public BindingList<TreeFieldSetupDO> treeFields { get; set; }
+      public BindingList<LogFieldSetupDO> logFields { get; set; }
       public List<StratumStatsDO> myStratum { get; set; }
       public List<SampleGroupStatsDO> mySgStats { get; set; }
       public List<CruiseMethodsDO> myMeth { get; set; }
-
-      public bool reconData, setRecData;
+      public long thisStrCN;
+      public bool reconData, setRecData, logData;
       struct dataFiles
       {
          public string rFile;
@@ -125,6 +127,7 @@ namespace CruiseDesign.Design_Pages
 
          _df.strCode = new string[selectedItemsGridView1.SelectedItems.Count];
          int i = 0;
+
          foreach (StratumStatsDO stRec in selectedItemsGridView1.SelectedItems)
          {
             _df.strCode[i] = stRec.Code;
@@ -148,6 +151,7 @@ namespace CruiseDesign.Design_Pages
 
          
       }
+
       protected String AskSavePath()
       {
          saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
@@ -168,6 +172,7 @@ namespace CruiseDesign.Design_Pages
          }
          return null;
       }
+
       private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
       {
          dataFiles holdDF;
@@ -177,16 +182,21 @@ namespace CruiseDesign.Design_Pages
          //getStats.getPopulationStats(holdDF.rFile, holdDF.cdFile, holdDF.reconExists, err);
 
          fsDAL = new DAL(holdDF.pFile, true);
-         copySaleTable(holdDF.cdDAL1);
-
-         copyTablesToFScruise(holdDF.cdDAL1);
 
          if (holdDF.recData)
             rDAL = new DAL(holdDF.rFile, false);
 
+         copyTablesToFScruise(holdDF.cdDAL1);
+        
+         copyStratumToFScruise(holdDF.cdDAL1);
+   
+         copyCuttingUnitStrToFScruise(holdDF.cdDAL1);
+         
          copyPopulations(holdDF.cdDAL1, rDAL, fsDAL, holdDF.recData, holdDF.strCode);
 
-         
+         copySaleTable(holdDF.cdDAL1);
+
+
       }
 
       private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -199,7 +209,10 @@ namespace CruiseDesign.Design_Pages
          buttonCreate.Enabled = true;
          this.UseWaitCursor = false;
 
-         MessageBox.Show("Production Cruise File has been created.");
+         string sMes = "Production Cruise File has been created.\n";
+         sMes += "Open in Cruise Manager - Customize to create the Tally Setup forms before putting file on Data Recorder"; 
+
+         MessageBox.Show(sMes);
 
 
          Close();
@@ -225,6 +238,8 @@ namespace CruiseDesign.Design_Pages
          fsSale.Remarks = sale.Remarks;
          
          fsSale.Save();
+         
+         logData = sale.LogGradingEnabled;
 
          myMeth = new List<CruiseMethodsDO>(fsDAL.Read<CruiseMethodsDO>("CruiseMethods",null,null));
          if (myMeth.Count() < 4)
@@ -239,7 +254,7 @@ namespace CruiseDesign.Design_Pages
             fsDAL.Save(myMeth);
          }
       }
-
+      
       private void addCruiseMethod(CruiseMethodsDO fsMeth, int cnt)
       {
          switch (cnt)
@@ -300,13 +315,13 @@ namespace CruiseDesign.Design_Pages
          // copy Sale table
          //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.SALE._NAME, null, OnConflictOption.Ignore);
          //copy CuttingUnit table
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNIT._NAME, null, OnConflictOption.Ignore);
+         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNIT._NAME, null, OnConflictOption.Fail);
          //copy TreeDefaultValues table
          fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
-         //copy globals table
+         //copy logfieldsetupdefault table
          fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-         //copy logfieldsetupdefault
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         //copy logfieldsetup
+//         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUP._NAME, null, OnConflictOption.Ignore);
          //copy messagelog
          fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
          //copy reports
@@ -322,20 +337,71 @@ namespace CruiseDesign.Design_Pages
          //copy tally
          fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
          //copy Strata
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.STRATUM._NAME, null, OnConflictOption.Ignore);
+         //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.STRATUM._NAME, null, OnConflictOption.Ignore);
          //copy cuttingUnitStratum
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNITSTRATUM._NAME, null, OnConflictOption.Ignore);
+         //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNITSTRATUM._NAME, null, OnConflictOption.Ignore);
+   
+      }
+
+      private void copyStratumToFScruise(DAL cdDAL)
+      {
+         //loop through design stratum table
+         List<StratumDO> myStr = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum",null,null));
+         foreach(StratumDO curStr in myStr)
+         {
+         // create new stratumDO
+            StratumDO fsStr = new StratumDO(fsDAL);
+         // copy stratum information
+            fsStr.Code = curStr.Code;
+            fsStr.Description = curStr.Description;
+            fsStr.Method = curStr.Method;
+            fsStr.BasalAreaFactor = curStr.BasalAreaFactor;
+            fsStr.FixedPlotSize = curStr.FixedPlotSize;
+            fsStr.KZ3PPNT = curStr.KZ3PPNT;
+            fsStr.YieldComponent = curStr.YieldComponent;
+            fsStr.Year = curStr.Year;
+            fsStr.Month = curStr.Month;
+            
+            fsStr.Save();   
+        
+         }
+      }
+      
+      private void copyCuttingUnitStrToFScruise(DAL cdDAL)
+      {
+         StratumDO cdStr;
+         List<StratumDO> myStr = new List<StratumDO>(fsDAL.Read<StratumDO>("Stratum",null,null));
+         foreach(StratumDO curStr in myStr)
+         {
+            cdStr = cdDAL.ReadSingleRow<StratumDO>("Stratum", "Where Code = ?", curStr.Code);
+            cdStr.CuttingUnits.Populate();
+            
+            foreach (CuttingUnitDO myUnit in cdStr.CuttingUnits)
+            {
+               CuttingUnitStratumDO custr = new CuttingUnitStratumDO(fsDAL);
+               custr.CuttingUnit_CN = myUnit.CuttingUnit_CN;
+               custr.Stratum_CN = curStr.Stratum_CN;
+               
+               custr.Save();
+            }
+         }
       }
 
       private void copyPopulations(DAL cDAL, DAL rDAL, DAL fsDAL, bool reconData, string[] stRecCode)
       {
+         StratumDO cdStr;
          TreeDefaultValueDO currentTDV = new TreeDefaultValueDO();
          List<StratumStatsDO> cdStratumStats = new List<StratumStatsDO>(cDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
+
          List<PlotDO> myPlots = new List<PlotDO>();
          List<TreeDO> myTree = new List<TreeDO>();
-         BindingList<TreeFieldSetupDO> treeFields = new BindingList<TreeFieldSetupDO>();
+         List<LogDO> myLogs = new List<LogDO>();
+         treeFields = new BindingList<TreeFieldSetupDO>();
+         logFields = new BindingList<LogFieldSetupDO>();
          bool first;
          string method = "";
+         Random rnd = new Random();
+         int measHit;
 
          foreach (StratumStatsDO myStStats in cdStratumStats)
          {
@@ -343,10 +409,12 @@ namespace CruiseDesign.Design_Pages
             first = true;
 
             // check if recon data is to be saved
+            cdStr = fsDAL.ReadSingleRow<StratumDO>("Stratum", "Where Code = ?", myStStats.Code);
+            string strCode = myStStats.Code;
+            thisStrCN = (long)cdStr.Stratum_CN;
             if (reconData)
             {
-               string strCode = myStStats.Code;
-
+             
                if (myStStats.Method == "PNT" || myStStats.Method == "PCM")
                   method = "PNT";
                else if (myStStats.Method == "FIX" || myStStats.Method == "FCM")
@@ -359,7 +427,10 @@ namespace CruiseDesign.Design_Pages
                      setRecData = true;
                      myPlots = (rDAL.Read<PlotDO>("Plot", "JOIN Stratum ON Plot.Stratum_CN = Stratum.Stratum_CN WHERE Stratum.Method = ?", method));
                      if(myTree.Count == 0)
+                     {
                         myTree = (rDAL.Read<TreeDO>("Tree", null, null));
+                        myLogs = (rDAL.Read<LogDO>("Log", null, null));
+                     }
                   }
                }
             }
@@ -368,9 +439,10 @@ namespace CruiseDesign.Design_Pages
            // loop through sample groups
             foreach (SampleGroupStatsDO sgStats in mySgStats)
             {
+               measHit = 0;
                SampleGroupDO fsSg = new SampleGroupDO(fsDAL);
                // save sample group information
-               fsSg.Stratum_CN = sgStats.StratumStats.Stratum_CN;
+               fsSg.Stratum_CN = thisStrCN;
                fsSg.Code = sgStats.Code;
                fsSg.Description = sgStats.Description;
                fsSg.CutLeave = sgStats.CutLeave;
@@ -382,22 +454,27 @@ namespace CruiseDesign.Design_Pages
                fsSg.InsuranceFrequency = sgStats.InsuranceFrequency;
                if (myStStats.Method == "PCM" || myStStats.Method == "FCM")
                {
-                  if (checkBoxFreq.Checked)
+                  if (radioButton1.Checked)
                   {
                      fsSg.SamplingFrequency = sgStats.SamplingFrequency;
+                     // find random start
+                     int freq = (int)fsSg.SamplingFrequency;
+                     measHit = rnd.Next(1, freq);
                      fsSg.BigBAF = 0;
+                     fsSg.SmallFPS = 0;
                   }
                   else
                   {
                      fsSg.SamplingFrequency = 0;
                      fsSg.BigBAF = Convert.ToInt32(sgStats.BigBAF);
+                     fsSg.SmallFPS = Convert.ToInt32(sgStats.BigFIX);
                   }
-
                }
                else
                {
                   fsSg.SamplingFrequency = sgStats.SamplingFrequency;
-                  fsSg.BigBAF = Convert.ToInt32(sgStats.BigBAF);
+                  fsSg.BigBAF = 0;
+                  fsSg.SmallFPS = 0;
                }
                // find treedefaultvalues
                sgStats.TreeDefaultValueStats.Populate();
@@ -410,41 +487,66 @@ namespace CruiseDesign.Design_Pages
                // if recon can be saved
                if (setRecData)
                {
-                  getReconData(myStStats, sgStats, rDAL, fsDAL, myPlots, myTree, fsSg.SampleGroup_CN, first);
-                  // get plot data
-                  first = false;
-                  // get tree data
-                  // get log data
+                  getReconData(myStStats, sgStats, rDAL, fsDAL, myPlots, myTree, myLogs, fsSg.SampleGroup_CN, first, measHit);
+                 first = false;
                }
             }
+            
+            getTreeFieldSetup(cDAL,fsDAL,myStStats);
+            if(logData)
+               getLogFieldSetup(cDAL,fsDAL,myStStats);
+         }            
+      }
+      public void getTreeFieldSetup(DAL cDAL, DAL fsDAL, StratumStatsDO myStStats)
+      {
             //select from TreeFieldSetupDefault where method = stratum.method
-            List<TreeFieldSetupDefaultDO> treeFieldDefaults = new List<TreeFieldSetupDefaultDO>(cDAL.Read < TreeFieldSetupDefaultDO >("TreeFieldSetupDefault", "WHERE Method = ? ORDER BY FieldOrder", myStStats.Method));
-            foreach (TreeFieldSetupDefaultDO tfd in treeFieldDefaults)
-            {
-               TreeFieldSetupDO tfs = new TreeFieldSetupDO();
-               tfs.Stratum_CN = myStStats.Stratum_CN;
-               tfs.Field = tfd.Field;
-               tfs.FieldOrder = tfd.FieldOrder;
-               tfs.ColumnType = tfd.ColumnType;
-               tfs.Heading = tfd.Heading;
-               tfs.Width = tfd.Width;
-               tfs.Format = tfd.Format;
-               tfs.Behavior = tfd.Behavior;
+         List<TreeFieldSetupDefaultDO> treeFieldDefaults = new List<TreeFieldSetupDefaultDO>(cDAL.Read < TreeFieldSetupDefaultDO >("TreeFieldSetupDefault", "WHERE Method = ? ORDER BY FieldOrder", myStStats.Method));
+         foreach (TreeFieldSetupDefaultDO tfd in treeFieldDefaults)
+         {
+            TreeFieldSetupDO tfs = new TreeFieldSetupDO();
+            tfs.Stratum_CN = thisStrCN;
+            tfs.Field = tfd.Field;
+            tfs.FieldOrder = tfd.FieldOrder;
+            tfs.ColumnType = tfd.ColumnType;
+            tfs.Heading = tfd.Heading;
+            tfs.Width = tfd.Width;
+            tfs.Format = tfd.Format;
+            tfs.Behavior = tfd.Behavior;
 
-               treeFields.Add(tfs);
-            }
+            treeFields.Add(tfs);
+
          }
          fsDAL.Save(treeFields);
-        
       }
 
-      public int getReconData(StratumStatsDO curStrStats, SampleGroupStatsDO curSgStats, DAL rDAL, DAL fsDAL, List<PlotDO> myPlots, List<TreeDO> myTree, long? sampleGroupCN, bool first)
+      public void getLogFieldSetup(DAL cDAL, DAL fsDAL, StratumStatsDO myStStats)
       {
-         List<LogDO> rLog = new List<LogDO>();
+         List<LogFieldSetupDefaultDO> logFieldDefaults = new List<LogFieldSetupDefaultDO>(cDAL.Read<LogFieldSetupDefaultDO>("LogFieldSetupDefault", null, null));
+         foreach (LogFieldSetupDefaultDO lfd in logFieldDefaults)
+         {
+            LogFieldSetupDO lfs = new LogFieldSetupDO();
+            lfs.Stratum_CN = thisStrCN;
+            lfs.Field = lfd.Field;
+            lfs.FieldOrder = lfd.FieldOrder;
+            lfs.ColumnType = lfd.ColumnType;
+            lfs.Heading = lfd.Heading;
+            lfs.Width = lfd.Width;
+            lfs.Format = lfd.Format;
+            lfs.Behavior = lfd.Behavior;
+
+            logFields.Add(lfs);
+         }
+         fsDAL.Save(logFields);
+      }
+
+      public int getReconData(StratumStatsDO curStrStats, SampleGroupStatsDO curSgStats, DAL rDAL, DAL fsDAL, List<PlotDO> myPlots, List<TreeDO> myTree, List<LogDO> myLogs, long? sampleGroupCN, bool first, int measHit)
+      {
          TreeDO fsTree;
-         //LogDO fsLog;
+         LogDO fsLog;
          long? plotCN = 0;
          var myTreeList = myTree;
+         var myLogList = myLogs;
+         int treeCnt = 1;
 
          curStrStats.Stratum.CuttingUnits.Populate();
          curSgStats.TreeDefaultValueStats.Populate();
@@ -489,14 +591,38 @@ namespace CruiseDesign.Design_Pages
                   foreach (TreeDO rTree in myTreeList)
                   {
                      fsTree = new TreeDO(fsDAL);
-                     fsTree.Stratum_CN = curStrStats.Stratum_CN;
+                     fsTree.Stratum_CN = thisStrCN;
                      fsTree.TreeDefaultValue_CN = curTdv.TreeDefaultValue_CN;
                      fsTree.SampleGroup_CN = sampleGroupCN;
                      fsTree.Plot_CN = plotCN;
                      fsTree.CuttingUnit_CN = curUnit.CuttingUnit_CN;
                      fsTree.TreeNumber = rTree.TreeNumber;
                      fsTree.Species = rTree.Species;
-                     fsTree.CountOrMeasure = rTree.CountOrMeasure;
+                     if (curStrStats.Method == "PCM" || curStrStats.Method == "FCM")
+                     {
+                        if (radioButton1.Checked)
+                        {
+                           // use frequency
+                           // check hit
+                           if (treeCnt == measHit)
+                           {
+                              fsTree.CountOrMeasure = "M";
+                              measHit += (int)curSgStats.SamplingFrequency;
+                           }
+                           else
+                              fsTree.CountOrMeasure = "C";
+                           
+                        }
+                        else if (radioButton2.Checked)
+                        {
+                           fsTree.CountOrMeasure = "C";
+                        }
+                        else
+                           fsTree.CountOrMeasure = "M";
+                     }
+                     else
+                        fsTree.CountOrMeasure = rTree.CountOrMeasure;
+                     treeCnt++;
                      fsTree.SeenDefectPrimary = rTree.SeenDefectPrimary;
                      fsTree.SeenDefectSecondary = rTree.SeenDefectSecondary;
                      fsTree.RecoverablePrimary = rTree.RecoverablePrimary;
@@ -518,6 +644,30 @@ namespace CruiseDesign.Design_Pages
 
                      fsTree.Save();
                      // save logs
+                     myLogList = (from lcv in myLogs
+                                  where lcv.Tree_CN == rTree.Tree_CN
+                                  select lcv).ToList();
+                     
+                     foreach (LogDO rLog in myLogList)
+                     {
+                        fsLog = new LogDO(fsDAL);
+                        fsLog.Tree_CN = rLog.Tree_CN;
+                        fsLog.LogNumber = rLog.LogNumber;
+                        fsLog.Grade = rLog.Grade;
+                        fsLog.SeenDefect = rLog.SeenDefect;
+                        fsLog.PercentRecoverable = rLog.PercentRecoverable;
+                        fsLog.Length = rLog.Length;
+                        fsLog.ExportGrade = rLog.ExportGrade;
+                        fsLog.SmallEndDiameter = rLog.SmallEndDiameter;
+                        fsLog.LargeEndDiameter = rLog.LargeEndDiameter;
+                        fsLog.GrossBoardFoot = rLog.GrossBoardFoot;
+                        fsLog.NetBoardFoot = rLog.NetBoardFoot;
+                        fsLog.GrossCubicFoot = rLog.GrossCubicFoot;
+                        fsLog.NetCubicFoot = rLog.NetCubicFoot;
+                        fsLog.DIBClass = rLog.DIBClass;
+                        fsLog.BarkThickness = rLog.BarkThickness;
+                        fsLog.Save();
+                    }
                   }
                }
             }
@@ -531,7 +681,7 @@ namespace CruiseDesign.Design_Pages
          {
             fsPlot = new PlotDO(fsDAL);
 
-            fsPlot.Stratum_CN = stratumCN;
+            fsPlot.Stratum_CN = thisStrCN;
             fsPlot.CuttingUnit_CN = curPlot.CuttingUnit_CN;
             fsPlot.PlotNumber = curPlot.PlotNumber;
             fsPlot.IsEmpty = curPlot.IsEmpty;
@@ -550,26 +700,28 @@ namespace CruiseDesign.Design_Pages
          }
          else
          {
-            fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, stratumCN, curPlot.PlotNumber);
+            fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
             
          }
          return (fsPlot.Plot_CN);
       }
 
-      private void checkBoxFreq_CheckedChanged(object sender, EventArgs e)
+
+      private void button1_Click(object sender, EventArgs e)
       {
-         if (checkBoxFreq.Checked)
-            checkBoxBigBAF.Checked = false;
-         else
-            checkBoxBigBAF.Checked = true;
+
+         string sMes = "Freq: Measured trees selected using frequency method (1:n).\n";
+         sMes += "      Recon trees will be tagged Measure or Count based on frequency.\n\n";
+         sMes += "BigBAF/FPS: Measured trees selected using BigBAF or small Fixed Plot Size.\n";
+         sMes += "      All recon trees will be tagged as Count trees.\n";
+         sMes += "      Plots will need to revisited so correct Measured trees can be determined.\n\n";
+         sMes += "Meas/Cnt Plots: Some plots have all Measured trees with the rest having all Count trees.\n";
+         sMes += "      All recon trees will be tagged as Measured trees.\n";
+
+         MessageBox.Show(sMes, "Information");
+                          
+                             
       }
 
-      private void checkBoxBigBAF_CheckedChanged(object sender, EventArgs e)
-      {
-         if (checkBoxBigBAF.Checked)
-            checkBoxFreq.Checked = false;
-         else
-            checkBoxFreq.Checked = true;
-      }
    }
 }

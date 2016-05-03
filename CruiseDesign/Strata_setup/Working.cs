@@ -90,12 +90,16 @@ namespace CruiseDesign.Strata_setup
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
          //copy logfieldsetupdefault
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         //copy logfieldsetup
+         //df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.LOGFIELDSETUP._NAME, null, OnConflictOption.Ignore);
          //copy messagelog
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
          //copy reports
          df.cdDAL.DirectCopy(rDAL, "Reports", null, OnConflictOption.Ignore);
          //copy treefieldsetupdefault
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         //copy treefieldsetup
+         //df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.TREEFIELDSETUP._NAME, null, OnConflictOption.Ignore);
          //copy volumeequations
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
          //copy treeauditvalue
