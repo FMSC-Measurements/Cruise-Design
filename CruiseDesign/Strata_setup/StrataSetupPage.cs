@@ -359,10 +359,16 @@ namespace CruiseDesign.Strata_setup
 //            if (myTDV.PrimaryProduct == prod)
 //               Owner.cdTreeDefaults.Add(myTDV);
 //         }
+         // reset the row index for the selection grid
+
          var visableTDV = (from tdv in Owner.cdTreeDefaults
                            where tdv.PrimaryProduct == prod
                            select tdv).ToList();
-         bindingSourceTDV.DataSource = visableTDV;
+
+          bindingSourceTDV.DataSource = visableTDV;
+         
+
+
          //bindingSourceTDV.DataSource = Owner.cdTreeDefaults;
       }
 
@@ -372,7 +378,6 @@ namespace CruiseDesign.Strata_setup
 
          Owner.cdSgStats.Remove(Owner.currentSgStats);
       }
-
-       
+      
    }
 }

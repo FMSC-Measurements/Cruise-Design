@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
            this.components = new System.ComponentModel.Container();
+           System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
            this.dataGridViewSG = new System.Windows.Forms.DataGridView();
            this.code = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -151,6 +152,7 @@
            this.dataGridViewTextBoxColumn39 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.dataGridViewTextBoxColumn40 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.dataGridViewTextBoxColumn41 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.dataGridViewTextBoxColumn42 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.tableLayoutPanel1.SuspendLayout();
            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSG)).BeginInit();
            ((System.ComponentModel.ISupportInitialize)(this.bindingSourcePPlist)).BeginInit();
@@ -248,6 +250,8 @@
            // 
            this.code.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
            this.code.DataPropertyName = "Code";
+           dataGridViewCellStyle1.NullValue = null;
+           this.code.DefaultCellStyle = dataGridViewCellStyle1;
            this.code.FillWeight = 30F;
            this.code.HeaderText = "Code";
            this.code.MinimumWidth = 60;
@@ -1278,6 +1282,13 @@
            this.dataGridViewTextBoxColumn41.Name = "dataGridViewTextBoxColumn41";
            this.dataGridViewTextBoxColumn41.Visible = false;
            // 
+           // dataGridViewTextBoxColumn42
+           // 
+           this.dataGridViewTextBoxColumn42.DataPropertyName = "Tag";
+           this.dataGridViewTextBoxColumn42.HeaderText = "Tag";
+           this.dataGridViewTextBoxColumn42.Name = "dataGridViewTextBoxColumn42";
+           this.dataGridViewTextBoxColumn42.Visible = false;
+           // 
            // StrataSetupPage
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1439,6 +1450,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn bigBAFDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn bigFIXDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn tagDataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn42;
 
     }
 }

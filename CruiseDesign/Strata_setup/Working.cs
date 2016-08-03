@@ -14,7 +14,7 @@ namespace CruiseDesign.Strata_setup
 {
    public partial class Working : Form
    {
-      public Working(CruiseDesignMain Main, string dalPathRecon, bool reconExists)
+      public Working(CruiseDesignMain Main, string dalPathRecon, bool reconExists, int err)
       {
          InitializeComponent();
  
@@ -28,14 +28,18 @@ namespace CruiseDesign.Strata_setup
             if (!Main.openDesignFile())
             {
                MessageBox.Show("Unable to create the design file", "Information");
-               return;
+               err = 1;
             }
+            else
+            {
 
-            df.cdDAL = Main.cdDAL;
-            df.rFile = dalPathRecon;
+               df.cdDAL = Main.cdDAL;
+               df.rFile = dalPathRecon;
 
-            this.backgroundWorker1.RunWorkerAsync(df);
-            // background worker
+               this.backgroundWorker1.RunWorkerAsync(df);
+               err = 0;
+               // background worker
+            }
          }
       }
 
@@ -69,8 +73,20 @@ namespace CruiseDesign.Strata_setup
          }
 
          copyTablesToDesign(df);
-      }  
-
+      }
+//      private void RemoveReconTDVData()
+//      {
+//         List<TreeDefaultValueDO> treeDV = new List<TreeDefaultValueDO>(rDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+//         foreach (TreeDefaultValueDO tdv in treeDV)
+//         {
+//            tdv.CreatedBy = "";
+//            tdv.CreatedDate = "";
+//            tdv.ModifiedBy = "";
+//            tdv.ModifiedDate = "";
+//            tdv.RowVersion = "";
+//            tdv.Save();
+//         }
+//      }
       private void copyTablesToDesign(dataFiles df)
       {
          // copy Sale table
@@ -81,7 +97,7 @@ namespace CruiseDesign.Strata_setup
             sl.DAL = df.cdDAL;
             sl.Save();
          }
-
+//         RemoveReconTDVData();
          //copy CuttingUnit table
          df.cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.CUTTINGUNIT._NAME, null, OnConflictOption.Ignore);
          //copy TreeDefaultValues table

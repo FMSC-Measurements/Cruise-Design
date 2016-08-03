@@ -230,6 +230,8 @@ namespace CruiseDesign
 //Row Three  -------------------------------------------------------------------------------
         private void buttonRowThree_Click(object sender, EventArgs e)
         {
+           int err = 0;
+
            if (ButtonSelect == 0)
                 MessageBox.Show("Deleted", "Information");
 //FILE TAB  Create New Cruise from Recon +++++++++++++++
@@ -258,7 +260,7 @@ namespace CruiseDesign
                      }
                      else
                      {
-                        MessageBox.Show("Recon File Already Exists.", "Information");
+                        MessageBox.Show("Design File Already Exists.\nDesign File Opened.", "Information");
                         buttonSetup.Enabled = true;
                         buttonDesign.Enabled = true;
                         buttonTools.Enabled = true;
@@ -279,15 +281,18 @@ namespace CruiseDesign
                      //   return;
                      //}
 
-                     Working wDlg = new Working(this, dalPathCruise, reconExists);
+                     Working wDlg = new Working(this, dalPathCruise, reconExists, err);
+                     
                      waitFrm.Close();
                      Cursor.Current = this.Cursor;
+                     if (err == 0)
+                     {
+                        wDlg.ShowDialog();
 
-                     wDlg.ShowDialog();
-                     
-                     buttonSetup.Enabled = true;
-                     buttonDesign.Enabled = true;
-                     buttonTools.Enabled = true;
+                        buttonSetup.Enabled = true;
+                        buttonDesign.Enabled = true;
+                        buttonTools.Enabled = true;
+                     }
                   }
                  
                }

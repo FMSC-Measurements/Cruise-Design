@@ -196,6 +196,8 @@ namespace CruiseDesign.Design_Pages
 
          copySaleTable(holdDF.cdDAL1);
 
+         //checkContrSpecies(fsDAL);
+
 
       }
 
@@ -623,6 +625,7 @@ namespace CruiseDesign.Design_Pages
                      else
                         fsTree.CountOrMeasure = rTree.CountOrMeasure;
                      treeCnt++;
+                     fsTree.TreeCount = 1;
                      fsTree.SeenDefectPrimary = rTree.SeenDefectPrimary;
                      fsTree.SeenDefectSecondary = rTree.SeenDefectSecondary;
                      fsTree.RecoverablePrimary = rTree.RecoverablePrimary;
@@ -677,8 +680,12 @@ namespace CruiseDesign.Design_Pages
       private long? savePlots(PlotDO curPlot, long? stratumCN, bool first)
       {
          PlotDO fsPlot;
-         if (first)
+
+         fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
+         
+         if (fsPlot == null)
          {
+            // check if plot already exists (stratumCN, plot number and unit code)
             fsPlot = new PlotDO(fsDAL);
 
             fsPlot.Stratum_CN = thisStrCN;
@@ -698,14 +705,27 @@ namespace CruiseDesign.Design_Pages
 
             fsPlot.Save();
          }
-         else
-         {
-            fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
-            
-         }
+//         else
+//         {
+//            fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
+//            
+//         }
          return (fsPlot.Plot_CN);
       }
 
+      private void checkContrSpecies(DAL fsDAL)
+      {
+         List<TreeDefaultValueDO> treeDV = new List<TreeDefaultValueDO>(fsDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+         foreach (TreeDefaultValueDO tdv in treeDV)
+         {
+            if (tdv.ContractSpecies == null || tdv.ContractSpecies == "")
+            {
+               tdv.ContractSpecies = tdv.Species;
+               tdv.Save();
+            }
+         }
+               
+      }
 
       private void button1_Click(object sender, EventArgs e)
       {
