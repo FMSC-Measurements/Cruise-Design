@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL;
 using CruiseDAL.DataObjects;
-
+using FMSC.ORM.Core.SQL;
 
 namespace CruiseDesign.Design_Pages
 {
@@ -196,6 +196,8 @@ namespace CruiseDesign.Design_Pages
 
          copySaleTable(holdDF.cdDAL1);
 
+         //checkContrSpecies(fsDAL);
+
 
       }
 
@@ -251,7 +253,10 @@ namespace CruiseDesign.Design_Pages
                addCruiseMethod(fsMeth, i);
                myMeth.Add(fsMeth);
             }
-            fsDAL.Save(myMeth);
+            foreach(var meth in myMeth)
+            {
+                meth.Save();
+            }
          }
       }
       
@@ -315,37 +320,77 @@ namespace CruiseDesign.Design_Pages
          // copy Sale table
          //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.SALE._NAME, null, OnConflictOption.Ignore);
          //copy CuttingUnit table
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNIT._NAME, null, OnConflictOption.Fail);
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNIT._NAME, null, OnConflictOption.Fail);
+         foreach (CuttingUnitDO cu in cdDAL.From<CuttingUnitDO>().Query())
+         {
+             fsDAL.Insert(cu, OnConflictOption.Replace);
+         }
          //copy TreeDefaultValues table
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
+                //         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
+         foreach (TreeDefaultValueDO tdv in cdDAL.From<TreeDefaultValueDO>().Query())
+         {
+              fsDAL.Insert(tdv, OnConflictOption.Replace);
+         }
          //copy logfieldsetupdefault table
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-         //copy logfieldsetup
-//         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUP._NAME, null, OnConflictOption.Ignore);
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         foreach (LogFieldSetupDefaultDO lfs in cdDAL.From<LogFieldSetupDefaultDO>().Query())
+         {
+             fsDAL.Insert(lfs, OnConflictOption.Replace);
+         }
+            //copy logfieldsetup
+            //         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.LOGFIELDSETUP._NAME, null, OnConflictOption.Ignore);
          //copy messagelog
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
+         foreach (MessageLogDO mlog in cdDAL.From<MessageLogDO>().Query())
+         {
+             fsDAL.Insert(mlog, OnConflictOption.Replace);
+         }
          //copy reports
-         fsDAL.DirectCopy(cDAL, "Reports", null, OnConflictOption.Ignore);
-         //copy treefieldsetupdefault
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-         //copy volumeequations
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
-         //copy treeauditvalue
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
-         //copy treedefaultvaluetreeauditvalue
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
-         //copy tally
-         fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
-         //copy Strata
-         //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.STRATUM._NAME, null, OnConflictOption.Ignore);
-         //copy cuttingUnitStratum
-         //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNITSTRATUM._NAME, null, OnConflictOption.Ignore);
-   
-      }
+                //fsDAL.DirectCopy(cDAL, "Reports", null, OnConflictOption.Ignore);
+         foreach (ReportsDO rpt in cdDAL.From<ReportsDO>().Query())
+         {
+             fsDAL.Insert(rpt, OnConflictOption.Replace);
+         }
 
-      private void copyStratumToFScruise(DAL cdDAL)
+         //copy treefieldsetupdefault
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+         foreach (TreeFieldSetupDefaultDO tfd in cdDAL.From<TreeFieldSetupDefaultDO>().Query())
+         {
+              fsDAL.Insert(tfd, OnConflictOption.Replace);
+         }
+         //copy volumeequations
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
+         foreach (VolumeEquationDO veq in cdDAL.From<VolumeEquationDO>().Query())
+         {
+             fsDAL.Insert(veq, OnConflictOption.Replace);
+         }
+            //copy treeauditvalue
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
+         foreach (TreeAuditValueDO tav in cdDAL.From<TreeAuditValueDO>().Query())
+         {
+             fsDAL.Insert(tav, OnConflictOption.Replace);
+         }
+            //copy treedefaultvaluetreeauditvalue
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
+         foreach (TreeDefaultValueTreeAuditValueDO tdvtav in cdDAL.From<TreeDefaultValueTreeAuditValueDO>().Query())
+         {
+             fsDAL.Insert(tdvtav, OnConflictOption.Replace);
+         }
+            //copy tally
+                //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
+            foreach (TallyDO tal in cdDAL.From<TallyDO>().Query())
+            {
+                fsDAL.Insert(tal, OnConflictOption.Replace);
+            }
+            //copy Strata
+            //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.STRATUM._NAME, null, OnConflictOption.Ignore);
+            //copy cuttingUnitStratum
+            //fsDAL.DirectCopy(cDAL, CruiseDAL.Schema.CUTTINGUNITSTRATUM._NAME, null, OnConflictOption.Ignore);
+        }
+
+        private void copyStratumToFScruise(DAL cdDAL)
       {
-         //loop through design stratum table
+            //loop through design stratum table
          List<StratumDO> myStr = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum",null,null));
          foreach(StratumDO curStr in myStr)
          {
@@ -396,8 +441,10 @@ namespace CruiseDesign.Design_Pages
          List<PlotDO> myPlots = new List<PlotDO>();
          List<TreeDO> myTree = new List<TreeDO>();
          List<LogDO> myLogs = new List<LogDO>();
-         treeFields = new BindingList<TreeFieldSetupDO>();
-         logFields = new BindingList<LogFieldSetupDO>();
+         treeFields = new BindingList<TreeFieldSetupDO>(fsDAL.Read<TreeFieldSetupDO>("TreeFieldSetup", null, null));
+         
+         //logFields = new BindingList<LogFieldSetupDO>();
+         logFields = new BindingList<LogFieldSetupDO>(fsDAL.Read<LogFieldSetupDO>("LogFieldSetup", null, null));
          bool first;
          string method = "";
          Random rnd = new Random();
@@ -516,8 +563,12 @@ namespace CruiseDesign.Design_Pages
             treeFields.Add(tfs);
 
          }
-         fsDAL.Save(treeFields);
-      }
+         foreach (var tfeld in treeFields)
+         {
+             tfeld.Save();
+         }
+
+        }
 
       public void getLogFieldSetup(DAL cDAL, DAL fsDAL, StratumStatsDO myStStats)
       {
@@ -536,7 +587,11 @@ namespace CruiseDesign.Design_Pages
 
             logFields.Add(lfs);
          }
-         fsDAL.Save(logFields);
+         foreach (var lfeld in logFields)
+         {
+             lfeld.Save();
+         }
+
       }
 
       public int getReconData(StratumStatsDO curStrStats, SampleGroupStatsDO curSgStats, DAL rDAL, DAL fsDAL, List<PlotDO> myPlots, List<TreeDO> myTree, List<LogDO> myLogs, long? sampleGroupCN, bool first, int measHit)
@@ -623,6 +678,7 @@ namespace CruiseDesign.Design_Pages
                      else
                         fsTree.CountOrMeasure = rTree.CountOrMeasure;
                      treeCnt++;
+                     fsTree.TreeCount = 1;
                      fsTree.SeenDefectPrimary = rTree.SeenDefectPrimary;
                      fsTree.SeenDefectSecondary = rTree.SeenDefectSecondary;
                      fsTree.RecoverablePrimary = rTree.RecoverablePrimary;
@@ -677,8 +733,12 @@ namespace CruiseDesign.Design_Pages
       private long? savePlots(PlotDO curPlot, long? stratumCN, bool first)
       {
          PlotDO fsPlot;
-         if (first)
+
+         fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
+         
+         if (fsPlot == null)
          {
+            // check if plot already exists (stratumCN, plot number and unit code)
             fsPlot = new PlotDO(fsDAL);
 
             fsPlot.Stratum_CN = thisStrCN;
@@ -698,14 +758,27 @@ namespace CruiseDesign.Design_Pages
 
             fsPlot.Save();
          }
-         else
-         {
-            fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
-            
-         }
+//         else
+//         {
+//            fsPlot = fsDAL.ReadSingleRow<PlotDO>("Plot", "Where CuttingUnit_CN = ? and Stratum_CN = ? and PlotNumber = ?", curPlot.CuttingUnit_CN, thisStrCN, curPlot.PlotNumber);
+//            
+//         }
          return (fsPlot.Plot_CN);
       }
 
+      private void checkContrSpecies(DAL fsDAL)
+      {
+         List<TreeDefaultValueDO> treeDV = new List<TreeDefaultValueDO>(fsDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+         foreach (TreeDefaultValueDO tdv in treeDV)
+         {
+            if (tdv.ContractSpecies == null || tdv.ContractSpecies == "")
+            {
+               tdv.ContractSpecies = tdv.Species;
+               tdv.Save();
+            }
+         }
+               
+      }
 
       private void button1_Click(object sender, EventArgs e)
       {

@@ -1,0 +1,58 @@
+8
+
+dir
+0
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc/CruiseDesign/trunk/CruiseDesign/Properties
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc
+add
+
+
+
+
+
+
+
+svn:special svn:externals svn:needs-lock
+
+AssemblyInfo.cs
+file
+
+
+
+add
+
+Settings.settings
+file
+
+
+
+add
+
+Settings.Designer.cs
+file
+
+
+
+add
+
+Resources.resx
+file
+
+
+
+add
+
+DataSources
+dir
+
+
+
+add
+
+Resources.Designer.cs
+file
+
+
+
+add
+

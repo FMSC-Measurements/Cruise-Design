@@ -1,0 +1,16 @@
+8
+
+dir
+0
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc/CruiseDesign/trunk/CruiseDesign/Service%20References
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc
+add
+
+
+
+
+
+
+
+svn:special svn:externals svn:needs-lock
+

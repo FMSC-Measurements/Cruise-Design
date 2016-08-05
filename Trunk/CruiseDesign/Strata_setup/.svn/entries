@@ -1,0 +1,184 @@
+8
+
+dir
+0
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc/CruiseDesign/trunk/CruiseDesign/Strata_setup
+http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc
+add
+
+
+
+
+
+
+
+svn:special svn:externals svn:needs-lock
+
+StrataSetupPage.Designer.cs
+file
+
+
+
+add
+
+StrataSetupPage.cs
+file
+
+
+
+add
+
+UserControlHistoricalSetup.Designer.cs
+file
+
+
+
+add
+
+HistoricalSetupForm.resx
+file
+
+
+
+add
+
+UserControlHistoricalSetup.cs
+file
+
+
+
+add
+
+SelectSGset.Designer.cs
+file
+
+
+
+add
+
+SelectSGset.cs
+file
+
+
+
+add
+
+StrataSetupPage.resx
+file
+
+
+
+add
+
+SampleGroupPage.Designer.cs
+file
+
+
+
+add
+
+StrataPage.Designer.cs
+file
+
+
+
+add
+
+SampleGroupPage.cs
+file
+
+
+
+add
+
+StrataPage.cs
+file
+
+
+
+add
+
+CuttingUnitsPage.Designer.cs
+file
+
+
+
+add
+
+UnitSetupPage.Designer.cs
+file
+
+
+
+add
+
+CuttingUnitsPage.cs
+file
+
+
+
+add
+
+UnitSetupPage.cs
+file
+
+
+
+add
+
+UserControlHistoricalSetup.resx
+file
+
+
+
+add
+
+SelectSGset.resx
+file
+
+
+
+add
+
+HistoricalSetupForm.Designer.cs
+file
+
+
+
+add
+
+HistoricalSetupForm.cs
+file
+
+
+
+add
+
+StrataPage.resx
+file
+
+
+
+add
+
+SampleGroupPage.resx
+file
+
+
+
+add
+
+CuttingUnitsPage.resx
+file
+
+
+
+add
+
+UnitSetupPage.resx
+file
+
+
+
+add
+

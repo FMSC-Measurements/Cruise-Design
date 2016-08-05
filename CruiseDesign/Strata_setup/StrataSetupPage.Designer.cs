@@ -29,41 +29,10 @@
         private void InitializeComponent()
         {
            this.components = new System.ComponentModel.Container();
+           System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
            this.dataGridViewSG = new System.Windows.Forms.DataGridView();
-           this.code = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.description = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.primaryProduct = new System.Windows.Forms.DataGridViewComboBoxColumn();
            this.bindingSourcePPlist = new System.Windows.Forms.BindingSource(this.components);
-           this.secondaryProduct = new System.Windows.Forms.DataGridViewComboBoxColumn();
-           this.defaultLiveDead = new System.Windows.Forms.DataGridViewComboBoxColumn();
-           this.cutLeave = new System.Windows.Forms.DataGridViewComboBoxColumn();
-           this.uOM = new System.Windows.Forms.DataGridViewComboBoxColumn();
-           this.MinDbh = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.MaxDbh = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.validatorDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.errorDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.rowIDDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.dALDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.isPersistedDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-           this.sampleGroupStatsCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.stratumStatsCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.stratumStatsDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.sgSetDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.sampleSize1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.sampleSize2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.cV1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.cV2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.treesPerAcreDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.volumePerAcreDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.treesPerPlotDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.averageHeightDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.samplingFrequencyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.insuranceFrequencyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.kZDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.bigBAFDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.bigFIXDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.tagDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.bindingSourceSgStats = new System.Windows.Forms.BindingSource(this.components);
            this.panel2 = new System.Windows.Forms.Panel();
            this.textBoxStratum = new System.Windows.Forms.TextBox();
@@ -78,31 +47,6 @@
            this.buttonFinish = new System.Windows.Forms.Button();
            this.buttonUnits = new System.Windows.Forms.Button();
            this.panel7 = new System.Windows.Forms.Panel();
-           this.selectedItemsGridViewTDV = new FMSC.Controls.SelectedItemsGridView();
-           this.speciesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.validatorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.treeDefaultValueCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.primaryProductDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.liveDeadDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.FIAcode = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.hiddenPrimaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.cullPrimaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.recoverableDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.hiddenSecondaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.cullSecondaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.formClassDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.treeGradeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.contractSpeciesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.merchHeightLogLengthDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.merchHeightTypeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.barkThicknessRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.averageZDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.referenceHeightPercentDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.rowIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.dALDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.isPersistedDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
-           this.tagDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-           this.errorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.bindingSourceTDV = new System.Windows.Forms.BindingSource(this.components);
            this.panel6 = new System.Windows.Forms.Panel();
            this.buttonDelete = new System.Windows.Forms.Button();
@@ -151,6 +95,64 @@
            this.dataGridViewTextBoxColumn39 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.dataGridViewTextBoxColumn40 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.dataGridViewTextBoxColumn41 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.dataGridViewTextBoxColumn42 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.selectedItemsGridViewTDV = new FMSC.Controls.SelectedItemsGridView();
+           this.speciesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.validatorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.treeDefaultValueCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.primaryProductDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.liveDeadDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.FIAcode = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.hiddenPrimaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.cullPrimaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.recoverableDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.hiddenSecondaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.cullSecondaryDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.formClassDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.treeGradeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.contractSpeciesDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.merchHeightLogLengthDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.merchHeightTypeDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.barkThicknessRatioDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.averageZDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.referenceHeightPercentDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.rowIDDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.dALDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.isPersistedDataGridViewCheckBoxColumn = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+           this.tagDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.errorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.code = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.description = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.primaryProduct = new System.Windows.Forms.DataGridViewComboBoxColumn();
+           this.secondaryProduct = new System.Windows.Forms.DataGridViewComboBoxColumn();
+           this.defaultLiveDead = new System.Windows.Forms.DataGridViewComboBoxColumn();
+           this.cutLeave = new System.Windows.Forms.DataGridViewComboBoxColumn();
+           this.uOM = new System.Windows.Forms.DataGridViewComboBoxColumn();
+           this.MinDbh = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.MaxDbh = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.validatorDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.errorDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.rowIDDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.dALDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.isPersistedDataGridViewCheckBoxColumn1 = new System.Windows.Forms.DataGridViewCheckBoxColumn();
+           this.sampleGroupStatsCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.stratumStatsCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.stratumStatsDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.sgSetDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.sampleSize1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.sampleSize2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.cV1DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.cV2DataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.treesPerAcreDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.volumePerAcreDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.treesPerPlotDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.averageHeightDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.samplingFrequencyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.insuranceFrequencyDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.kZDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.bigBAFDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.bigFIXDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
+           this.tagDataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
            this.tableLayoutPanel1.SuspendLayout();
            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSG)).BeginInit();
            ((System.ComponentModel.ISupportInitialize)(this.bindingSourcePPlist)).BeginInit();
@@ -158,11 +160,11 @@
            this.panel2.SuspendLayout();
            this.panel8.SuspendLayout();
            this.panel7.SuspendLayout();
-           ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridViewTDV)).BeginInit();
            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceTDV)).BeginInit();
            this.panel6.SuspendLayout();
            this.panel1.SuspendLayout();
            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCurrentSgStats)).BeginInit();
+           ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridViewTDV)).BeginInit();
            this.SuspendLayout();
            // 
            // tableLayoutPanel1
@@ -244,289 +246,9 @@
            this.dataGridViewSG.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewSG_CellValueChanged);
            this.dataGridViewSG.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewSG_RowEnter);
            // 
-           // code
-           // 
-           this.code.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-           this.code.DataPropertyName = "Code";
-           this.code.FillWeight = 30F;
-           this.code.HeaderText = "Code";
-           this.code.MinimumWidth = 60;
-           this.code.Name = "code";
-           this.code.Width = 60;
-           // 
-           // description
-           // 
-           this.description.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
-           this.description.DataPropertyName = "Description";
-           this.description.HeaderText = "Descrip";
-           this.description.MinimumWidth = 30;
-           this.description.Name = "description";
-           // 
-           // primaryProduct
-           // 
-           this.primaryProduct.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-           this.primaryProduct.DataPropertyName = "PrimaryProduct";
-           this.primaryProduct.DataSource = this.bindingSourcePPlist;
-           this.primaryProduct.DisplayMember = "PrimaryProduct";
-           this.primaryProduct.HeaderText = "PP";
-           this.primaryProduct.MinimumWidth = 75;
-           this.primaryProduct.Name = "primaryProduct";
-           this.primaryProduct.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-           this.primaryProduct.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-           this.primaryProduct.ToolTipText = "Primary Product";
-           this.primaryProduct.ValueMember = "PrimaryProduct";
-           this.primaryProduct.Width = 75;
-           // 
            // bindingSourcePPlist
            // 
            this.bindingSourcePPlist.DataSource = typeof(CruiseDAL.DataObjects.TreeDefaultValueDO);
-           // 
-           // secondaryProduct
-           // 
-           this.secondaryProduct.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-           this.secondaryProduct.DataPropertyName = "SecondaryProduct";
-           this.secondaryProduct.HeaderText = "SP";
-           this.secondaryProduct.Items.AddRange(new object[] {
-            "02",
-            "06",
-            "07",
-            "08",
-            "14",
-            "17",
-            "20"});
-           this.secondaryProduct.MinimumWidth = 75;
-           this.secondaryProduct.Name = "secondaryProduct";
-           this.secondaryProduct.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-           this.secondaryProduct.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-           this.secondaryProduct.ToolTipText = "Secondary Product";
-           this.secondaryProduct.Width = 75;
-           // 
-           // defaultLiveDead
-           // 
-           this.defaultLiveDead.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-           this.defaultLiveDead.DataPropertyName = "DefaultLiveDead";
-           this.defaultLiveDead.HeaderText = "L/D";
-           this.defaultLiveDead.Items.AddRange(new object[] {
-            "L",
-            "D"});
-           this.defaultLiveDead.MinimumWidth = 60;
-           this.defaultLiveDead.Name = "defaultLiveDead";
-           this.defaultLiveDead.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-           this.defaultLiveDead.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-           this.defaultLiveDead.ToolTipText = "Default Live Dead Code";
-           this.defaultLiveDead.Width = 60;
-           // 
-           // cutLeave
-           // 
-           this.cutLeave.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-           this.cutLeave.DataPropertyName = "CutLeave";
-           this.cutLeave.HeaderText = "C/L";
-           this.cutLeave.Items.AddRange(new object[] {
-            "C",
-            "L"});
-           this.cutLeave.MinimumWidth = 60;
-           this.cutLeave.Name = "cutLeave";
-           this.cutLeave.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-           this.cutLeave.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-           this.cutLeave.Width = 60;
-           // 
-           // uOM
-           // 
-           this.uOM.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
-           this.uOM.DataPropertyName = "UOM";
-           this.uOM.HeaderText = "UOM";
-           this.uOM.Items.AddRange(new object[] {
-            "01",
-            "03",
-            "04",
-            "05"});
-           this.uOM.MinimumWidth = 60;
-           this.uOM.Name = "uOM";
-           this.uOM.Resizable = System.Windows.Forms.DataGridViewTriState.True;
-           this.uOM.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
-           this.uOM.Visible = false;
-           this.uOM.Width = 60;
-           // 
-           // MinDbh
-           // 
-           this.MinDbh.DataPropertyName = "MinDbh";
-           this.MinDbh.HeaderText = "MinDbh";
-           this.MinDbh.MinimumWidth = 75;
-           this.MinDbh.Name = "MinDbh";
-           this.MinDbh.Width = 75;
-           // 
-           // MaxDbh
-           // 
-           this.MaxDbh.DataPropertyName = "MaxDbh";
-           this.MaxDbh.HeaderText = "MaxDbh";
-           this.MaxDbh.MinimumWidth = 75;
-           this.MaxDbh.Name = "MaxDbh";
-           this.MaxDbh.Width = 75;
-           // 
-           // validatorDataGridViewTextBoxColumn1
-           // 
-           this.validatorDataGridViewTextBoxColumn1.DataPropertyName = "Validator";
-           this.validatorDataGridViewTextBoxColumn1.HeaderText = "Validator";
-           this.validatorDataGridViewTextBoxColumn1.Name = "validatorDataGridViewTextBoxColumn1";
-           this.validatorDataGridViewTextBoxColumn1.ReadOnly = true;
-           this.validatorDataGridViewTextBoxColumn1.Visible = false;
-           // 
-           // errorDataGridViewTextBoxColumn1
-           // 
-           this.errorDataGridViewTextBoxColumn1.DataPropertyName = "Error";
-           this.errorDataGridViewTextBoxColumn1.HeaderText = "Error";
-           this.errorDataGridViewTextBoxColumn1.Name = "errorDataGridViewTextBoxColumn1";
-           this.errorDataGridViewTextBoxColumn1.ReadOnly = true;
-           this.errorDataGridViewTextBoxColumn1.Visible = false;
-           // 
-           // rowIDDataGridViewTextBoxColumn1
-           // 
-           this.rowIDDataGridViewTextBoxColumn1.DataPropertyName = "rowID";
-           this.rowIDDataGridViewTextBoxColumn1.HeaderText = "rowID";
-           this.rowIDDataGridViewTextBoxColumn1.Name = "rowIDDataGridViewTextBoxColumn1";
-           this.rowIDDataGridViewTextBoxColumn1.Visible = false;
-           // 
-           // dALDataGridViewTextBoxColumn1
-           // 
-           this.dALDataGridViewTextBoxColumn1.DataPropertyName = "DAL";
-           this.dALDataGridViewTextBoxColumn1.HeaderText = "DAL";
-           this.dALDataGridViewTextBoxColumn1.Name = "dALDataGridViewTextBoxColumn1";
-           this.dALDataGridViewTextBoxColumn1.Visible = false;
-           // 
-           // isPersistedDataGridViewCheckBoxColumn1
-           // 
-           this.isPersistedDataGridViewCheckBoxColumn1.DataPropertyName = "IsPersisted";
-           this.isPersistedDataGridViewCheckBoxColumn1.HeaderText = "IsPersisted";
-           this.isPersistedDataGridViewCheckBoxColumn1.Name = "isPersistedDataGridViewCheckBoxColumn1";
-           this.isPersistedDataGridViewCheckBoxColumn1.ReadOnly = true;
-           this.isPersistedDataGridViewCheckBoxColumn1.Visible = false;
-           // 
-           // sampleGroupStatsCNDataGridViewTextBoxColumn
-           // 
-           this.sampleGroupStatsCNDataGridViewTextBoxColumn.DataPropertyName = "SampleGroupStats_CN";
-           this.sampleGroupStatsCNDataGridViewTextBoxColumn.HeaderText = "SampleGroupStats_CN";
-           this.sampleGroupStatsCNDataGridViewTextBoxColumn.Name = "sampleGroupStatsCNDataGridViewTextBoxColumn";
-           this.sampleGroupStatsCNDataGridViewTextBoxColumn.ReadOnly = true;
-           this.sampleGroupStatsCNDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // stratumStatsCNDataGridViewTextBoxColumn
-           // 
-           this.stratumStatsCNDataGridViewTextBoxColumn.DataPropertyName = "StratumStats_CN";
-           this.stratumStatsCNDataGridViewTextBoxColumn.HeaderText = "StratumStats_CN";
-           this.stratumStatsCNDataGridViewTextBoxColumn.Name = "stratumStatsCNDataGridViewTextBoxColumn";
-           this.stratumStatsCNDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // stratumStatsDataGridViewTextBoxColumn
-           // 
-           this.stratumStatsDataGridViewTextBoxColumn.DataPropertyName = "StratumStats";
-           this.stratumStatsDataGridViewTextBoxColumn.HeaderText = "StratumStats";
-           this.stratumStatsDataGridViewTextBoxColumn.Name = "stratumStatsDataGridViewTextBoxColumn";
-           this.stratumStatsDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // sgSetDataGridViewTextBoxColumn
-           // 
-           this.sgSetDataGridViewTextBoxColumn.DataPropertyName = "SgSet";
-           this.sgSetDataGridViewTextBoxColumn.HeaderText = "SgSet";
-           this.sgSetDataGridViewTextBoxColumn.Name = "sgSetDataGridViewTextBoxColumn";
-           this.sgSetDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // sampleSize1DataGridViewTextBoxColumn
-           // 
-           this.sampleSize1DataGridViewTextBoxColumn.DataPropertyName = "SampleSize1";
-           this.sampleSize1DataGridViewTextBoxColumn.HeaderText = "SampleSize1";
-           this.sampleSize1DataGridViewTextBoxColumn.Name = "sampleSize1DataGridViewTextBoxColumn";
-           this.sampleSize1DataGridViewTextBoxColumn.Visible = false;
-           // 
-           // sampleSize2DataGridViewTextBoxColumn
-           // 
-           this.sampleSize2DataGridViewTextBoxColumn.DataPropertyName = "SampleSize2";
-           this.sampleSize2DataGridViewTextBoxColumn.HeaderText = "SampleSize2";
-           this.sampleSize2DataGridViewTextBoxColumn.Name = "sampleSize2DataGridViewTextBoxColumn";
-           this.sampleSize2DataGridViewTextBoxColumn.Visible = false;
-           // 
-           // cV1DataGridViewTextBoxColumn
-           // 
-           this.cV1DataGridViewTextBoxColumn.DataPropertyName = "CV1";
-           this.cV1DataGridViewTextBoxColumn.HeaderText = "CV1";
-           this.cV1DataGridViewTextBoxColumn.Name = "cV1DataGridViewTextBoxColumn";
-           this.cV1DataGridViewTextBoxColumn.Visible = false;
-           // 
-           // cV2DataGridViewTextBoxColumn
-           // 
-           this.cV2DataGridViewTextBoxColumn.DataPropertyName = "CV2";
-           this.cV2DataGridViewTextBoxColumn.HeaderText = "CV2";
-           this.cV2DataGridViewTextBoxColumn.Name = "cV2DataGridViewTextBoxColumn";
-           this.cV2DataGridViewTextBoxColumn.Visible = false;
-           // 
-           // treesPerAcreDataGridViewTextBoxColumn
-           // 
-           this.treesPerAcreDataGridViewTextBoxColumn.DataPropertyName = "TreesPerAcre";
-           this.treesPerAcreDataGridViewTextBoxColumn.HeaderText = "TreesPerAcre";
-           this.treesPerAcreDataGridViewTextBoxColumn.Name = "treesPerAcreDataGridViewTextBoxColumn";
-           this.treesPerAcreDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // volumePerAcreDataGridViewTextBoxColumn
-           // 
-           this.volumePerAcreDataGridViewTextBoxColumn.DataPropertyName = "VolumePerAcre";
-           this.volumePerAcreDataGridViewTextBoxColumn.HeaderText = "VolumePerAcre";
-           this.volumePerAcreDataGridViewTextBoxColumn.Name = "volumePerAcreDataGridViewTextBoxColumn";
-           this.volumePerAcreDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // treesPerPlotDataGridViewTextBoxColumn
-           // 
-           this.treesPerPlotDataGridViewTextBoxColumn.DataPropertyName = "TreesPerPlot";
-           this.treesPerPlotDataGridViewTextBoxColumn.HeaderText = "TreesPerPlot";
-           this.treesPerPlotDataGridViewTextBoxColumn.Name = "treesPerPlotDataGridViewTextBoxColumn";
-           this.treesPerPlotDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // averageHeightDataGridViewTextBoxColumn
-           // 
-           this.averageHeightDataGridViewTextBoxColumn.DataPropertyName = "AverageHeight";
-           this.averageHeightDataGridViewTextBoxColumn.HeaderText = "AverageHeight";
-           this.averageHeightDataGridViewTextBoxColumn.Name = "averageHeightDataGridViewTextBoxColumn";
-           this.averageHeightDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // samplingFrequencyDataGridViewTextBoxColumn
-           // 
-           this.samplingFrequencyDataGridViewTextBoxColumn.DataPropertyName = "SamplingFrequency";
-           this.samplingFrequencyDataGridViewTextBoxColumn.HeaderText = "SamplingFrequency";
-           this.samplingFrequencyDataGridViewTextBoxColumn.Name = "samplingFrequencyDataGridViewTextBoxColumn";
-           this.samplingFrequencyDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // insuranceFrequencyDataGridViewTextBoxColumn
-           // 
-           this.insuranceFrequencyDataGridViewTextBoxColumn.DataPropertyName = "InsuranceFrequency";
-           this.insuranceFrequencyDataGridViewTextBoxColumn.HeaderText = "InsuranceFrequency";
-           this.insuranceFrequencyDataGridViewTextBoxColumn.Name = "insuranceFrequencyDataGridViewTextBoxColumn";
-           this.insuranceFrequencyDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // kZDataGridViewTextBoxColumn
-           // 
-           this.kZDataGridViewTextBoxColumn.DataPropertyName = "KZ";
-           this.kZDataGridViewTextBoxColumn.HeaderText = "KZ";
-           this.kZDataGridViewTextBoxColumn.Name = "kZDataGridViewTextBoxColumn";
-           this.kZDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // bigBAFDataGridViewTextBoxColumn
-           // 
-           this.bigBAFDataGridViewTextBoxColumn.DataPropertyName = "BigBAF";
-           this.bigBAFDataGridViewTextBoxColumn.HeaderText = "BigBAF";
-           this.bigBAFDataGridViewTextBoxColumn.Name = "bigBAFDataGridViewTextBoxColumn";
-           this.bigBAFDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // bigFIXDataGridViewTextBoxColumn
-           // 
-           this.bigFIXDataGridViewTextBoxColumn.DataPropertyName = "BigFIX";
-           this.bigFIXDataGridViewTextBoxColumn.HeaderText = "BigFIX";
-           this.bigFIXDataGridViewTextBoxColumn.Name = "bigFIXDataGridViewTextBoxColumn";
-           this.bigFIXDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // tagDataGridViewTextBoxColumn1
-           // 
-           this.tagDataGridViewTextBoxColumn1.DataPropertyName = "Tag";
-           this.tagDataGridViewTextBoxColumn1.HeaderText = "Tag";
-           this.tagDataGridViewTextBoxColumn1.Name = "tagDataGridViewTextBoxColumn1";
-           this.tagDataGridViewTextBoxColumn1.Visible = false;
            // 
            // bindingSourceSgStats
            // 
@@ -683,241 +405,6 @@
            this.panel7.Name = "panel7";
            this.panel7.Size = new System.Drawing.Size(645, 201);
            this.panel7.TabIndex = 6;
-           // 
-           // selectedItemsGridViewTDV
-           // 
-           this.selectedItemsGridViewTDV.AllowUserToAddRows = false;
-           this.selectedItemsGridViewTDV.AllowUserToDeleteRows = false;
-           this.selectedItemsGridViewTDV.AutoGenerateColumns = false;
-           this.selectedItemsGridViewTDV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-           this.selectedItemsGridViewTDV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.speciesDataGridViewTextBoxColumn,
-            this.validatorDataGridViewTextBoxColumn,
-            this.treeDefaultValueCNDataGridViewTextBoxColumn,
-            this.primaryProductDataGridViewTextBoxColumn,
-            this.liveDeadDataGridViewTextBoxColumn,
-            this.FIAcode,
-            this.hiddenPrimaryDataGridViewTextBoxColumn,
-            this.cullPrimaryDataGridViewTextBoxColumn,
-            this.recoverableDataGridViewTextBoxColumn,
-            this.hiddenSecondaryDataGridViewTextBoxColumn,
-            this.cullSecondaryDataGridViewTextBoxColumn,
-            this.formClassDataGridViewTextBoxColumn,
-            this.treeGradeDataGridViewTextBoxColumn,
-            this.contractSpeciesDataGridViewTextBoxColumn,
-            this.merchHeightLogLengthDataGridViewTextBoxColumn,
-            this.merchHeightTypeDataGridViewTextBoxColumn,
-            this.barkThicknessRatioDataGridViewTextBoxColumn,
-            this.averageZDataGridViewTextBoxColumn,
-            this.referenceHeightPercentDataGridViewTextBoxColumn,
-            this.rowIDDataGridViewTextBoxColumn,
-            this.dALDataGridViewTextBoxColumn,
-            this.isPersistedDataGridViewCheckBoxColumn,
-            this.tagDataGridViewTextBoxColumn,
-            this.errorDataGridViewTextBoxColumn});
-           this.selectedItemsGridViewTDV.DataSource = this.bindingSourceTDV;
-           this.selectedItemsGridViewTDV.Dock = System.Windows.Forms.DockStyle.Fill;
-           this.selectedItemsGridViewTDV.Location = new System.Drawing.Point(0, 0);
-           this.selectedItemsGridViewTDV.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-           this.selectedItemsGridViewTDV.MultiSelect = false;
-           this.selectedItemsGridViewTDV.Name = "selectedItemsGridViewTDV";
-           this.selectedItemsGridViewTDV.RowHeadersVisible = false;
-           this.selectedItemsGridViewTDV.RowHeadersWidth = 30;
-           this.selectedItemsGridViewTDV.RowTemplate.Height = 24;
-           this.selectedItemsGridViewTDV.SelectedItems = null;
-           this.selectedItemsGridViewTDV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-           this.selectedItemsGridViewTDV.Size = new System.Drawing.Size(645, 201);
-           this.selectedItemsGridViewTDV.TabIndex = 0;
-           this.selectedItemsGridViewTDV.VirtualMode = true;
-           // 
-           // speciesDataGridViewTextBoxColumn
-           // 
-           this.speciesDataGridViewTextBoxColumn.DataPropertyName = "Species";
-           this.speciesDataGridViewTextBoxColumn.HeaderText = "Spec";
-           this.speciesDataGridViewTextBoxColumn.MinimumWidth = 75;
-           this.speciesDataGridViewTextBoxColumn.Name = "speciesDataGridViewTextBoxColumn";
-           this.speciesDataGridViewTextBoxColumn.Width = 75;
-           // 
-           // validatorDataGridViewTextBoxColumn
-           // 
-           this.validatorDataGridViewTextBoxColumn.DataPropertyName = "Validator";
-           this.validatorDataGridViewTextBoxColumn.HeaderText = "Validator";
-           this.validatorDataGridViewTextBoxColumn.Name = "validatorDataGridViewTextBoxColumn";
-           this.validatorDataGridViewTextBoxColumn.ReadOnly = true;
-           this.validatorDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // treeDefaultValueCNDataGridViewTextBoxColumn
-           // 
-           this.treeDefaultValueCNDataGridViewTextBoxColumn.DataPropertyName = "TreeDefaultValue_CN";
-           this.treeDefaultValueCNDataGridViewTextBoxColumn.HeaderText = "TreeDefaultValue_CN";
-           this.treeDefaultValueCNDataGridViewTextBoxColumn.Name = "treeDefaultValueCNDataGridViewTextBoxColumn";
-           this.treeDefaultValueCNDataGridViewTextBoxColumn.ReadOnly = true;
-           this.treeDefaultValueCNDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // primaryProductDataGridViewTextBoxColumn
-           // 
-           this.primaryProductDataGridViewTextBoxColumn.DataPropertyName = "PrimaryProduct";
-           this.primaryProductDataGridViewTextBoxColumn.HeaderText = "Prod";
-           this.primaryProductDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.primaryProductDataGridViewTextBoxColumn.Name = "primaryProductDataGridViewTextBoxColumn";
-           this.primaryProductDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // liveDeadDataGridViewTextBoxColumn
-           // 
-           this.liveDeadDataGridViewTextBoxColumn.DataPropertyName = "LiveDead";
-           this.liveDeadDataGridViewTextBoxColumn.HeaderText = "L/D";
-           this.liveDeadDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.liveDeadDataGridViewTextBoxColumn.Name = "liveDeadDataGridViewTextBoxColumn";
-           this.liveDeadDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // FIAcode
-           // 
-           this.FIAcode.DataPropertyName = "FIAcode";
-           this.FIAcode.HeaderText = "FIAcode";
-           this.FIAcode.Name = "FIAcode";
-           // 
-           // hiddenPrimaryDataGridViewTextBoxColumn
-           // 
-           this.hiddenPrimaryDataGridViewTextBoxColumn.DataPropertyName = "HiddenPrimary";
-           this.hiddenPrimaryDataGridViewTextBoxColumn.HeaderText = "H-P";
-           this.hiddenPrimaryDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.hiddenPrimaryDataGridViewTextBoxColumn.Name = "hiddenPrimaryDataGridViewTextBoxColumn";
-           this.hiddenPrimaryDataGridViewTextBoxColumn.ToolTipText = "Hidden Primary Product";
-           this.hiddenPrimaryDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // cullPrimaryDataGridViewTextBoxColumn
-           // 
-           this.cullPrimaryDataGridViewTextBoxColumn.DataPropertyName = "CullPrimary";
-           this.cullPrimaryDataGridViewTextBoxColumn.HeaderText = "C-P";
-           this.cullPrimaryDataGridViewTextBoxColumn.Name = "cullPrimaryDataGridViewTextBoxColumn";
-           this.cullPrimaryDataGridViewTextBoxColumn.ToolTipText = "Cull Primary Product";
-           this.cullPrimaryDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // recoverableDataGridViewTextBoxColumn
-           // 
-           this.recoverableDataGridViewTextBoxColumn.DataPropertyName = "Recoverable";
-           this.recoverableDataGridViewTextBoxColumn.HeaderText = "Recov";
-           this.recoverableDataGridViewTextBoxColumn.MinimumWidth = 60;
-           this.recoverableDataGridViewTextBoxColumn.Name = "recoverableDataGridViewTextBoxColumn";
-           this.recoverableDataGridViewTextBoxColumn.ToolTipText = "Recoverable Percent";
-           this.recoverableDataGridViewTextBoxColumn.Width = 60;
-           // 
-           // hiddenSecondaryDataGridViewTextBoxColumn
-           // 
-           this.hiddenSecondaryDataGridViewTextBoxColumn.DataPropertyName = "HiddenSecondary";
-           this.hiddenSecondaryDataGridViewTextBoxColumn.HeaderText = "H-S";
-           this.hiddenSecondaryDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.hiddenSecondaryDataGridViewTextBoxColumn.Name = "hiddenSecondaryDataGridViewTextBoxColumn";
-           this.hiddenSecondaryDataGridViewTextBoxColumn.ToolTipText = "Hidden Secondary";
-           this.hiddenSecondaryDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // cullSecondaryDataGridViewTextBoxColumn
-           // 
-           this.cullSecondaryDataGridViewTextBoxColumn.DataPropertyName = "CullSecondary";
-           this.cullSecondaryDataGridViewTextBoxColumn.HeaderText = "C-S";
-           this.cullSecondaryDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.cullSecondaryDataGridViewTextBoxColumn.Name = "cullSecondaryDataGridViewTextBoxColumn";
-           this.cullSecondaryDataGridViewTextBoxColumn.ToolTipText = "Cull Secondary";
-           this.cullSecondaryDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // formClassDataGridViewTextBoxColumn
-           // 
-           this.formClassDataGridViewTextBoxColumn.DataPropertyName = "FormClass";
-           this.formClassDataGridViewTextBoxColumn.HeaderText = "Form";
-           this.formClassDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.formClassDataGridViewTextBoxColumn.Name = "formClassDataGridViewTextBoxColumn";
-           this.formClassDataGridViewTextBoxColumn.ToolTipText = "Form Class";
-           this.formClassDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // treeGradeDataGridViewTextBoxColumn
-           // 
-           this.treeGradeDataGridViewTextBoxColumn.DataPropertyName = "TreeGrade";
-           this.treeGradeDataGridViewTextBoxColumn.HeaderText = "Grade";
-           this.treeGradeDataGridViewTextBoxColumn.MinimumWidth = 60;
-           this.treeGradeDataGridViewTextBoxColumn.Name = "treeGradeDataGridViewTextBoxColumn";
-           this.treeGradeDataGridViewTextBoxColumn.ToolTipText = "Tree Grade";
-           this.treeGradeDataGridViewTextBoxColumn.Width = 60;
-           // 
-           // contractSpeciesDataGridViewTextBoxColumn
-           // 
-           this.contractSpeciesDataGridViewTextBoxColumn.DataPropertyName = "ContractSpecies";
-           this.contractSpeciesDataGridViewTextBoxColumn.HeaderText = "ContractSpecies";
-           this.contractSpeciesDataGridViewTextBoxColumn.MinimumWidth = 50;
-           this.contractSpeciesDataGridViewTextBoxColumn.Name = "contractSpeciesDataGridViewTextBoxColumn";
-           this.contractSpeciesDataGridViewTextBoxColumn.Visible = false;
-           this.contractSpeciesDataGridViewTextBoxColumn.Width = 50;
-           // 
-           // merchHeightLogLengthDataGridViewTextBoxColumn
-           // 
-           this.merchHeightLogLengthDataGridViewTextBoxColumn.DataPropertyName = "MerchHeightLogLength";
-           this.merchHeightLogLengthDataGridViewTextBoxColumn.HeaderText = "MerchHeightLogLength";
-           this.merchHeightLogLengthDataGridViewTextBoxColumn.Name = "merchHeightLogLengthDataGridViewTextBoxColumn";
-           this.merchHeightLogLengthDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // merchHeightTypeDataGridViewTextBoxColumn
-           // 
-           this.merchHeightTypeDataGridViewTextBoxColumn.DataPropertyName = "MerchHeightType";
-           this.merchHeightTypeDataGridViewTextBoxColumn.HeaderText = "MerchHeightType";
-           this.merchHeightTypeDataGridViewTextBoxColumn.Name = "merchHeightTypeDataGridViewTextBoxColumn";
-           this.merchHeightTypeDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // barkThicknessRatioDataGridViewTextBoxColumn
-           // 
-           this.barkThicknessRatioDataGridViewTextBoxColumn.DataPropertyName = "BarkThicknessRatio";
-           this.barkThicknessRatioDataGridViewTextBoxColumn.HeaderText = "BarkThicknessRatio";
-           this.barkThicknessRatioDataGridViewTextBoxColumn.Name = "barkThicknessRatioDataGridViewTextBoxColumn";
-           this.barkThicknessRatioDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // averageZDataGridViewTextBoxColumn
-           // 
-           this.averageZDataGridViewTextBoxColumn.DataPropertyName = "AverageZ";
-           this.averageZDataGridViewTextBoxColumn.HeaderText = "AverageZ";
-           this.averageZDataGridViewTextBoxColumn.Name = "averageZDataGridViewTextBoxColumn";
-           this.averageZDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // referenceHeightPercentDataGridViewTextBoxColumn
-           // 
-           this.referenceHeightPercentDataGridViewTextBoxColumn.DataPropertyName = "ReferenceHeightPercent";
-           this.referenceHeightPercentDataGridViewTextBoxColumn.HeaderText = "ReferenceHeightPercent";
-           this.referenceHeightPercentDataGridViewTextBoxColumn.Name = "referenceHeightPercentDataGridViewTextBoxColumn";
-           this.referenceHeightPercentDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // rowIDDataGridViewTextBoxColumn
-           // 
-           this.rowIDDataGridViewTextBoxColumn.DataPropertyName = "rowID";
-           this.rowIDDataGridViewTextBoxColumn.HeaderText = "rowID";
-           this.rowIDDataGridViewTextBoxColumn.Name = "rowIDDataGridViewTextBoxColumn";
-           this.rowIDDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // dALDataGridViewTextBoxColumn
-           // 
-           this.dALDataGridViewTextBoxColumn.DataPropertyName = "DAL";
-           this.dALDataGridViewTextBoxColumn.HeaderText = "DAL";
-           this.dALDataGridViewTextBoxColumn.Name = "dALDataGridViewTextBoxColumn";
-           this.dALDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // isPersistedDataGridViewCheckBoxColumn
-           // 
-           this.isPersistedDataGridViewCheckBoxColumn.DataPropertyName = "IsPersisted";
-           this.isPersistedDataGridViewCheckBoxColumn.HeaderText = "IsPersisted";
-           this.isPersistedDataGridViewCheckBoxColumn.Name = "isPersistedDataGridViewCheckBoxColumn";
-           this.isPersistedDataGridViewCheckBoxColumn.ReadOnly = true;
-           this.isPersistedDataGridViewCheckBoxColumn.Visible = false;
-           // 
-           // tagDataGridViewTextBoxColumn
-           // 
-           this.tagDataGridViewTextBoxColumn.DataPropertyName = "Tag";
-           this.tagDataGridViewTextBoxColumn.HeaderText = "Tag";
-           this.tagDataGridViewTextBoxColumn.Name = "tagDataGridViewTextBoxColumn";
-           this.tagDataGridViewTextBoxColumn.Visible = false;
-           // 
-           // errorDataGridViewTextBoxColumn
-           // 
-           this.errorDataGridViewTextBoxColumn.DataPropertyName = "Error";
-           this.errorDataGridViewTextBoxColumn.HeaderText = "Error";
-           this.errorDataGridViewTextBoxColumn.Name = "errorDataGridViewTextBoxColumn";
-           this.errorDataGridViewTextBoxColumn.ReadOnly = true;
-           this.errorDataGridViewTextBoxColumn.Visible = false;
            // 
            // bindingSourceTDV
            // 
@@ -1278,6 +765,530 @@
            this.dataGridViewTextBoxColumn41.Name = "dataGridViewTextBoxColumn41";
            this.dataGridViewTextBoxColumn41.Visible = false;
            // 
+           // dataGridViewTextBoxColumn42
+           // 
+           this.dataGridViewTextBoxColumn42.DataPropertyName = "Tag";
+           this.dataGridViewTextBoxColumn42.HeaderText = "Tag";
+           this.dataGridViewTextBoxColumn42.Name = "dataGridViewTextBoxColumn42";
+           this.dataGridViewTextBoxColumn42.Visible = false;
+           // 
+           // selectedItemsGridViewTDV
+           // 
+           this.selectedItemsGridViewTDV.AllowUserToAddRows = false;
+           this.selectedItemsGridViewTDV.AllowUserToDeleteRows = false;
+           this.selectedItemsGridViewTDV.AutoGenerateColumns = false;
+           this.selectedItemsGridViewTDV.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+           this.selectedItemsGridViewTDV.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.speciesDataGridViewTextBoxColumn,
+            this.validatorDataGridViewTextBoxColumn,
+            this.treeDefaultValueCNDataGridViewTextBoxColumn,
+            this.primaryProductDataGridViewTextBoxColumn,
+            this.liveDeadDataGridViewTextBoxColumn,
+            this.FIAcode,
+            this.hiddenPrimaryDataGridViewTextBoxColumn,
+            this.cullPrimaryDataGridViewTextBoxColumn,
+            this.recoverableDataGridViewTextBoxColumn,
+            this.hiddenSecondaryDataGridViewTextBoxColumn,
+            this.cullSecondaryDataGridViewTextBoxColumn,
+            this.formClassDataGridViewTextBoxColumn,
+            this.treeGradeDataGridViewTextBoxColumn,
+            this.contractSpeciesDataGridViewTextBoxColumn,
+            this.merchHeightLogLengthDataGridViewTextBoxColumn,
+            this.merchHeightTypeDataGridViewTextBoxColumn,
+            this.barkThicknessRatioDataGridViewTextBoxColumn,
+            this.averageZDataGridViewTextBoxColumn,
+            this.referenceHeightPercentDataGridViewTextBoxColumn,
+            this.rowIDDataGridViewTextBoxColumn,
+            this.dALDataGridViewTextBoxColumn,
+            this.isPersistedDataGridViewCheckBoxColumn,
+            this.tagDataGridViewTextBoxColumn,
+            this.errorDataGridViewTextBoxColumn});
+           this.selectedItemsGridViewTDV.DataSource = this.bindingSourceTDV;
+           this.selectedItemsGridViewTDV.Dock = System.Windows.Forms.DockStyle.Fill;
+           this.selectedItemsGridViewTDV.Location = new System.Drawing.Point(0, 0);
+           this.selectedItemsGridViewTDV.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+           this.selectedItemsGridViewTDV.MultiSelect = false;
+           this.selectedItemsGridViewTDV.Name = "selectedItemsGridViewTDV";
+           this.selectedItemsGridViewTDV.RowHeadersVisible = false;
+           this.selectedItemsGridViewTDV.RowHeadersWidth = 30;
+           this.selectedItemsGridViewTDV.RowTemplate.Height = 24;
+           this.selectedItemsGridViewTDV.SelectedItems = null;
+           this.selectedItemsGridViewTDV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+           this.selectedItemsGridViewTDV.Size = new System.Drawing.Size(645, 201);
+           this.selectedItemsGridViewTDV.TabIndex = 0;
+           this.selectedItemsGridViewTDV.VirtualMode = true;
+           // 
+           // speciesDataGridViewTextBoxColumn
+           // 
+           this.speciesDataGridViewTextBoxColumn.DataPropertyName = "Species";
+           this.speciesDataGridViewTextBoxColumn.HeaderText = "Spec";
+           this.speciesDataGridViewTextBoxColumn.MinimumWidth = 75;
+           this.speciesDataGridViewTextBoxColumn.Name = "speciesDataGridViewTextBoxColumn";
+           this.speciesDataGridViewTextBoxColumn.Width = 75;
+           // 
+           // validatorDataGridViewTextBoxColumn
+           // 
+           this.validatorDataGridViewTextBoxColumn.DataPropertyName = "Validator";
+           this.validatorDataGridViewTextBoxColumn.HeaderText = "Validator";
+           this.validatorDataGridViewTextBoxColumn.Name = "validatorDataGridViewTextBoxColumn";
+           this.validatorDataGridViewTextBoxColumn.ReadOnly = true;
+           this.validatorDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // treeDefaultValueCNDataGridViewTextBoxColumn
+           // 
+           this.treeDefaultValueCNDataGridViewTextBoxColumn.DataPropertyName = "TreeDefaultValue_CN";
+           this.treeDefaultValueCNDataGridViewTextBoxColumn.HeaderText = "TreeDefaultValue_CN";
+           this.treeDefaultValueCNDataGridViewTextBoxColumn.Name = "treeDefaultValueCNDataGridViewTextBoxColumn";
+           this.treeDefaultValueCNDataGridViewTextBoxColumn.ReadOnly = true;
+           this.treeDefaultValueCNDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // primaryProductDataGridViewTextBoxColumn
+           // 
+           this.primaryProductDataGridViewTextBoxColumn.DataPropertyName = "PrimaryProduct";
+           this.primaryProductDataGridViewTextBoxColumn.HeaderText = "Prod";
+           this.primaryProductDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.primaryProductDataGridViewTextBoxColumn.Name = "primaryProductDataGridViewTextBoxColumn";
+           this.primaryProductDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // liveDeadDataGridViewTextBoxColumn
+           // 
+           this.liveDeadDataGridViewTextBoxColumn.DataPropertyName = "LiveDead";
+           this.liveDeadDataGridViewTextBoxColumn.HeaderText = "L/D";
+           this.liveDeadDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.liveDeadDataGridViewTextBoxColumn.Name = "liveDeadDataGridViewTextBoxColumn";
+           this.liveDeadDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // FIAcode
+           // 
+           this.FIAcode.DataPropertyName = "FIAcode";
+           this.FIAcode.HeaderText = "FIAcode";
+           this.FIAcode.Name = "FIAcode";
+           // 
+           // hiddenPrimaryDataGridViewTextBoxColumn
+           // 
+           this.hiddenPrimaryDataGridViewTextBoxColumn.DataPropertyName = "HiddenPrimary";
+           this.hiddenPrimaryDataGridViewTextBoxColumn.HeaderText = "H-P";
+           this.hiddenPrimaryDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.hiddenPrimaryDataGridViewTextBoxColumn.Name = "hiddenPrimaryDataGridViewTextBoxColumn";
+           this.hiddenPrimaryDataGridViewTextBoxColumn.ToolTipText = "Hidden Primary Product";
+           this.hiddenPrimaryDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // cullPrimaryDataGridViewTextBoxColumn
+           // 
+           this.cullPrimaryDataGridViewTextBoxColumn.DataPropertyName = "CullPrimary";
+           this.cullPrimaryDataGridViewTextBoxColumn.HeaderText = "C-P";
+           this.cullPrimaryDataGridViewTextBoxColumn.Name = "cullPrimaryDataGridViewTextBoxColumn";
+           this.cullPrimaryDataGridViewTextBoxColumn.ToolTipText = "Cull Primary Product";
+           this.cullPrimaryDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // recoverableDataGridViewTextBoxColumn
+           // 
+           this.recoverableDataGridViewTextBoxColumn.DataPropertyName = "Recoverable";
+           this.recoverableDataGridViewTextBoxColumn.HeaderText = "Recov";
+           this.recoverableDataGridViewTextBoxColumn.MinimumWidth = 60;
+           this.recoverableDataGridViewTextBoxColumn.Name = "recoverableDataGridViewTextBoxColumn";
+           this.recoverableDataGridViewTextBoxColumn.ToolTipText = "Recoverable Percent";
+           this.recoverableDataGridViewTextBoxColumn.Width = 60;
+           // 
+           // hiddenSecondaryDataGridViewTextBoxColumn
+           // 
+           this.hiddenSecondaryDataGridViewTextBoxColumn.DataPropertyName = "HiddenSecondary";
+           this.hiddenSecondaryDataGridViewTextBoxColumn.HeaderText = "H-S";
+           this.hiddenSecondaryDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.hiddenSecondaryDataGridViewTextBoxColumn.Name = "hiddenSecondaryDataGridViewTextBoxColumn";
+           this.hiddenSecondaryDataGridViewTextBoxColumn.ToolTipText = "Hidden Secondary";
+           this.hiddenSecondaryDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // cullSecondaryDataGridViewTextBoxColumn
+           // 
+           this.cullSecondaryDataGridViewTextBoxColumn.DataPropertyName = "CullSecondary";
+           this.cullSecondaryDataGridViewTextBoxColumn.HeaderText = "C-S";
+           this.cullSecondaryDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.cullSecondaryDataGridViewTextBoxColumn.Name = "cullSecondaryDataGridViewTextBoxColumn";
+           this.cullSecondaryDataGridViewTextBoxColumn.ToolTipText = "Cull Secondary";
+           this.cullSecondaryDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // formClassDataGridViewTextBoxColumn
+           // 
+           this.formClassDataGridViewTextBoxColumn.DataPropertyName = "FormClass";
+           this.formClassDataGridViewTextBoxColumn.HeaderText = "Form";
+           this.formClassDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.formClassDataGridViewTextBoxColumn.Name = "formClassDataGridViewTextBoxColumn";
+           this.formClassDataGridViewTextBoxColumn.ToolTipText = "Form Class";
+           this.formClassDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // treeGradeDataGridViewTextBoxColumn
+           // 
+           this.treeGradeDataGridViewTextBoxColumn.DataPropertyName = "TreeGrade";
+           this.treeGradeDataGridViewTextBoxColumn.HeaderText = "Grade";
+           this.treeGradeDataGridViewTextBoxColumn.MinimumWidth = 60;
+           this.treeGradeDataGridViewTextBoxColumn.Name = "treeGradeDataGridViewTextBoxColumn";
+           this.treeGradeDataGridViewTextBoxColumn.ToolTipText = "Tree Grade";
+           this.treeGradeDataGridViewTextBoxColumn.Width = 60;
+           // 
+           // contractSpeciesDataGridViewTextBoxColumn
+           // 
+           this.contractSpeciesDataGridViewTextBoxColumn.DataPropertyName = "ContractSpecies";
+           this.contractSpeciesDataGridViewTextBoxColumn.HeaderText = "ContractSpecies";
+           this.contractSpeciesDataGridViewTextBoxColumn.MinimumWidth = 50;
+           this.contractSpeciesDataGridViewTextBoxColumn.Name = "contractSpeciesDataGridViewTextBoxColumn";
+           this.contractSpeciesDataGridViewTextBoxColumn.Visible = false;
+           this.contractSpeciesDataGridViewTextBoxColumn.Width = 50;
+           // 
+           // merchHeightLogLengthDataGridViewTextBoxColumn
+           // 
+           this.merchHeightLogLengthDataGridViewTextBoxColumn.DataPropertyName = "MerchHeightLogLength";
+           this.merchHeightLogLengthDataGridViewTextBoxColumn.HeaderText = "MerchHeightLogLength";
+           this.merchHeightLogLengthDataGridViewTextBoxColumn.Name = "merchHeightLogLengthDataGridViewTextBoxColumn";
+           this.merchHeightLogLengthDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // merchHeightTypeDataGridViewTextBoxColumn
+           // 
+           this.merchHeightTypeDataGridViewTextBoxColumn.DataPropertyName = "MerchHeightType";
+           this.merchHeightTypeDataGridViewTextBoxColumn.HeaderText = "MerchHeightType";
+           this.merchHeightTypeDataGridViewTextBoxColumn.Name = "merchHeightTypeDataGridViewTextBoxColumn";
+           this.merchHeightTypeDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // barkThicknessRatioDataGridViewTextBoxColumn
+           // 
+           this.barkThicknessRatioDataGridViewTextBoxColumn.DataPropertyName = "BarkThicknessRatio";
+           this.barkThicknessRatioDataGridViewTextBoxColumn.HeaderText = "BarkThicknessRatio";
+           this.barkThicknessRatioDataGridViewTextBoxColumn.Name = "barkThicknessRatioDataGridViewTextBoxColumn";
+           this.barkThicknessRatioDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // averageZDataGridViewTextBoxColumn
+           // 
+           this.averageZDataGridViewTextBoxColumn.DataPropertyName = "AverageZ";
+           this.averageZDataGridViewTextBoxColumn.HeaderText = "AverageZ";
+           this.averageZDataGridViewTextBoxColumn.Name = "averageZDataGridViewTextBoxColumn";
+           this.averageZDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // referenceHeightPercentDataGridViewTextBoxColumn
+           // 
+           this.referenceHeightPercentDataGridViewTextBoxColumn.DataPropertyName = "ReferenceHeightPercent";
+           this.referenceHeightPercentDataGridViewTextBoxColumn.HeaderText = "ReferenceHeightPercent";
+           this.referenceHeightPercentDataGridViewTextBoxColumn.Name = "referenceHeightPercentDataGridViewTextBoxColumn";
+           this.referenceHeightPercentDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // rowIDDataGridViewTextBoxColumn
+           // 
+           this.rowIDDataGridViewTextBoxColumn.DataPropertyName = "rowID";
+           this.rowIDDataGridViewTextBoxColumn.HeaderText = "rowID";
+           this.rowIDDataGridViewTextBoxColumn.Name = "rowIDDataGridViewTextBoxColumn";
+           this.rowIDDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // dALDataGridViewTextBoxColumn
+           // 
+           this.dALDataGridViewTextBoxColumn.DataPropertyName = "DAL";
+           this.dALDataGridViewTextBoxColumn.HeaderText = "DAL";
+           this.dALDataGridViewTextBoxColumn.Name = "dALDataGridViewTextBoxColumn";
+           this.dALDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // isPersistedDataGridViewCheckBoxColumn
+           // 
+           this.isPersistedDataGridViewCheckBoxColumn.DataPropertyName = "IsPersisted";
+           this.isPersistedDataGridViewCheckBoxColumn.HeaderText = "IsPersisted";
+           this.isPersistedDataGridViewCheckBoxColumn.Name = "isPersistedDataGridViewCheckBoxColumn";
+           this.isPersistedDataGridViewCheckBoxColumn.ReadOnly = true;
+           this.isPersistedDataGridViewCheckBoxColumn.Visible = false;
+           // 
+           // tagDataGridViewTextBoxColumn
+           // 
+           this.tagDataGridViewTextBoxColumn.DataPropertyName = "Tag";
+           this.tagDataGridViewTextBoxColumn.HeaderText = "Tag";
+           this.tagDataGridViewTextBoxColumn.Name = "tagDataGridViewTextBoxColumn";
+           this.tagDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // errorDataGridViewTextBoxColumn
+           // 
+           this.errorDataGridViewTextBoxColumn.DataPropertyName = "Error";
+           this.errorDataGridViewTextBoxColumn.HeaderText = "Error";
+           this.errorDataGridViewTextBoxColumn.Name = "errorDataGridViewTextBoxColumn";
+           this.errorDataGridViewTextBoxColumn.ReadOnly = true;
+           this.errorDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // code
+           // 
+           this.code.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+           this.code.DataPropertyName = "Code";
+           dataGridViewCellStyle1.NullValue = null;
+           this.code.DefaultCellStyle = dataGridViewCellStyle1;
+           this.code.FillWeight = 30F;
+           this.code.HeaderText = "Code";
+           this.code.MinimumWidth = 60;
+           this.code.Name = "code";
+           this.code.Width = 60;
+           // 
+           // description
+           // 
+           this.description.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.Fill;
+           this.description.DataPropertyName = "Description";
+           this.description.HeaderText = "Descrip";
+           this.description.MinimumWidth = 30;
+           this.description.Name = "description";
+           // 
+           // primaryProduct
+           // 
+           this.primaryProduct.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+           this.primaryProduct.DataPropertyName = "PrimaryProduct";
+           this.primaryProduct.DataSource = this.bindingSourcePPlist;
+           this.primaryProduct.DisplayMember = "PrimaryProduct";
+           this.primaryProduct.HeaderText = "PP";
+           this.primaryProduct.MinimumWidth = 75;
+           this.primaryProduct.Name = "primaryProduct";
+           this.primaryProduct.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+           this.primaryProduct.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+           this.primaryProduct.ToolTipText = "Primary Product";
+           this.primaryProduct.ValueMember = "PrimaryProduct";
+           this.primaryProduct.Width = 75;
+           // 
+           // secondaryProduct
+           // 
+           this.secondaryProduct.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+           this.secondaryProduct.DataPropertyName = "SecondaryProduct";
+           this.secondaryProduct.HeaderText = "SP";
+           this.secondaryProduct.Items.AddRange(new object[] {
+            "02",
+            "06",
+            "07",
+            "08",
+            "14",
+            "17",
+            "20"});
+           this.secondaryProduct.MinimumWidth = 75;
+           this.secondaryProduct.Name = "secondaryProduct";
+           this.secondaryProduct.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+           this.secondaryProduct.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+           this.secondaryProduct.ToolTipText = "Secondary Product";
+           this.secondaryProduct.Width = 75;
+           // 
+           // defaultLiveDead
+           // 
+           this.defaultLiveDead.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+           this.defaultLiveDead.DataPropertyName = "DefaultLiveDead";
+           this.defaultLiveDead.HeaderText = "L/D";
+           this.defaultLiveDead.Items.AddRange(new object[] {
+            "L",
+            "D"});
+           this.defaultLiveDead.MinimumWidth = 60;
+           this.defaultLiveDead.Name = "defaultLiveDead";
+           this.defaultLiveDead.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+           this.defaultLiveDead.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+           this.defaultLiveDead.ToolTipText = "Default Live Dead Code";
+           this.defaultLiveDead.Width = 60;
+           // 
+           // cutLeave
+           // 
+           this.cutLeave.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+           this.cutLeave.DataPropertyName = "CutLeave";
+           this.cutLeave.HeaderText = "C/L";
+           this.cutLeave.Items.AddRange(new object[] {
+            "C",
+            "L"});
+           this.cutLeave.MinimumWidth = 60;
+           this.cutLeave.Name = "cutLeave";
+           this.cutLeave.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+           this.cutLeave.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+           this.cutLeave.Width = 60;
+           // 
+           // uOM
+           // 
+           this.uOM.AutoSizeMode = System.Windows.Forms.DataGridViewAutoSizeColumnMode.None;
+           this.uOM.DataPropertyName = "UOM";
+           this.uOM.HeaderText = "UOM";
+           this.uOM.Items.AddRange(new object[] {
+            "01",
+            "03",
+            "04",
+            "05"});
+           this.uOM.MinimumWidth = 60;
+           this.uOM.Name = "uOM";
+           this.uOM.Resizable = System.Windows.Forms.DataGridViewTriState.True;
+           this.uOM.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.Automatic;
+           this.uOM.Visible = false;
+           this.uOM.Width = 60;
+           // 
+           // MinDbh
+           // 
+           this.MinDbh.DataPropertyName = "MinDbh";
+           this.MinDbh.HeaderText = "MinDbh";
+           this.MinDbh.MinimumWidth = 75;
+           this.MinDbh.Name = "MinDbh";
+           this.MinDbh.Width = 75;
+           // 
+           // MaxDbh
+           // 
+           this.MaxDbh.DataPropertyName = "MaxDbh";
+           this.MaxDbh.HeaderText = "MaxDbh";
+           this.MaxDbh.MinimumWidth = 75;
+           this.MaxDbh.Name = "MaxDbh";
+           this.MaxDbh.Width = 75;
+           // 
+           // validatorDataGridViewTextBoxColumn1
+           // 
+           this.validatorDataGridViewTextBoxColumn1.DataPropertyName = "Validator";
+           this.validatorDataGridViewTextBoxColumn1.HeaderText = "Validator";
+           this.validatorDataGridViewTextBoxColumn1.Name = "validatorDataGridViewTextBoxColumn1";
+           this.validatorDataGridViewTextBoxColumn1.ReadOnly = true;
+           this.validatorDataGridViewTextBoxColumn1.Visible = false;
+           // 
+           // errorDataGridViewTextBoxColumn1
+           // 
+           this.errorDataGridViewTextBoxColumn1.DataPropertyName = "Error";
+           this.errorDataGridViewTextBoxColumn1.HeaderText = "Error";
+           this.errorDataGridViewTextBoxColumn1.Name = "errorDataGridViewTextBoxColumn1";
+           this.errorDataGridViewTextBoxColumn1.ReadOnly = true;
+           this.errorDataGridViewTextBoxColumn1.Visible = false;
+           // 
+           // rowIDDataGridViewTextBoxColumn1
+           // 
+           this.rowIDDataGridViewTextBoxColumn1.DataPropertyName = "rowID";
+           this.rowIDDataGridViewTextBoxColumn1.HeaderText = "rowID";
+           this.rowIDDataGridViewTextBoxColumn1.Name = "rowIDDataGridViewTextBoxColumn1";
+           this.rowIDDataGridViewTextBoxColumn1.Visible = false;
+           // 
+           // dALDataGridViewTextBoxColumn1
+           // 
+           this.dALDataGridViewTextBoxColumn1.DataPropertyName = "DAL";
+           this.dALDataGridViewTextBoxColumn1.HeaderText = "DAL";
+           this.dALDataGridViewTextBoxColumn1.Name = "dALDataGridViewTextBoxColumn1";
+           this.dALDataGridViewTextBoxColumn1.Visible = false;
+           // 
+           // isPersistedDataGridViewCheckBoxColumn1
+           // 
+           this.isPersistedDataGridViewCheckBoxColumn1.DataPropertyName = "IsPersisted";
+           this.isPersistedDataGridViewCheckBoxColumn1.HeaderText = "IsPersisted";
+           this.isPersistedDataGridViewCheckBoxColumn1.Name = "isPersistedDataGridViewCheckBoxColumn1";
+           this.isPersistedDataGridViewCheckBoxColumn1.ReadOnly = true;
+           this.isPersistedDataGridViewCheckBoxColumn1.Visible = false;
+           // 
+           // sampleGroupStatsCNDataGridViewTextBoxColumn
+           // 
+           this.sampleGroupStatsCNDataGridViewTextBoxColumn.DataPropertyName = "SampleGroupStats_CN";
+           this.sampleGroupStatsCNDataGridViewTextBoxColumn.HeaderText = "SampleGroupStats_CN";
+           this.sampleGroupStatsCNDataGridViewTextBoxColumn.Name = "sampleGroupStatsCNDataGridViewTextBoxColumn";
+           this.sampleGroupStatsCNDataGridViewTextBoxColumn.ReadOnly = true;
+           this.sampleGroupStatsCNDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // stratumStatsCNDataGridViewTextBoxColumn
+           // 
+           this.stratumStatsCNDataGridViewTextBoxColumn.DataPropertyName = "StratumStats_CN";
+           this.stratumStatsCNDataGridViewTextBoxColumn.HeaderText = "StratumStats_CN";
+           this.stratumStatsCNDataGridViewTextBoxColumn.Name = "stratumStatsCNDataGridViewTextBoxColumn";
+           this.stratumStatsCNDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // stratumStatsDataGridViewTextBoxColumn
+           // 
+           this.stratumStatsDataGridViewTextBoxColumn.DataPropertyName = "StratumStats";
+           this.stratumStatsDataGridViewTextBoxColumn.HeaderText = "StratumStats";
+           this.stratumStatsDataGridViewTextBoxColumn.Name = "stratumStatsDataGridViewTextBoxColumn";
+           this.stratumStatsDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // sgSetDataGridViewTextBoxColumn
+           // 
+           this.sgSetDataGridViewTextBoxColumn.DataPropertyName = "SgSet";
+           this.sgSetDataGridViewTextBoxColumn.HeaderText = "SgSet";
+           this.sgSetDataGridViewTextBoxColumn.Name = "sgSetDataGridViewTextBoxColumn";
+           this.sgSetDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // sampleSize1DataGridViewTextBoxColumn
+           // 
+           this.sampleSize1DataGridViewTextBoxColumn.DataPropertyName = "SampleSize1";
+           this.sampleSize1DataGridViewTextBoxColumn.HeaderText = "SampleSize1";
+           this.sampleSize1DataGridViewTextBoxColumn.Name = "sampleSize1DataGridViewTextBoxColumn";
+           this.sampleSize1DataGridViewTextBoxColumn.Visible = false;
+           // 
+           // sampleSize2DataGridViewTextBoxColumn
+           // 
+           this.sampleSize2DataGridViewTextBoxColumn.DataPropertyName = "SampleSize2";
+           this.sampleSize2DataGridViewTextBoxColumn.HeaderText = "SampleSize2";
+           this.sampleSize2DataGridViewTextBoxColumn.Name = "sampleSize2DataGridViewTextBoxColumn";
+           this.sampleSize2DataGridViewTextBoxColumn.Visible = false;
+           // 
+           // cV1DataGridViewTextBoxColumn
+           // 
+           this.cV1DataGridViewTextBoxColumn.DataPropertyName = "CV1";
+           this.cV1DataGridViewTextBoxColumn.HeaderText = "CV1";
+           this.cV1DataGridViewTextBoxColumn.Name = "cV1DataGridViewTextBoxColumn";
+           this.cV1DataGridViewTextBoxColumn.Visible = false;
+           // 
+           // cV2DataGridViewTextBoxColumn
+           // 
+           this.cV2DataGridViewTextBoxColumn.DataPropertyName = "CV2";
+           this.cV2DataGridViewTextBoxColumn.HeaderText = "CV2";
+           this.cV2DataGridViewTextBoxColumn.Name = "cV2DataGridViewTextBoxColumn";
+           this.cV2DataGridViewTextBoxColumn.Visible = false;
+           // 
+           // treesPerAcreDataGridViewTextBoxColumn
+           // 
+           this.treesPerAcreDataGridViewTextBoxColumn.DataPropertyName = "TreesPerAcre";
+           this.treesPerAcreDataGridViewTextBoxColumn.HeaderText = "TreesPerAcre";
+           this.treesPerAcreDataGridViewTextBoxColumn.Name = "treesPerAcreDataGridViewTextBoxColumn";
+           this.treesPerAcreDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // volumePerAcreDataGridViewTextBoxColumn
+           // 
+           this.volumePerAcreDataGridViewTextBoxColumn.DataPropertyName = "VolumePerAcre";
+           this.volumePerAcreDataGridViewTextBoxColumn.HeaderText = "VolumePerAcre";
+           this.volumePerAcreDataGridViewTextBoxColumn.Name = "volumePerAcreDataGridViewTextBoxColumn";
+           this.volumePerAcreDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // treesPerPlotDataGridViewTextBoxColumn
+           // 
+           this.treesPerPlotDataGridViewTextBoxColumn.DataPropertyName = "TreesPerPlot";
+           this.treesPerPlotDataGridViewTextBoxColumn.HeaderText = "TreesPerPlot";
+           this.treesPerPlotDataGridViewTextBoxColumn.Name = "treesPerPlotDataGridViewTextBoxColumn";
+           this.treesPerPlotDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // averageHeightDataGridViewTextBoxColumn
+           // 
+           this.averageHeightDataGridViewTextBoxColumn.DataPropertyName = "AverageHeight";
+           this.averageHeightDataGridViewTextBoxColumn.HeaderText = "AverageHeight";
+           this.averageHeightDataGridViewTextBoxColumn.Name = "averageHeightDataGridViewTextBoxColumn";
+           this.averageHeightDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // samplingFrequencyDataGridViewTextBoxColumn
+           // 
+           this.samplingFrequencyDataGridViewTextBoxColumn.DataPropertyName = "SamplingFrequency";
+           this.samplingFrequencyDataGridViewTextBoxColumn.HeaderText = "SamplingFrequency";
+           this.samplingFrequencyDataGridViewTextBoxColumn.Name = "samplingFrequencyDataGridViewTextBoxColumn";
+           this.samplingFrequencyDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // insuranceFrequencyDataGridViewTextBoxColumn
+           // 
+           this.insuranceFrequencyDataGridViewTextBoxColumn.DataPropertyName = "InsuranceFrequency";
+           this.insuranceFrequencyDataGridViewTextBoxColumn.HeaderText = "InsuranceFrequency";
+           this.insuranceFrequencyDataGridViewTextBoxColumn.Name = "insuranceFrequencyDataGridViewTextBoxColumn";
+           this.insuranceFrequencyDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // kZDataGridViewTextBoxColumn
+           // 
+           this.kZDataGridViewTextBoxColumn.DataPropertyName = "KZ";
+           this.kZDataGridViewTextBoxColumn.HeaderText = "KZ";
+           this.kZDataGridViewTextBoxColumn.Name = "kZDataGridViewTextBoxColumn";
+           this.kZDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // bigBAFDataGridViewTextBoxColumn
+           // 
+           this.bigBAFDataGridViewTextBoxColumn.DataPropertyName = "BigBAF";
+           this.bigBAFDataGridViewTextBoxColumn.HeaderText = "BigBAF";
+           this.bigBAFDataGridViewTextBoxColumn.Name = "bigBAFDataGridViewTextBoxColumn";
+           this.bigBAFDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // bigFIXDataGridViewTextBoxColumn
+           // 
+           this.bigFIXDataGridViewTextBoxColumn.DataPropertyName = "BigFIX";
+           this.bigFIXDataGridViewTextBoxColumn.HeaderText = "BigFIX";
+           this.bigFIXDataGridViewTextBoxColumn.Name = "bigFIXDataGridViewTextBoxColumn";
+           this.bigFIXDataGridViewTextBoxColumn.Visible = false;
+           // 
+           // tagDataGridViewTextBoxColumn1
+           // 
+           this.tagDataGridViewTextBoxColumn1.DataPropertyName = "Tag";
+           this.tagDataGridViewTextBoxColumn1.HeaderText = "Tag";
+           this.tagDataGridViewTextBoxColumn1.Name = "tagDataGridViewTextBoxColumn1";
+           this.tagDataGridViewTextBoxColumn1.Visible = false;
+           // 
            // StrataSetupPage
            // 
            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1297,11 +1308,11 @@
            this.panel2.PerformLayout();
            this.panel8.ResumeLayout(false);
            this.panel7.ResumeLayout(false);
-           ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridViewTDV)).EndInit();
            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceTDV)).EndInit();
            this.panel6.ResumeLayout(false);
            this.panel1.ResumeLayout(false);
            ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCurrentSgStats)).EndInit();
+           ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridViewTDV)).EndInit();
            this.ResumeLayout(false);
 
         }
@@ -1439,6 +1450,7 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn bigBAFDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn bigFIXDataGridViewTextBoxColumn;
         private System.Windows.Forms.DataGridViewTextBoxColumn tagDataGridViewTextBoxColumn1;
+        private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn42;
 
     }
 }
