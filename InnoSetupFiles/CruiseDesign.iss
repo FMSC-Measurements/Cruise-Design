@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 ; #defines require the ISPP add-on: http://sourceforge.net/projects/ispp/
 #define APP "Cruise Design"
-#define VERSION "2016.08.05"
+#define VERSION "2016.05.03"
 #define SPECIALTAG "Production"
 #define BASEURL "http://www.fs.fed.us/fmsc/measure"
 #define ORGANIZATION "U.S. Forest Service, Forest Management Service Center"
@@ -35,7 +35,7 @@ AllowUNCPath=no
 AllowNoIcons=yes
 ShowLanguageDialog=no
 
-OutputBaseFilename=CruiseDesignV2_Setup_
+OutputBaseFilename=CruiseDesign_Setup_{#VERSION}
 OutputManifestFile=Setup-Manifest.txt
 
 [Languages]

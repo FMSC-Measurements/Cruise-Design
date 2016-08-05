@@ -1,114 +1,0 @@
-8
-
-dir
-0
-http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc/CruiseDesign/trunk/CruiseDesign/UserControls
-http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc
-add
-
-
-
-
-
-
-
-svn:special svn:externals svn:needs-lock
-
-ErrorDisplayingTextBox.cs
-file
-
-
-
-add
-
-SelectedItemsGridView.cs
-file
-
-
-
-add
-
-MenuRow.cs
-file
-
-
-
-add
-
-TopLabelTextBox.resx
-file
-
-
-
-add
-
-SideLabelTextBox.resx
-file
-
-
-
-add
-
-TopLabelTextBox.cs
-file
-
-
-
-add
-
-SideLabelTextBox.cs
-file
-
-
-
-add
-
-TestBox1.resx
-file
-
-
-
-add
-
-PageHost.resx
-file
-
-
-
-add
-
-MenuRow.resx
-file
-
-
-
-add
-
-TestBox1.designer.cs
-file
-
-
-
-add
-
-TestBox1.cs
-file
-
-
-
-add
-
-ILabledTextBox.cs
-file
-
-
-
-add
-
-PageHost.cs
-file
-
-
-
-add
-

@@ -1,5 +1,0 @@
-Index	SourceFilename	TimeStamp	Version	SHA1Sum	OriginalSize	FirstSlice	LastSlice	StartOffset	ChunkSuboffset	ChunkCompressedSize	Encrypted
-0	C:\Development\CSharp\CruiseDesign\Trunk\InnoSetupFiles\..\CruiseDesign\bin\x86\Release\CruiseDesign.exe	2015-06-19 14:14:22.000		f147a0e6c384db8e56e17677d53b413d5e2394fd	1762816	1	1	0	0	759341	no
-1	C:\Development\CSharp\CruiseDesign\Trunk\InnoSetupFiles\..\CruiseDesign\bin\x86\Release\CruiseDAL.dll	2014-10-09 14:25:18.000		133c829e608ff5fd267bbb026e7b43e3b222872e	448000	1	1	0	1762816	759341	no
-2	C:\Development\CSharp\CruiseDesign\Trunk\InnoSetupFiles\..\CruiseDesign\bin\x86\Release\System.Data.SQLite.dll	2014-10-09 13:33:48.000		2a426a9b2be464224dbd03e0b4e9fb64fb7c62cb	969728	1	1	0	2210816	759341	no
-3	C:\Development\CSharp\CruiseDesign\Trunk\InnoSetupFiles\..\CruiseDesign\bin\x86\Release\STPinfo.setup	2014-09-26 14:13:18.000		ec8530edb2dde2016df16d1f8c11183206d94d2a	6516	1	1	0	3180544	759341	no
