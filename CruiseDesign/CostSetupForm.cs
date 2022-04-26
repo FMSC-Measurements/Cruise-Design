@@ -45,7 +45,8 @@ namespace CruiseDesign
 
       private void InitializeForm()
       {
-         cdGlobals = cdDAL.Read<GlobalsDO>("Globals", "WHERE Block = ?",str);
+            //  cdGlobals = cdDAL.Read<GlobalsDO>("Globals", "WHERE Block = ?",str);
+            cdGlobals = cdDAL.From<GlobalsDO>().Where("Block = @p1").Read(str).ToList();
          if (cdGlobals.Count == 0 || cdGlobals == null)
          {
             useDefaultValues();
@@ -132,9 +133,10 @@ namespace CruiseDesign
       }
       private void button1_Click(object sender, EventArgs e)
       {
-         // save all data to Global Form
-         cdGlobals = cdDAL.Read<GlobalsDO>("Globals", "WHERE Block = ?", str);
-         foreach (GlobalsDO gDO in cdGlobals)
+            // save all data to Global Form
+            //         cdGlobals = cdDAL.Read<GlobalsDO>("Globals", "WHERE Block = ?", str);
+            cdGlobals = cdDAL.From<GlobalsDO>().Where("Block = @p1").Read(str).ToList();
+            foreach (GlobalsDO gDO in cdGlobals)
          {
             switch (gDO.Key)
             {

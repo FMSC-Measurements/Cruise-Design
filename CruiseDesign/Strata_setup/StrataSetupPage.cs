@@ -61,10 +61,12 @@ namespace CruiseDesign.Strata_setup
 
         private void bindingSourceSgStats_CurrentChanged(object sender, EventArgs e)
         {
-           // display the TDV selected items
-           Owner.currentSgStats = bindingSourceSgStats.Current as SampleGroupStatsDO;
+            // display the TDV selected items
+            Owner.currentSgStats = bindingSourceSgStats.Current as SampleGroupStatsDO;
            if (Owner.currentSgStats != null)
            {
+                //if (Owner.currentSgStats.TreeDefaultValueStats.IsPopulated == false)
+                    Owner.currentSgStats.TreeDefaultValueStats.Populate();
               selectedItemsGridViewTDV.SelectedItems = Owner.currentSgStats.TreeDefaultValueStats;
            }
            else
@@ -76,7 +78,7 @@ namespace CruiseDesign.Strata_setup
 
         private void setProductBox()
         {
-          ppList = new List<TreeDefaultValueDO>(Owner.cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue","Group By PrimaryProduct",null));
+          ppList = new List<TreeDefaultValueDO>(Owner.cdDAL.From<TreeDefaultValueDO>().GroupBy("PrimaryProduct").Read().ToList());
           bindingSourcePPlist.DataSource = ppList;
         } 
       #endregion
@@ -151,8 +153,13 @@ namespace CruiseDesign.Strata_setup
 
         private void buttonNewSet_Click(object sender, EventArgs e)
         {
-            // save current sample group
-           if (dataGridViewSG.RowCount > 0)
+         // save current sample group
+           if (Owner.currentStratumStats.Method == "FIXCNT")
+           { 
+              MessageBox.Show("Cannot add SgSet to FIXCNT Method", "Information");
+              return;
+           } 
+           else if (dataGridViewSG.RowCount > 0)
            {
               // save current
               int nRes = saveSampleGroupStats();
@@ -163,7 +170,6 @@ namespace CruiseDesign.Strata_setup
               MessageBox.Show("Need to add at least one Sample Group", "Information");
               return;
            }
-          
 
            long nSgSet = getLastSgSet(Owner.currentStratumStats.Stratum_CN);
 
@@ -182,7 +188,7 @@ namespace CruiseDesign.Strata_setup
  
            //bindingSourceCurrentStratumStats.DataSource = Owner.currentStratumStats;
            //clear out currentSgStats
-           Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ?", Owner.currentStratumStats.StratumStats_CN, nSgSet+1));
+           Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND SgSet = @p2").Read(Owner.currentStratumStats.StratumStats_CN, nSgSet+1).ToList());
            bindingSourceSgStats.DataSource = Owner.cdSgStats;
 
 
@@ -195,8 +201,9 @@ namespace CruiseDesign.Strata_setup
 
         private long getLastSgSet(long? stratumCN)
         {
-           List<StratumStatsDO> myStratumStats = new List<StratumStatsDO>(Owner.cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? and Method = ? ORDER BY SgSet",stratumCN,"100"));
-           int cnt = myStratumStats.Count;
+          //  List<StratumStatsDO> myStratumStats = new List<StratumStatsDO>(Owner.cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? and Method = ? ORDER BY SgSet", stratumCN, "100"));
+            List<StratumStatsDO> myStratumStats = new List<StratumStatsDO>(Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 and Method = @p2").OrderBy("SgSet").Read("stratumCN","100").ToList());
+            int cnt = myStratumStats.Count;
            long nSgSet = Convert.ToInt32(myStratumStats[cnt - 1].SgSet);
            return (nSgSet);
         }
@@ -292,7 +299,8 @@ namespace CruiseDesign.Strata_setup
          {
             // set the forign key
             Owner.currentStratumStats.Stratum = Owner.currentStratum;
-            Owner.currentStratumStats.Method = "100";
+            if(Owner.currentStratumStats.Method != "FIXCNT")
+               Owner.currentStratumStats.Method = "100";
             Owner.currentStratumStats.Code = Owner.currentStratum.Code;
             Owner.currentStratumStats.Description = Owner.currentStratum.Description;
             Owner.currentStratumStats.SgSetDescription = textBoxSGsetDescr.Text;
@@ -312,8 +320,9 @@ namespace CruiseDesign.Strata_setup
        {
           // open the TDV in a select data grid on a new form
           TDV_Select tdvSelect = new TDV_Select(this);
-          newTDV = new BindingList<TreeDefaultValueDO>(Owner.cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", "ORDER BY Species", 0));
-          tdvSelect.bindingSourceTreeDV.DataSource = newTDV;
+           // newTDV = new BindingList<TreeDefaultValueDO>(Owner.cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", "ORDER BY Species", 0));
+            newTDV = new BindingList<TreeDefaultValueDO>(Owner.cdDAL.From<TreeDefaultValueDO>().OrderBy("Species").Read().ToList());
+            tdvSelect.bindingSourceTreeDV.DataSource = newTDV;
           tdvSelect.ShowDialog(this);
           
           //Owner.bindingSourceTDV.DataSource = Owner.Owner.cdTreeDefaults;

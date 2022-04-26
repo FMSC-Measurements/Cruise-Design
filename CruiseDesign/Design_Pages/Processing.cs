@@ -59,7 +59,7 @@ namespace CruiseDesign.Design_Pages
       private bool checkProcessedFile(DAL pDAL)
       {
          // get LCD file
-         List<LCDDO> selectedLCD = pDAL.Read<LCDDO>("LCD", null, null);
+         List<LCDDO> selectedLCD = pDAL.From<LCDDO>().Read().ToList();
 
          // if NULL, return false
          if (selectedLCD.Count == 0)

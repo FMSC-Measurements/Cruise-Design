@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using CruiseDAL;
@@ -24,6 +25,7 @@ namespace CruiseDesign.Stats
       public double plotVolume, plotVolume2, pltVol, treeVolumes, treeVolumes2, treeHeights;
       public double sumExpFac, vExpFac, vBarSum, vBarSum2, pntFac, vBarPlot, vBarPlot2;
       public int plotCount, treeCount, treePlot, treePlot2, errFlag;
+      public long? useFIXstrCN, usePNTstrCN, useFIXCNTstrCN;
 
       public DAL rDAL { get; set; }
       public DAL cdDAL { get; set; }
@@ -55,11 +57,11 @@ namespace CruiseDesign.Stats
             }
             catch (System.IO.IOException e)
             {
-               Logger.Log.E(e);
+               //Logger.Log.E(e);
             }
             catch (System.Exception e)
             {
-               Logger.Log.E(e);
+              // Logger.Log.E(e);
             }
          }
          else
@@ -99,13 +101,17 @@ namespace CruiseDesign.Stats
       public void getPopulations()
       {
          //MessageBox.Show("getPopulations");
-         mySale = new SaleDO(cdDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+         mySale = new SaleDO(cdDAL.From<SaleDO>().Read().FirstOrDefault());
          if (reconExists)
          {
-            // check for TreeDefaultValues - processed cruise
-            //List<TreeCalculatedValuesDO> chkValues = new List<TreeCalculatedValuesDO>(rDAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", null, null));
-            rTreeCalcJoin = new List<TreeCalculatedValuesDO>(rDAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", "JOIN Tree T JOIN SampleGroup G WHERE TreeCalculatedValues.Tree_CN = T.Tree_CN AND T.SampleGroup_CN = G.SampleGroup_CN", null));
-            if (rTreeCalcJoin.Count() <= 0)
+                // check for TreeDefaultValues - processed cruise
+                //                rTreeCalcJoin = new List<TreeCalculatedValuesDO>(rDAL.Read<TreeCalculatedValuesDO>("TreeCalculatedValues", "JOIN Tree T JOIN SampleGroup G WHERE TreeCalculatedValues.Tree_CN = T.Tree_CN AND T.SampleGroup_CN = G.SampleGroup_CN", null));
+                rTreeCalcJoin = new List<TreeCalculatedValuesDO>(rDAL.From<TreeCalculatedValuesDO>()
+                                     .Join("Tree AS T", "USING (Tree_CN)")
+                                     .Join("SampleGroup AS sg", "USING (SampleGroup_CN)")
+                                     .Read().ToList());
+                
+                if (rTreeCalcJoin.Count() <= 0)
             {
                errFlag = 1;
                getDefaultData();
@@ -119,98 +125,130 @@ namespace CruiseDesign.Stats
             return;
          }
          //get recon tree calculated list
-         myPlots = new List<PlotDO>(rDAL.Read<PlotDO>("Plot", null, null));
+         myPlots = new List<PlotDO>(rDAL.From<PlotDO>().Read().ToList());
 
          // get stratum definitions
-         stratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
+         stratum = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
 
+            usePNTstrCN = 0;
 
-         // loop through stratum
-         foreach (StratumDO curStr in stratum)
+            // loop through stratum
+            foreach (StratumDO curStr in stratum)
          {
             // check if Stratum needs to be re-calculated (if method = 100, then it needs to be recalculated)
-            strStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = 1 AND Method = ?", curStr.Stratum_CN, "100"));
-            if (curStr.Method == "100" && strStats.Used == 2)
+            usePNTstrCN = 0;
+            useFIXstrCN = 0;
+            useFIXCNTstrCN = 0;
+
+            curStr.CuttingUnits.Populate();
+
+            if (curStr.Method == "FIXCNT")
             {
-               curStr.CuttingUnits.Populate();
-               // get total strata acres
-
-               removePopulations(curStr.Stratum_CN);
-
-               totalAcres = 0;
-               foreach (CuttingUnitDO cu in curStr.CuttingUnits)
-               {
-                  float acres = cu.Area;
-                  totalAcres += acres;
-               }
-
-
-               selectStratumStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", curStr.Stratum_CN));
-               // loop by stratumstats for multiple SgSets
-               foreach (StratumStatsDO curStrStats in selectStratumStats)
-               {
-                  useDefaultFix = false;
-                  useDefaultTree = false;
-                  useDefaultPnt = false;
-                  curPlotFixSize = 0;
-                  curPlotPntSize = 0;
-
-                  // add methods to the StratumStats table (FIX,FCM,F3P,STR,3P,S3P,PNT,P3P,PCM,3PPNT)
-                  //setupPopulations(curStrStats.Stratum_CN, curStrStats.Code, curStrStats.Description, curStrStats.SgSet, curStrStats.SgSetDescription, curStrStats.TotalAcres);
-
-                  selectSgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", curStrStats.StratumStats_CN));
-                  // loop through sample groups
-                  foreach (SampleGroupStatsDO curSgStats in selectSgStats)
-                  {
-                     //Get all statistics from FIX plots  **************
-                     sgPlotSize = 0;
-                     //find data from Recon file
-                     int iReturn = getSgReconData(curStrStats, curSgStats, "FIX");
-
-                     if (iReturn > 0)
+                strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(curStr.Stratum_CN).FirstOrDefault());
+                if (strStats.Used == 2)
+                {
+                     totalAcres = 0;
+                     foreach (CuttingUnitDO cu in curStr.CuttingUnits)
                      {
-                        useDefaultFix = true;
-                        useDefaultTree = true;
+                        float acres = cu.Area;
+                        totalAcres += acres;
                      }
-
-                     if (curPlotFixSize == 0) curPlotFixSize = sgPlotSize;
-                     // check plot sizes are not different across sample groups
-                     if (curPlotFixSize != sgPlotSize)
-                     {
-                        // plot sizes are different across sample groups, cannot calculate Fix statistics
-                        useDefaultFix = true;
-                     }
-
-                     // calc Fixed
-                     getFixSgStats(curStrStats, curSgStats, useDefaultFix);
-
-                     //Get all statistics from PNT plots  **************
-                     curPlotFixSize = 0;
-                     sgPlotSize = 0;
-                     //find data from Recon file
-                     iReturn = getSgReconData(curStrStats, curSgStats, "PNT");
-
-                     if (iReturn > 0)
-                     {
-                        useDefaultPnt = true;
-                     }
-
-                     if (curPlotPntSize == 0) curPlotPntSize = sgPlotSize;
-                     // check plot sizes are not different across sample groups
-                     if (curPlotPntSize != sgPlotSize)
-                     {
-                        // plot sizes are different across sample groups, cannot calculate Fix statistics
-                        useDefaultPnt = true;
-                     }
-                     getPntSgStats(curStrStats, curSgStats, useDefaultPnt);
-                  }
-               }
-               //calculate StratumStats from the SampleGroupStats
-               getStratumStats(curStr.Stratum_CN);
-
+                     //calculate StratumStats from the SampleGroupStats
+                     useFIXCNTstrCN = 1;
+                     getStratumStats(curStr.Stratum_CN);
+                }
             }
             else
             {
+                strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1 AND Method = @p2").Read(curStr.Stratum_CN, "100").FirstOrDefault());
+                if (strStats.Used == 2)
+                {
+              
+                   removePopulations(curStr.Stratum_CN);
+
+                   totalAcres = 0;
+                   foreach (CuttingUnitDO cu in curStr.CuttingUnits)
+                   {
+                      float acres = cu.Area;
+                      totalAcres += acres;
+                   }
+
+                   selectStratumStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(curStr.Stratum_CN).ToList());
+                   // loop by stratumstats for multiple SgSets
+                   foreach (StratumStatsDO curStrStats in selectStratumStats)
+                   {
+                      useDefaultFix = false;
+                      useDefaultTree = false;
+                      useDefaultPnt = false;
+                      curPlotFixSize = 0;
+                      curPlotPntSize = 0;
+                                
+                  // add methods to the StratumStats table (FIX,FCM,F3P,STR,3P,S3P,PNT,P3P,PCM,3PPNT)
+                  //setupPopulations(curStrStats.Stratum_CN, curStrStats.Code, curStrStats.Description, curStrStats.SgSet, curStrStats.SgSetDescription, curStrStats.TotalAcres);
+
+                      selectSgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(curStrStats.StratumStats_CN).ToList());
+                  // loop through sample groups
+
+                      foreach (SampleGroupStatsDO curSgStats in selectSgStats)
+                      {
+                            //Get all statistics from FIX plots  **************
+                            sgPlotSize = 0;
+                     //find data from Recon file
+                         int iReturn = getSgReconData(curStrStats, curSgStats, "FIX", curStr.Code,curStr.Description);
+
+                         if (iReturn > 0)
+                         {
+                             useDefaultFix = true;
+                             useDefaultTree = true;
+                         }
+                         else
+                         {
+                             useDefaultFix = false;
+                             useDefaultTree = false;
+                         }
+
+                         if (curPlotFixSize == 0) curPlotFixSize = sgPlotSize;
+                     // check plot sizes are not different across sample groups
+                         if (curPlotFixSize != sgPlotSize)
+                         {
+                        // plot sizes are different across sample groups, cannot calculate Fix statistics
+                            useDefaultFix = true;
+                         }
+
+                     // calc Fixed
+                         getFixSgStats(curStrStats, curSgStats, useDefaultFix);
+
+                     //Get all statistics from PNT plots  **************
+                         curPlotFixSize = 0;
+                         sgPlotSize = 0;
+                     //find data from Recon file
+                         iReturn = getSgReconData(curStrStats, curSgStats, "PNT", curStr.Code, curStr.Description);
+
+                         if (iReturn > 0)
+                         {
+                            useDefaultPnt = true;
+                         }
+                         else
+                         {
+                            useDefaultPnt = false;
+                         }
+
+                        if (curPlotPntSize == 0) curPlotPntSize = sgPlotSize;
+                     // check plot sizes are not different across sample groups
+                         if (curPlotPntSize != sgPlotSize)
+                         {
+                        // plot sizes are different across sample groups, cannot calculate Fix statistics
+                            useDefaultPnt = true;
+                         }
+                         getPntSgStats(curStrStats, curSgStats, useDefaultPnt);
+                      }
+                   }
+               //calculate StratumStats from the SampleGroupStats
+                   getStratumStats(curStr.Stratum_CN);
+
+                }
+                else
+                {
               // selectStratumStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", curStr.Stratum_CN));
                // check for historical data
               // foreach (StratumStatsDO curStrStats in selectStratumStats)
@@ -227,6 +265,7 @@ namespace CruiseDesign.Stats
                //      getStratumStats(curStr.Stratum_CN);
                //   }
                //}
+               }
             }
          }
       }
@@ -234,12 +273,12 @@ namespace CruiseDesign.Stats
       public void getDefaultData()
       {
          // get stratum definitions
-         stratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
+         stratum = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
 
          // loop through stratum
          foreach (StratumDO curStr in stratum)
          {
-            strStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = 1 AND Method = ?", curStr.Stratum_CN, "100"));
+            strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = ? AND SgSet = 1 AND Method = ?").Read(curStr.Stratum_CN, "100").FirstOrDefault());
             if (curStr.Method == "100" && strStats.Used == 2)
             {
                curStr.CuttingUnits.Populate();
@@ -254,14 +293,14 @@ namespace CruiseDesign.Stats
                   totalAcres += acres;
                }
                
-               selectStratumStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", curStr.Stratum_CN));
+               selectStratumStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(curStr.Stratum_CN).ToList());
 
                foreach (StratumStatsDO curStrStats in selectStratumStats)
                {
                   // check for error equal to zero
                   if (curStrStats.StrError == 0)
                   {
-                     selectSgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", curStrStats.StratumStats_CN));
+                     selectSgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(curStrStats.StratumStats_CN).ToList());
                      // loop through sample groups
                      foreach (SampleGroupStatsDO curSgStats in selectSgStats)
                      {
@@ -377,6 +416,8 @@ namespace CruiseDesign.Stats
          int KZ = 0;
          int Freq = 0;
 
+         long totTree = (long)(treePerAcre * treeCount + 0.49);
+
          calcStats cStat = new calcStats();
          if (!useDefault)
          {
@@ -434,17 +475,17 @@ namespace CruiseDesign.Stats
             else if (method == "STR")
             {
                sgCV = cStat.getCV(treeVolumes, treeVolumes2, treeCount);
-               sgError = cStat.getSampleError(sgCV, treeCount, 0);
+               sgError = cStat.getSampleError(sgCV, treeCount, 0, totTree);
                n = treePlot;
                if (treePlot > 0)
-                  Freq = (int)Math.Floor((treePerAcre * totalAcres) / treeCount);
+                  Freq = (int)(((float)totTree / (float)treeCount)+.4);
                else
                   Freq = 0;
             }
             else if (method == "3P")
             {
                sgCV = 35;
-               sgError = cStat.getSampleError(sgCV, treeCount, 0);
+               sgError = cStat.getSampleError(sgCV, treeCount, 0, totTree);
                n = treePlot;
                if (treeVolumes > 0)
                   KZ = (int)Math.Floor((volumePerAcre * totalAcres) / treeVolumes);
@@ -536,27 +577,30 @@ namespace CruiseDesign.Stats
          newSgStats.ReconTrees = treeCount;
 
          //selectSgStats.Add(newSgStats);
-         newSgStats.Save();
+        newSgStats.Save();
+
          //long? sgcn = newSgStats.SampleGroupStats_CN;
          curSgStats.TreeDefaultValueStats.Populate();
          foreach (TreeDefaultValueDO myTDV in curSgStats.TreeDefaultValueStats)
          {
-            SampleGroupStatsTreeDefaultValueDO mySgTDV = new SampleGroupStatsTreeDefaultValueDO(cdDAL);
-            mySgTDV.TreeDefaultValue_CN = myTDV.TreeDefaultValue_CN;
-            mySgTDV.SampleGroupStats = newSgStats;
-            mySgTDV.Save();
+                //SampleGroupStatsTreeDefaultValueDO mySgTDV = new SampleGroupStatsTreeDefaultValueDO(cdDAL);
+                //mySgTDV.TreeDefaultValue_CN = myTDV.TreeDefaultValue_CN;
+                //mySgTDV.SampleGroupStats_CN = newSgStats.SampleGroupStats_CN;
+                newSgStats.TreeDefaultValueStats.Add(myTDV);
          }
+         newSgStats.Save();
       }
 
  
       public long? GetStratumStatsCN(StratumStatsDO curStrStats, string method)
       {
          //find StratumStats_CN for population with Stratum_CN, Code, SgSet, method are the same
-         StratumStatsDO thisStrStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = ? AND Method = ?", curStrStats.Stratum_CN, curStrStats.SgSet, method));
+         StratumStatsDO thisStrStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = @p2 AND Method = @p3")
+                                  .Read(curStrStats.Stratum_CN, curStrStats.SgSet, method).FirstOrDefault());
          //         currentStratumStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = 1", currentStratum.Stratum_CN));
          if (thisStrStats != null)
          {
-            if(method == "FIX" || method == "FCM" || method == "F3P")
+            if(method == "FIX" || method == "FCM" || method == "F3P" || method == "FIXCNT")
                thisStrStats.FixedPlotSize = curPlotFixSize;
             else if(method == "PNT" || method == "PCM" || method == "P3P" || method == "3PPNT")
                thisStrStats.BasalAreaFactor = curPlotPntSize;
@@ -577,7 +621,7 @@ namespace CruiseDesign.Stats
             newStrStats.TotalAcres = totalAcres;
             newStrStats.Method = method;
             newStrStats.Used = 0;
-            if (method == "FIX" || method == "FCM" || method == "F3P")
+            if (method == "FIX" || method == "FCM" || method == "F3P" || method == "FIXCNT")
                newStrStats.FixedPlotSize = curPlotFixSize;
             else if (method == "PNT" || method == "PCM" || method == "P3P" || method == "3PPNT")
                newStrStats.BasalAreaFactor = curPlotPntSize;
@@ -588,10 +632,12 @@ namespace CruiseDesign.Stats
       }
 
       //********************                                                                      getSgReconData
-      public int getSgReconData(StratumStatsDO curStrStats, SampleGroupStatsDO curSgStats, string method)
+      public int getSgReconData(StratumStatsDO curStrStats, SampleGroupStatsDO curSgStats, string method, string code, string descrip)
       {
+         StratumDO cdStr;
          CuttingUnitDO rUnit;
          SampleGroupDO rSampleGroup;
+
          long? myStratumCN = 0;
          //long?[] stratumArray = new long?[10];
          
@@ -614,143 +660,193 @@ namespace CruiseDesign.Stats
          vBarSum = 0;
          vBarSum2 = 0;
          vBarPlot2 = 0;
-         //         currentTreeList.Clear();
-         curSgStats.TreeDefaultValueStats.Populate();
-         // loop through design units
+
+      //         currentTreeList.Clear();
+      curSgStats.TreeDefaultValueStats.Populate();
+            // loop through design units
          foreach (CuttingUnitDO curUnit in curStrStats.Stratum.CuttingUnits)
          {
-            rUnit = rDAL.ReadSingleRow<CuttingUnitDO>("CuttingUnit", "Where Code = ?", curUnit.Code);
-            if (rUnit != null)
-            {
-               unitCnt++;
-               rUnit.Strata.Populate();
-               int cnt = 0;
-               foreach (StratumDO myStratum in rUnit.Strata)
-               {
-                  if (myStratum.Method == method)
-                  {
-                     // check sample group product code
-                     rSampleGroup = rDAL.ReadSingleRow<SampleGroupDO>("SampleGroup", "Where Stratum_CN = ? AND PrimaryProduct = ?", myStratum.Stratum_CN, curSgStats.PrimaryProduct);
-                     if (rSampleGroup != null)
+             rUnit = rDAL.From<CuttingUnitDO>().Where("Code = @p1").Read(curUnit.Code).FirstOrDefault();
+             if (rUnit != null)
+             {
+                 rUnit.Strata.Populate();
+                 int cnt = 0;
+                 foreach (StratumDO myStratum in rUnit.Strata)
+                 {
+                     if (myStratum.Method == method)
                      {
-                        myStratumCN = myStratum.Stratum_CN;
-                        if (method == "FIX")
-                           curSgPlotSize = myStratum.FixedPlotSize;
-                        else if (method == "PNT")
-                           curSgPlotSize = myStratum.BasalAreaFactor;
-                        cnt++;
-                     }
-                  }
-               }
-               if (cnt == 0)
-               {
-                  return (1);
-               }
-               else if (cnt > 1)
-               {
-                  // loop through stratumArray
-
-                  // popup to select correct stratum
-               }
-               //            else
-               //              myStratumCN = stratumArray[0];
-
-               // get number of plots for stratum and cutting unit
-               var myPlotList = (from plt in myPlots
-                                 where plt.CuttingUnit_CN == rUnit.CuttingUnit_CN
-                                 && plt.Stratum_CN == myStratumCN
-                                 select plt).ToList();
-               //List<PlotDO> myPlots = new List<PlotDO>(rDAL.Read<PlotDO>("Plot", "WHERE Plot.CuttingUnit_CN = ? AND Plot.Stratum_CN = ?", rUnit.CuttingUnit_CN, myStratumCN));
-               plotCount += myPlotList.Count();
-               // loop through plots
-               foreach (PlotDO curPlot in myPlotList)
-               {
-                  pltVol = 0;
-                  vBarPlot = 0;
-                  int plotTreeCount = 0;
-                  vExpFac = 0;
-
-                  foreach (TreeDefaultValueDO curTdv in curSgStats.TreeDefaultValueStats)
-                  {
-                     double maxDbh = 200;
-                     double minDbh = 0;
-                     if (curSgStats.MinDbh > 0 && curSgStats.MaxDbh > 0)
-                     {
-                        maxDbh = curSgStats.MaxDbh + 0.0499;
-                        minDbh = curSgStats.MinDbh - 0.0500;
-                     }
-                        var myTreeList = (from tcv in rTreeCalcJoin
-                                      where tcv.Tree.SampleGroup.PrimaryProduct == curSgStats.PrimaryProduct
-                                      && tcv.Tree.Plot_CN == curPlot.Plot_CN
-                                      && tcv.Tree.Species == curTdv.Species
-                                      && tcv.Tree.LiveDead == curTdv.LiveDead
-                                      && tcv.Tree.DBH >= minDbh
-                                      && tcv.Tree.DBH <= maxDbh
-                                      select tcv).ToList();
-                     
-
-                     // load Unit, Plot, Tree, DBH, THT, Volume into list
-                     //check MinDbh and MaxDbh
-                     foreach (TreeCalculatedValuesDO myTree in myTreeList)
-                     {
-                        plotTreeCount++;
-                        treeHeights += myTree.Tree.TotalHeight;
-
-                        if (myTree.Tree.DBH > 0 && method == "PNT")
+                            // check sample group product code
+                        rSampleGroup = rDAL.From<SampleGroupDO>().Where("Stratum_CN = @p1 AND PrimaryProduct = @p2").Read(myStratum.Stratum_CN, curSgStats.PrimaryProduct).FirstOrDefault();
+                        if (rSampleGroup != null)
                         {
-                           if (curSgStats.UOM == "01")
-                              vBar = myTree.NetBDFTPP / (0.005454 * myTree.Tree.DBH * myTree.Tree.DBH);
+                           if (myStratumCN == 0)
+                           { 
+                              myStratumCN = myStratum.Stratum_CN;
+                              if (method == "FIX")
+                                 curSgPlotSize = myStratum.FixedPlotSize;
+                              else if (method == "PNT")
+                                 curSgPlotSize = myStratum.BasalAreaFactor;
+                              cnt++;
+                              unitCnt++;
+                           }
                            else
-                              vBar = myTree.NetCUFTPP / (0.005454 * myTree.Tree.DBH * myTree.Tree.DBH);
-
-                           vBarSum += vBar;
-                           vBarSum2 += (vBar * vBar);
-                           vBarPlot += vBar;
-
-                           vExpFac += curSgPlotSize / (0.005454 * myTree.Tree.DBH * myTree.Tree.DBH);
-                        }
-
-                        if (curSgStats.UOM == "01")
-                        {
-                           treeVolumes += myTree.NetBDFTPP;
-                           treeVolumes2 += myTree.NetBDFTPP * myTree.NetBDFTPP;
-                           pltVol += myTree.NetBDFTPP;
-                        }
-                        else
-                        {
-                           treeVolumes += myTree.NetCUFTPP;
-                           treeVolumes2 += myTree.NetCUFTPP * myTree.NetCUFTPP;
-                           pltVol += myTree.NetCUFTPP;
+                           {
+                              if (myStratumCN != myStratum.Stratum_CN)
+                              {  
+                                 cnt++;
+                                 unitCnt++;
+                              }
+                           }
                         }
                      }
-                  }
-                  // save plot level information
-                  treeCount += plotTreeCount;
-                  treePlot += plotTreeCount;
-                  treePlot2 += plotTreeCount * plotTreeCount;
-                  plotVolume += pltVol;
-                  plotVolume2 += pltVol * pltVol;
-                  vBarPlot2 += vBarPlot * vBarPlot;
-                  sumExpFac += vExpFac;
+                 }
+                 if (cnt > 1)
+                 {
 
+                   if (method == "FIX")
+                   {
+                        if (useFIXstrCN == 0)
+                        {
+                                // create recon stratum bindinglist where unit and method
+//                                List<StratumDO> rStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "JOIN CuttingUnitStratum JOIN CuttingUnit WHERE Stratum.Stratum_CN = CuttingUnitStratum.Stratum_CN AND CuttingUnitStratum.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN AND CuttingUnit.Code = ? AND Stratum.Method = ?", rUnit.Code, method));
+                           List<StratumDO> rStratum = new List<StratumDO>(rDAL.From<StratumDO>()
+                                                    .Join("CuttingUnitStratum AS cus","USING (Stratum_CN)")
+                                                    .Join("CuttingUnit AS cu","USING (CuttingUnit_CN)")
+                                                    .Where("cu.Code = @p1 AND Stratum.Method = @p2").Read(rUnit.Code, method).ToList());
+                                // save CN to correct CN save
+                                userSelectStratum userDialog = new userSelectStratum(method, rStratum, code, descrip);
+                           userDialog.ShowDialog();
+                           useFIXstrCN = userDialog.currentStratum.Stratum_CN;
+                        }
+                        myStratumCN = useFIXstrCN;
+                        cdStr = rDAL.From<StratumDO>().Where("Stratum_CN = @p1").Read(myStratumCN).FirstOrDefault();
+                        
+                        curSgPlotSize = cdStr.FixedPlotSize;
+                     }
+                     else if (method == "PNT")
+                     {
+                        if (usePNTstrCN == 0)
+                        {
+                        // create recon stratum bindinglist where unit and method
+//                           List<StratumDO> rStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "JOIN CuttingUnitStratum JOIN CuttingUnit WHERE Stratum.Stratum_CN = CuttingUnitStratum.Stratum_CN AND CuttingUnitStratum.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN AND CuttingUnit.Code = ? AND Stratum.Method = ?", rUnit.Code, method));
+                             List<StratumDO> rStratum = new List<StratumDO>(rDAL.From<StratumDO>()
+                                                         .Join("CuttingUnitStratum AS cus", "USING (Stratum_CN)")
+                                                         .Join("CuttingUnit AS cu", "USING (CuttingUnit_CN)")
+                                                         .Where("cu.Code = @p1 AND Stratum.Method = @p2").Read(rUnit.Code, method).ToList());
+                                // save CN to correct CN save
+                                userSelectStratum userDialog = new userSelectStratum(method, rStratum, code, descrip);
+                           userDialog.ShowDialog();
+                           usePNTstrCN = userDialog.currentStratum.Stratum_CN;
+                        }
+                        myStratumCN = usePNTstrCN;
+                        cdStr = rDAL.From<StratumDO>().Where("Stratum_CN = @p1").Read(myStratumCN).FirstOrDefault();
+                        curSgPlotSize = cdStr.BasalAreaFactor;
+                  }
                }
 
-               // !!!check for different fixed plot sizes across units!!!
-               if (sgPlotSize == 0) sgPlotSize = curSgPlotSize;
-               if (sgPlotSize != curSgPlotSize)
-               {
-                  // cannot calculate statistics
-                  if (method == "FIX")
-                  {
-                     useDefaultFix = true;
-                     useDefaultTree = true;
+//                  else if (cnt == 1)
+ //                 {
+                        //            else
+                        //              myStratumCN = stratumArray[0];
+
+                        // get number of plots for stratum and cutting unit
+                 var myPlotList = (from plt in myPlots
+                                          where plt.CuttingUnit_CN == rUnit.CuttingUnit_CN
+                                          && plt.Stratum_CN == myStratumCN
+                                          select plt).ToList();
+                        //List<PlotDO> myPlots = new List<PlotDO>(rDAL.Read<PlotDO>("Plot", "WHERE Plot.CuttingUnit_CN = ? AND Plot.Stratum_CN = ?", rUnit.CuttingUnit_CN, myStratumCN));
+
+                 plotCount += myPlotList.Count();
+                        // loop through plots
+                 foreach (PlotDO curPlot in myPlotList)
+                 {
+                      pltVol = 0;
+                      vBarPlot = 0;
+                      int plotTreeCount = 0;
+                      vExpFac = 0;
+
+                      foreach (TreeDefaultValueDO curTdv in curSgStats.TreeDefaultValueStats)
+                      {
+                          double maxDbh = 200;
+                          double minDbh = 0;
+                          if (curSgStats.MinDbh > 0 && curSgStats.MaxDbh > 0)
+                          {
+                              maxDbh = curSgStats.MaxDbh + 0.0499;
+                              minDbh = curSgStats.MinDbh - 0.0500;
+                          }
+                          var myTreeList = (from tcv in rTreeCalcJoin
+                                                  where tcv.Tree.SampleGroup.PrimaryProduct == curSgStats.PrimaryProduct
+                                                  && tcv.Tree.SampleGroup.CutLeave == curSgStats.CutLeave                                              
+                                                  && tcv.Tree.Plot_CN == curPlot.Plot_CN
+                                                  && tcv.Tree.TreeDefaultValue_CN == curTdv.TreeDefaultValue_CN
+                                                  && tcv.Tree.DBH >= minDbh
+                                                  && tcv.Tree.DBH <= maxDbh
+                                                  select tcv).ToList();
+
+
+                                // load Unit, Plot, Tree, DBH, THT, Volume into list
+                                //check MinDbh and MaxDbh
+                          foreach (TreeCalculatedValuesDO myTree in myTreeList)
+                          {
+                              plotTreeCount++;
+                              treeHeights += myTree.Tree.TotalHeight;
+
+                              if (myTree.Tree.DBH > 0 && method == "PNT")
+                              {
+                                  if (curSgStats.UOM == "01")
+                                      vBar = myTree.NetBDFTPP / (0.005454 * myTree.Tree.DBH * myTree.Tree.DBH);
+                                  else
+                                      vBar = myTree.NetCUFTPP / (0.005454 * myTree.Tree.DBH * myTree.Tree.DBH);
+
+                                  vBarSum += vBar;
+                                  vBarSum2 += (vBar * vBar);
+                                  vBarPlot += vBar;
+
+                                  vExpFac += curSgPlotSize / (0.005454 * myTree.Tree.DBH * myTree.Tree.DBH);
+                              }
+
+                              if (curSgStats.UOM == "01")
+                              {
+                                  treeVolumes += myTree.NetBDFTPP;
+                                  treeVolumes2 += myTree.NetBDFTPP * myTree.NetBDFTPP;
+                                  pltVol += myTree.NetBDFTPP;
+                              }
+                              else
+                              {
+                                  treeVolumes += myTree.NetCUFTPP;
+                                  treeVolumes2 += myTree.NetCUFTPP * myTree.NetCUFTPP;
+                                  pltVol += myTree.NetCUFTPP;
+                              }
+                          }
+                      }
+                            // save plot level information
+                      treeCount += plotTreeCount;
+                      treePlot += plotTreeCount;
+                      treePlot2 += plotTreeCount * plotTreeCount;
+                      plotVolume += pltVol;
+                      plotVolume2 += pltVol * pltVol;
+                      vBarPlot2 += vBarPlot * vBarPlot;
+                      sumExpFac += vExpFac;
+
                   }
-                  else if (method == "PNT")
+
+                        // !!!check for different fixed plot sizes across units!!!
+                  if (sgPlotSize == 0) sgPlotSize = curSgPlotSize;
+                  if (sgPlotSize != curSgPlotSize)
                   {
-                     useDefaultPnt = true;
+                            // cannot calculate statistics
+                      if (method == "FIX")
+                      {
+                          useDefaultFix = true;
+                          useDefaultTree = true;
+                      }
+                      else if (method == "PNT")
+                      {
+                          useDefaultPnt = true;
+                      }
                   }
-               }
-            }
+                }
+           //  }
          }
          if(unitCnt == 0) return (1);
          
@@ -764,19 +860,23 @@ namespace CruiseDesign.Stats
 
          // find strata assigned with Unit Code where Method = FIX
 
-         List<StratumDO> rStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "WHERE CuttingUnit_CN = ? AND Stratum.Method = ?", UnitCN, method));
+         List<StratumDO> rStratum = new List<StratumDO>(rDAL.From<StratumDO>().Where("CuttingUnit_CN = @p1 AND Stratum.Method = @p2").Read(UnitCN, method).ToList());
          //List<StratumDO> rStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "JOIN CuttingUnitStratum JOIN CuttingUnit WHERE Stratum.Stratum_CN = CuttingUnitStratum.Stratum_CN AND CuttingUnitStratum.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN AND CuttingUnit.Code = ? AND Stratum.Method = ?", curUnit.Code, method));
          // find stratum with correct method (If multiple, ask for correct to use)
          if (rStratum.Count() > 0)
          {
             if (rStratum.Count() > 1)
             {
-               // check sample group for curSgStats product code
-               List<StratumDO> chkStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "Join SampleGroup WHERE Stratum.Stratum_CN = SampleGroup.Stratum_CN AND Stratum.CuttingUnit_CN = ? AND Stratum.Method = ? AND SampleGroup.PrimaryProduct = ?", UnitCN, method, curSgStats.PrimaryProduct));
+                    // check sample group for curSgStats product code
+//                 List<StratumDO> chkStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "Join SampleGroup WHERE Stratum.Stratum_CN = SampleGroup.Stratum_CN AND Stratum.CuttingUnit_CN = ? AND Stratum.Method = ? AND SampleGroup.PrimaryProduct = ?", UnitCN, method, curSgStats.PrimaryProduct));
+                 List<StratumDO> chkStratum = new List<StratumDO>(rDAL.From<StratumDO>()
+                              .Join("SampleGroup AS sg","USING (Stratum_CN)")
+                              .Where("Stratum.CuttingUnit_CN = @p1 AND Stratum.Method = @p2 AND sg.PrimaryProduct = @p3")
+                              .Read(UnitCN, method, curSgStats.PrimaryProduct).ToList());
 
-               //List<StratumDO> chkStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "JOIN CuttingUnitStratum JOIN CuttingUnit JOIN SampleGroup WHERE Stratum.Stratum_CN = CuttingUnitStratum.Stratum_CN AND CuttingUnitStratum.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN AND Stratum.Stratum_CN = SampleGroup.Stratum_CN AND CuttingUnit.Code = ? AND Stratum.Method = ? AND SampleGroup.PrimaryProduct = ?", curUnit.Code, method, curSgStats.PrimaryProduct));
-               // if only one stratum, return as a single row
-               if (chkStratum.Count() == 1)
+                    //List<StratumDO> chkStratum = new List<StratumDO>(rDAL.Read<StratumDO>("Stratum", "JOIN CuttingUnitStratum JOIN CuttingUnit JOIN SampleGroup WHERE Stratum.Stratum_CN = CuttingUnitStratum.Stratum_CN AND CuttingUnitStratum.CuttingUnit_CN = CuttingUnit.CuttingUnit_CN AND Stratum.Stratum_CN = SampleGroup.Stratum_CN AND CuttingUnit.Code = ? AND Stratum.Method = ? AND SampleGroup.PrimaryProduct = ?", curUnit.Code, method, curSgStats.PrimaryProduct));
+                    // if only one stratum, return as a single row
+                    if (chkStratum.Count() == 1)
                {
                   if (method == "FIX")
                      curSgPlotSize = chkStratum[0].FixedPlotSize;
@@ -815,7 +915,7 @@ namespace CruiseDesign.Stats
 
          List<StratumStatsDO> strataStats;
 
-         strataStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", stratum_cn));
+         strataStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(stratum_cn).ToList());
          // loop by stratumstats for multiple SgSets
          foreach (StratumStatsDO curStrStats in strataStats)
          {
@@ -831,21 +931,23 @@ namespace CruiseDesign.Stats
          List<StratumStatsDO> myStratumStats;
          List<SampleGroupStatsDO> mySgStats;
          float totalVolumeAcre, totalVolume, wtCV1, wtCv2, volumeAcre, strTpp;
-         float cv1, cv2, wtErr, sgErr, treesAcre, totCost;
+         float cv1, cv2, wtErr, sgErr, treesAcre, totCost, totalTrees, totalTreesAcre;
          long sampleSize1, sampleSize2;
          bool plotFlag;
          //loop through SampleGroupStats
-         myStratumStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", stratumCN));
+         myStratumStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(stratumCN).ToList());
          foreach (StratumStatsDO thisStrStats in myStratumStats)
          {
             plotFlag = true;
-            mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", thisStrStats.StratumStats_CN));
+            mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(thisStrStats.StratumStats_CN).ToList());
             // loop through sample groups
             //totalVolumeAcre = getTotals(mySgStats);
             totalVolumeAcre = mySgStats.Sum(P => P.VolumePerAcre);
             totalVolume = totalVolumeAcre * totalAcres;
             strTpp = mySgStats.Sum(P => P.TreesPerPlot);
-            treesAcre = mySgStats.Sum(P => P.TreesPerAcre);
+            totalTreesAcre = mySgStats.Sum(P => P.TreesPerAcre);
+            totalTrees = totalTreesAcre * totalAcres;
+
             if (thisStrStats.Method == "STR" || thisStrStats.Method == "3P" || thisStrStats.Method == "S3P")
             {
                sampleSize1 = mySgStats.Sum(P => P.SampleSize1);
@@ -853,6 +955,7 @@ namespace CruiseDesign.Stats
             }
             else
                sampleSize1 = 0;
+
             sampleSize2 = mySgStats.Sum(P => P.SampleSize2); 
             wtCV1 = 0;
             wtCv2 = 0;
@@ -861,33 +964,56 @@ namespace CruiseDesign.Stats
             {
                //sum volumes, trees/acre, sample sizes
                if(plotFlag)
-                  sampleSize1 += thisSgStats.SampleSize1;
+                  sampleSize1 = thisSgStats.SampleSize1;
                //sampleSize2 += thisSgStats.SampleSize2;
 
                volumeAcre = thisSgStats.VolumePerAcre;
+               treesAcre = thisSgStats.TreesPerAcre;
+
                cv1 = thisSgStats.CV1;
                cv2 = thisSgStats.CV2;
                sgErr = thisSgStats.SgError;
                //calculate weighted CVs
-               if (totalVolumeAcre > 0)
+               if (useFIXCNTstrCN == 1)
                {
-                  wtCV1 += cv1 * (volumeAcre / totalVolumeAcre);
-                  wtCv2 += cv2 * (volumeAcre / totalVolumeAcre);
+                  if(totalTrees > 0)
+                  {
+                     wtCV1 += cv1 * (treesAcre / totalTreesAcre);
+                     wtCv2 += cv2 * (treesAcre / totalTreesAcre);
+                  }
+                  wtErr += (float)Math.Pow((sgErr * (treesAcre * totalAcres)), 2);
                }
-
-               wtErr += (float)Math.Pow((sgErr * (volumeAcre * totalAcres)), 2);
+               else
+               {
+                  if (totalVolumeAcre > 0)
+                  {
+                     wtCV1 += cv1 * (volumeAcre / totalVolumeAcre);
+                     wtCv2 += cv2 * (volumeAcre / totalVolumeAcre);
+                  }
+                  wtErr += (float)Math.Pow((sgErr * (volumeAcre * totalAcres)), 2);
+               }
 
             }
             //save calculated values
-            if (totalVolume > 0)
-               thisStrStats.StrError = (float)Math.Sqrt(wtErr) / totalVolume;
+            if (useFIXCNTstrCN == 1)
+            {
+               if (totalTrees > 0)
+                  thisStrStats.StrError = (float)Math.Sqrt(wtErr) / totalTrees;
+               else
+                  thisStrStats.StrError = 0;
+            }
             else
-               thisStrStats.StrError = 0;
+            {
+               if (totalVolume > 0)
+                  thisStrStats.StrError = (float)Math.Sqrt(wtErr) / totalVolume;
+               else
+                  thisStrStats.StrError = 0;
+            }
             thisStrStats.SampleSize1 = sampleSize1;
             thisStrStats.SampleSize2 = sampleSize2;
             thisStrStats.WeightedCV1 = wtCV1;
             thisStrStats.WeightedCV2 = wtCv2;
-            thisStrStats.TreesPerAcre = treesAcre;
+            thisStrStats.TreesPerAcre = totalTreesAcre;
             thisStrStats.VolumePerAcre = totalVolumeAcre;
             thisStrStats.TotalAcres = totalAcres;
 
@@ -896,12 +1022,11 @@ namespace CruiseDesign.Stats
             else
                thisStrStats.TotalVolume = (float)(totalVolume/100.0);
             
-            if (thisStrStats.Method == "FIX" || thisStrStats.Method == "FCM" || thisStrStats.Method == "F3P" || thisStrStats.Method == "PNT" || thisStrStats.Method == "PCM" || thisStrStats.Method == "P3P" || thisStrStats.Method == "3PPNT")
+            if (thisStrStats.Method == "FIX" || thisStrStats.Method == "FCM" || thisStrStats.Method == "F3P" || thisStrStats.Method == "PNT" || thisStrStats.Method == "PCM" || thisStrStats.Method == "P3P" || thisStrStats.Method == "3PPNT" || thisStrStats.Method == "FIXCNT")
             {
                if (sampleSize1 > 0)
                   thisStrStats.PlotSpacing = (int)Math.Floor(Math.Sqrt((totalAcres * 43560) / sampleSize1));
                // get costs
-
             }
             else
             {
@@ -909,7 +1034,7 @@ namespace CruiseDesign.Stats
                   thisStrStats.PlotSpacing = (int)Math.Floor(Math.Sqrt((43560) / thisStrStats.TreesPerAcre));
             }
 
-            if (thisStrStats.Method == "100")
+            if (thisStrStats.Method == "100" || thisStrStats.Method == "FIXCNT")
             {
                if(thisStrStats.SgSet == 1)
                   thisStrStats.Used = 1;

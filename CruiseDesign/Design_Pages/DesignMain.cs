@@ -62,17 +62,31 @@ namespace CruiseDesign.Design_Pages
       public string meth, dalPath, dalPathR, defaultUOM;
       float totAcres;
       double saleCost;
-      int crewCost, crewSize, costPaint, paintTrees, travelTime, timeTree, timePlot, walkRate;
+      struct costData
+      {
+         public int crewCost;
+         public int crewSize;
+         public int costPaint;
+         public int paintTrees;
+         public int travelTime;
+         public int timeTree;
+         public int timePlot;
+         public int walkRate;
+      };
+      costData _cData;
+
       bool optimized = false;
 
-      private void InitializeDatabaseTables()
-      {
-        // cdStratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
-         cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
-         mySale = cdDAL.ReadSingleRow<SaleDO>("Sale", null, null);
-         myGlobals = cdDAL.Read<GlobalsDO>("Globals", "WHERE Block = ?", "CruiseDesign");
-      }
-      
+        private void InitializeDatabaseTables()
+        {
+             //            cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
+            cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>()
+                .Join("Stratum AS s", "USING (Stratum_CN)")
+                .Where("StratumStats.Used = 1").OrderBy("s.Code").Read().ToList());
+            mySale = cdDAL.From<SaleDO>().Read().FirstOrDefault();
+            myGlobals = cdDAL.From<GlobalsDO>().Where("Block = 'CruiseDesign'").Read().ToList();
+
+        }
       private void InitializeDataBindings()
       {
          bindingSourceStratumStats.DataSource = cdStratumStats;
@@ -87,7 +101,9 @@ namespace CruiseDesign.Design_Pages
          currentStratumStats = bindingSourceStratumStats.Current as StratumStatsDO;
          if (currentStratumStats != null)
          {
-            cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", currentStratumStats.StratumStats_CN));
+//            cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND CutLeave = 'C'", currentStratumStats.StratumStats_CN));
+            cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>()
+                .Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(currentStratumStats.StratumStats_CN).ToList());
             bindingSourceSgStats.DataSource = cdSgStats;
             meth = currentStratumStats.Method;
             totAcres = currentStratumStats.TotalAcres;
@@ -224,9 +240,9 @@ namespace CruiseDesign.Design_Pages
             currentStratumStats.Used = 0;
             currentStratumStats.Save();
 
-            msStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "Where Stratum_CN = ? ORDER BY Method", currentStratumStats.Stratum_CN));
+                msStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").OrderBy("Method").Read(currentStratumStats.Stratum_CN).ToList());
             
-            currentStratum = cdDAL.ReadSingleRow<StratumDO>("Stratum", "Where Stratum_CN = ?", currentStratumStats.Stratum_CN);
+               currentStratum = cdDAL.From<StratumDO>().Where("Stratum_CN = @p1").Read(currentStratumStats.Stratum_CN).FirstOrDefault();
             
             MethodSelect mDlg = new MethodSelect(this);
             //mDlg.Owner = this;
@@ -235,8 +251,6 @@ namespace CruiseDesign.Design_Pages
             // recreate stratum list/SampleGroup list with new selection
             currentStratumStats.Save();
             
-            //currentStratum = cdDAL.ReadSingleRow<StratumDO>("Stratum", "Where Stratum_CN = ?", currentStratumStats.Stratum_CN);
-            //currentStratum.Method = currentStratumStats.Method;
             currentStratum.Save();
 
             InitializeDatabaseTables();
@@ -569,58 +583,27 @@ namespace CruiseDesign.Design_Pages
          double totVol, strError, saleError;
          double sumVol = 0;
          double sumError = 0;
-         double timeInWoods, minPerDay, numDays, totCrewCost, totPaintCost, totStrCost;
          saleCost = 0;
          //crewCost, crewSize, costPaint, paintTrees, travelTime, timeTree, timePlot, walkRate;
          //loop through myStrata
          foreach (StratumStatsDO thisStrStats in cdStratumStats)
          {
-            // get total volume, stratum error
-            if(mySale.DefaultUOM == "01")
-               totVol = thisStrStats.TotalVolume*1000.0;
-            else
-               totVol = thisStrStats.TotalVolume * 100.0;
-            
-            strError = thisStrStats.StrError;
-
-            sumError += (totVol * strError) * (totVol * strError);
-            sumVol += totVol;
-            
-            long n1 = thisStrStats.SampleSize1;
-            long n2 = thisStrStats.SampleSize2;
-            long plotSpace = thisStrStats.PlotSpacing;
-            float treesAcre = thisStrStats.TreesPerAcre;
-            float strAcres = thisStrStats.TotalAcres;
-            if (walkRate == 0 || crewSize == 0 || paintTrees == 0)
+            if (thisStrStats.Method != "FIXCNT")
             {
-               saleCost += 0;
-            }
-            else
-            {
-               if (thisStrStats.Method == "100" || thisStrStats.Method == "3P" || thisStrStats.Method == "STR")
-               {
-                  // timeInWoods =   time to measure trees + time to walk to each count tree + time to paint each tree (assume 30 seconds)
-                  timeInWoods = (float)((n1 * timeTree) / crewSize) + (float)((((treesAcre * strAcres) * plotSpace) / crewSize) / walkRate) + (float)((treesAcre * strAcres * 0.5));
-                  totPaintCost = (float)((treesAcre * strAcres) / paintTrees) * costPaint;
-               }
-               else if (thisStrStats.Method == "S3P")
-               {
-                  // timeInWoods =   time to measure trees + time to walk to each count tree + time to paint each tree (assume 30 seconds)
-                  timeInWoods = (float)((n2 * timeTree) / crewSize) + (float)((((treesAcre * strAcres) * plotSpace) / crewSize) / walkRate) + (float)((treesAcre * strAcres * 0.5));
-                  totPaintCost = (float)((treesAcre * strAcres) / paintTrees) * costPaint;
-               }
+               // get total volume, stratum error
+               if (mySale.DefaultUOM == "01")
+                  totVol = thisStrStats.TotalVolume * 1000.0;
                else
-               {
-                  // timeInWoods =   time to measure trees + time to walk to each plot + time to establish each plot + time to paint each tree (assume 30 seconds)
-                  timeInWoods = (float)((n2 * timeTree) / crewSize) + (float)((n1 * plotSpace) / walkRate) + (float)(n1 * timePlot) + (float)(n2 * 0.5);
-                  totPaintCost = (float)((float)(n2) / (float)(paintTrees)) * costPaint;
-               }
+                  totVol = thisStrStats.TotalVolume * 100.0;
 
-               minPerDay = 510 - (travelTime * 2);
-               numDays = timeInWoods / minPerDay;
-               totCrewCost = (crewCost * 10.0) * numDays;
+               strError = thisStrStats.StrError;
 
-               saleCost += (totPaintCost + totCrewCost);
+               sumError += (totVol * strError) * (totVol * strError);
+               sumVol += totVol;
+
+               double strCost = getSaleCosts(thisStrStats.Method, thisStrStats.SampleSize1, thisStrStats.SampleSize2, thisStrStats.PlotSpacing, thisStrStats.TreesPerAcre, thisStrStats.TotalAcres);
+
+               saleCost += strCost;
             }
          }
          if (sumVol <= 0) return (0);
@@ -633,6 +616,8 @@ namespace CruiseDesign.Design_Pages
          textBoxCost.Text = (Math.Round(saleCost, 0)).ToString();
          return (saleError);
       }
+
+
       //*******************************
       private void getSgErr(int stage)
       {
@@ -779,7 +764,7 @@ namespace CruiseDesign.Design_Pages
             // update Freq, KZ, sgErr
             
             
-            if (meth == "PNT" || meth == "FIX")
+            if (meth == "PNT" || meth == "FIX" || meth == "FIXCNT")
             {
                // update error
                thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sampSize, 0), 2));
@@ -840,7 +825,7 @@ namespace CruiseDesign.Design_Pages
       private void getStratumStats()
       {
          //List<SampleGroupStatsDO> mySgStats;
-         float totalVolumeAcre, totalVolume, wtCV1, wtCv2, volumeAcre;
+         float totalVolumeAcre, totalTreesAcre, totalVolume, wtCV1, wtCv2, volumeAcre, totalTrees;
          float cv1, cv2, wtErr, sgErr, treesAcre;
          long sampleSize1, sampleSize2;
          //loop through SampleGroupStats
@@ -851,9 +836,10 @@ namespace CruiseDesign.Design_Pages
          totalVolumeAcre = cdSgStats.Sum(P => P.VolumePerAcre);
          totalVolume = (float)((totalVolumeAcre * currentStratumStats.TotalAcres));
 
-         treesAcre = cdSgStats.Sum(P => P.TreesPerAcre);
+         totalTreesAcre = cdSgStats.Sum(P => P.TreesPerAcre);
+         totalTrees = totalTreesAcre * currentStratumStats.TotalAcres;
          sampleSize1 = 0;
-         sampleSize2 = cdSgStats.Sum(P => P.SampleSize2); 
+         sampleSize2 = cdSgStats.Sum(P => P.SampleSize2);
          wtCV1 = 0;
          wtCv2 = 0;
          wtErr = 0;
@@ -862,41 +848,65 @@ namespace CruiseDesign.Design_Pages
             //sum volumes, trees/acre, sample sizes
             //treesAcre += thisSgStats.TreesPerAcre;
 
-            if (meth == "FIX" || meth == "FCM" || meth == "F3P" || meth == "PNT" || meth == "PCM" || meth == "P3P" || meth == "3PPNT")
+            if (meth == "FIX" || meth == "FCM" || meth == "F3P" || meth == "PNT" || meth == "PCM" || meth == "P3P" || meth == "3PPNT" || meth == "FIXCNT")
                sampleSize1 = thisSgStats.SampleSize1;
             else
                sampleSize1 += thisSgStats.SampleSize1;
             //sampleSize2 += thisSgStats.SampleSize2;
             volumeAcre = thisSgStats.VolumePerAcre;
+            treesAcre = thisSgStats.TreesPerAcre;
+
             cv1 = thisSgStats.CV1;
             cv2 = thisSgStats.CV2;
             sgErr = thisSgStats.SgError;
             //calculate weighted CVs
-            if (totalVolumeAcre > 0)
+            if (meth == "FIXCNT")
             {
-               wtCV1 += cv1 * (volumeAcre / totalVolumeAcre);
-               wtCv2 += cv2 * (volumeAcre / totalVolumeAcre);
-            }
+               if (totalTreesAcre > 0)
+               {
+                  wtCV1 += cv1 * (treesAcre / totalTreesAcre);
+               }
 
-            wtErr += (float)Math.Pow((sgErr * (volumeAcre * currentStratumStats.TotalAcres)), 2);
+               wtErr += (float)Math.Pow((sgErr * (treesAcre * currentStratumStats.TotalAcres)), 2);
+            }
+            else
+            {
+               if (totalVolumeAcre > 0)
+               {
+                  wtCV1 += cv1 * (volumeAcre / totalVolumeAcre);
+                  wtCv2 += cv2 * (volumeAcre / totalVolumeAcre);
+               }
+
+               wtErr += (float)Math.Pow((sgErr * (volumeAcre * currentStratumStats.TotalAcres)), 2);
+            }
          }
-            //save calculated values
-         if (totalVolume > 0)
-            currentStratumStats.StrError = (float)Math.Sqrt(wtErr) / totalVolume;
+         //save calculated values
+         if (meth == "FIXCNT")
+         {
+            if (totalTrees > 0)
+               currentStratumStats.StrError = (float)Math.Sqrt(wtErr) / totalTrees;
+            else
+               currentStratumStats.StrError = 0;
+         }
          else
-            currentStratumStats.StrError = 0;
+         {
+            if (totalVolume > 0)
+               currentStratumStats.StrError = (float)Math.Sqrt(wtErr) / totalVolume;
+            else
+               currentStratumStats.StrError = 0;
+         }
          currentStratumStats.SampleSize1 = sampleSize1;
          currentStratumStats.SampleSize2 = sampleSize2;
          currentStratumStats.WeightedCV1 = wtCV1;
          currentStratumStats.WeightedCV2 = wtCv2;
-         currentStratumStats.TreesPerAcre = treesAcre;
+         currentStratumStats.TreesPerAcre = totalTreesAcre;
          currentStratumStats.VolumePerAcre = totalVolumeAcre;
          if(mySale.DefaultUOM == "01")
             currentStratumStats.TotalVolume = (float)(totalVolume / 1000.0);
          else
             currentStratumStats.TotalVolume = (float)(totalVolume / 100.0);
          
-         if (meth == "FIX" || meth == "FCM" || meth == "F3P" || meth == "PNT" || meth == "PCM" || meth == "P3P" || meth == "3PPNT")
+         if (meth == "FIX" || meth == "FCM" || meth == "F3P" || meth == "PNT" || meth == "PCM" || meth == "P3P" || meth == "3PPNT" || meth == "FIXCNT")
          {
             if (sampleSize1 > 0)
                currentStratumStats.PlotSpacing = (int)Math.Floor(Math.Sqrt((currentStratumStats.TotalAcres * 43560) / sampleSize1));
@@ -912,7 +922,47 @@ namespace CruiseDesign.Design_Pages
          }
          currentStratumStats.Save();
       }
-    
+
+      public double getSaleCosts(string Method, long n1, long n2, long plotSpace, float treesAcre, float strAcres)
+      {
+         double strCost = 0;
+         double timeInWoods, minPerDay, numDays, totCrewCost, totPaintCost, totStrCost;
+
+         if (_cData.walkRate == 0 || _cData.crewSize == 0 || _cData.paintTrees == 0)
+         {
+            strCost = 0;
+         }
+         else
+         {
+            if (Method == "100" || Method == "3P" || Method == "STR")
+            {
+               // timeInWoods =   time to measure trees + time to walk to each count tree + time to paint each tree (assume 12 seconds)
+               timeInWoods = (float)((n1 * _cData.timeTree) / _cData.crewSize) + (float)((((treesAcre * strAcres) * plotSpace) / _cData.crewSize) / _cData.walkRate) + (float)((treesAcre * strAcres * 0.2));
+               totPaintCost = (float)((treesAcre * strAcres) / _cData.paintTrees) * _cData.costPaint;
+            }
+            else if (Method == "S3P")
+            {
+               // timeInWoods =   time to measure trees + time to walk to each count tree + time to kpi and paint each tree (assume 18 seconds)
+               timeInWoods = (float)((n2 * _cData.timeTree) / _cData.crewSize) + (float)((((treesAcre * strAcres) * plotSpace) / _cData.crewSize) / _cData.walkRate) + (float)((treesAcre * strAcres * 0.3));
+               totPaintCost = (float)((treesAcre * strAcres) / _cData.paintTrees) * _cData.costPaint;
+            }
+            else
+            {
+               // timeInWoods =   time to measure trees + time to walk to each plot + time to establish each plot + time to paint each tree (assume 30 seconds)
+               timeInWoods = (float)((n2 * _cData.timeTree) / _cData.crewSize) + (float)((n1 * plotSpace) / _cData.walkRate) + (float)(n1 * _cData.timePlot) + (float)(n2 * 0.5);
+               totPaintCost = (float)((float)(n2) / (float)(_cData.paintTrees)) * _cData.costPaint;
+            }
+
+            minPerDay = 510 - (_cData.travelTime * 2);
+            numDays = timeInWoods / minPerDay;
+            totCrewCost = (_cData.crewCost * 10.0) * numDays;
+
+            strCost = (totPaintCost + totCrewCost);
+         }
+
+         return (strCost);
+      }
+
       #endregion
 
       private void buttonReturn_Click(object sender, EventArgs e)
@@ -943,6 +993,7 @@ namespace CruiseDesign.Design_Pages
          calcStats cStat = new calcStats();
          long strSamp, sgSamp, sgSamp1, sgSamp2;
          double combWtCV, strCV, strCalcError, sgCV, sgCalcError, totVolume;
+    
          // get sale volume
          double tVolume = cdStratumStats.Sum(P => P.TotalVolume);
          if (tVolume == 0)
@@ -963,22 +1014,26 @@ namespace CruiseDesign.Design_Pages
          double tStrVol;
          foreach (StratumStatsDO thisStrStats in cdStratumStats)
          {
-            if (mySale.DefaultUOM == "01")
-               tStrVol = thisStrStats.TotalVolume * 1000.0;
-            else
-               tStrVol = thisStrStats.TotalVolume * 100.0;
+            
+            if (thisStrStats.Method != "FIXCNT")
+            {
+               if (mySale.DefaultUOM == "01")
+                  tStrVol = thisStrStats.TotalVolume * 1000.0;
+               else
+                  tStrVol = thisStrStats.TotalVolume * 100.0;
 
-            int stage = cStat.isTwoStage(thisStrStats.Method);
-            // single stage wted CV
-            if (stage == 10 || stage == 11 || stage == 21)
-            {
-               saleCV += thisStrStats.WeightedCV1 * (tStrVol / totVolume);
-            }
-            // 2 stage wted CV
-            else
-            {
-               combWtCV = (thisStrStats.WeightedCV1 + thisStrStats.WeightedCV2) / 2.0;
-               saleCV += combWtCV * (tStrVol / totVolume);
+               int stage = cStat.isTwoStage(thisStrStats.Method);
+               // single stage wted CV
+               if (stage == 10 || stage == 11 || stage == 21)
+               {
+                  saleCV += thisStrStats.WeightedCV1 * (tStrVol / totVolume);
+               }
+               // 2 stage wted CV
+               else
+               {
+                  combWtCV = (thisStrStats.WeightedCV1 + thisStrStats.WeightedCV2) / 2.0;
+                  saleCV += combWtCV * (tStrVol / totVolume);
+               }
             }
          }
          if (saleCV == 0)
@@ -995,234 +1050,238 @@ namespace CruiseDesign.Design_Pages
          double saleCalcError = cStat.getSampleError(saleCV, saleCalcSamples, 2.0); 
          // correct sample size using correct t-value
          double saleSamples = cStat.checkTValueError(saleCV, saleCalcSamples, saleCalcError);
-         
+
          // prorate to strata
          foreach (StratumStatsDO thisStrStats in cdStratumStats)
          {
-            int stage = cStat.isTwoStage(thisStrStats.Method);
-            long strSample1 = 0;
-            long strSample2 = 0;
-            double wtErr = 0;
-            float acres = thisStrStats.TotalAcres;
-            float stTpa = thisStrStats.TreesPerAcre;
-            long stN = (long)Math.Ceiling(stTpa * acres);
-            // single stage wted CV
-            if (mySale.DefaultUOM == "01")
-               tStrVol = thisStrStats.TotalVolume * 1000.0;
-            else
-               tStrVol = thisStrStats.TotalVolume * 100.0;
+            if (thisStrStats.Method != "FIXCNT")
+            {
+               int stage = cStat.isTwoStage(thisStrStats.Method);
+               long strSample1 = 0;
+               long strSample2 = 0;
+               double wtErr = 0;
+               float acres = thisStrStats.TotalAcres;
+               float stTpa = thisStrStats.TreesPerAcre;
+               long stN = (long)Math.Ceiling(stTpa * acres);
+               // single stage wted CV
+               if (mySale.DefaultUOM == "01")
+                  tStrVol = thisStrStats.TotalVolume * 1000.0;
+               else
+                  tStrVol = thisStrStats.TotalVolume * 100.0;
 
-            if (stage == 10 || stage == 21)
-            {
-               strCV = thisStrStats.WeightedCV1 * (tStrVol / totVolume);
-               strSamp = Convert.ToInt32((strCV / saleCV) * saleSamples);
-               strCalcError = cStat.getSampleError(thisStrStats.WeightedCV1, strSamp, 2.0);
-               // correct for t-value
-               strSamp1 = cStat.checkTValueError(thisStrStats.WeightedCV1, strSamp, strCalcError);
-            }
-            else if (stage == 11)
-            {
-               strCV = thisStrStats.WeightedCV1 * (tStrVol / totVolume);
-               strSamp = Convert.ToInt32((strCV / saleCV) * saleSamples);
-               strCalcError = cStat.getSampleError(thisStrStats.WeightedCV1, strSamp, 2.0);
-               // correct for t-value
-               strSamp1 = cStat.checkTValueError(thisStrStats.WeightedCV1, strSamp, strCalcError, stN);
-            }
-            // 2 stage wted CV
-            else
-            {
-               combWtCV = (thisStrStats.WeightedCV1 + thisStrStats.WeightedCV2) / 2.0;
-               strCV = combWtCV * (tStrVol / totVolume);
-               strSamp = Convert.ToInt32((strCV / saleCV) * saleSamples);
-               strCalcError = cStat.getSampleError(combWtCV, strSamp, 2.0);
-               cStat.getTwoStageSampleSize(thisStrStats.WeightedCV1, thisStrStats.WeightedCV2, strCalcError);
-               // correct for t-value
-               strSamp2 = cStat.sampleSize2;
-               strSamp1 = cStat.checkTValueError2Stage(thisStrStats.WeightedCV1, thisStrStats.WeightedCV2, cStat.sampleSize1, cStat.sampleSize2, strCalcError);
-            }
-            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", thisStrStats.StratumStats_CN));
-            long sgSamp2Stage1 = 0;
-            long sgSamp2Stage2 = 0;
-            foreach (SampleGroupStatsDO thisSgStats in mySgStats)
-            {
-               float sgTpa = thisSgStats.TreesPerAcre;
-               long sgN = (long)Math.Ceiling(sgTpa * acres);
-               // prorate to sample groups
-               if (stage == 11)
+               if (stage == 10 || stage == 21)
                {
-                  sgCV = thisSgStats.CV1 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
-                  if (thisStrStats.WeightedCV1 <= 0) sgSamp = 1;
-                  else sgSamp = Convert.ToInt32((sgCV / thisStrStats.WeightedCV1) * strSamp1);
-                  sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp, 2.0);
+                  strCV = thisStrStats.WeightedCV1 * (tStrVol / totVolume);
+                  strSamp = Convert.ToInt32((strCV / saleCV) * saleSamples);
+                  strCalcError = cStat.getSampleError(thisStrStats.WeightedCV1, strSamp, 2.0);
                   // correct for t-value
-                  sgSamp1 = cStat.checkTValueError(thisSgStats.CV1, sgSamp, sgCalcError, sgN);
-                  if (sgSamp1 < 3) sgSamp1 = 3;
-                  sgSamp2 = 0;
-                  sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0, sgN);
+                  strSamp1 = cStat.checkTValueError(thisStrStats.WeightedCV1, strSamp, strCalcError);
                }
-               else if (stage == 21)
+               else if (stage == 11)
                {
-                  sgCV = thisSgStats.CV1 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
-                  if (thisStrStats.WeightedCV1 <= 0) sgSamp = 1;
-                  else sgSamp = Convert.ToInt32((sgCV / thisStrStats.WeightedCV1) * strSamp1);
-                  sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp, 2.0);
+                  strCV = thisStrStats.WeightedCV1 * (tStrVol / totVolume);
+                  strSamp = Convert.ToInt32((strCV / saleCV) * saleSamples);
+                  strCalcError = cStat.getSampleError(thisStrStats.WeightedCV1, strSamp, 2.0);
                   // correct for t-value
-                  sgSamp1 = cStat.checkTValueError(thisSgStats.CV1, sgSamp, sgCalcError);
-                  if (sgSamp1 < 3) sgSamp1 = 3;
-                  sgSamp2 = (long)(thisSgStats.TreesPerPlot * sgSamp1);
-
-                  if (sgSamp1 > sgSamp2Stage1) sgSamp2Stage1 = sgSamp1;
-
-                  sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0);
+                  strSamp1 = cStat.checkTValueError(thisStrStats.WeightedCV1, strSamp, strCalcError, stN);
                }
-               else if (stage == 10)
-               {
-                  sgSamp1 = Convert.ToInt32(thisSgStats.TreesPerAcre * thisStrStats.TotalAcres);
-                  sgSamp2 = 0;
-                  sgCalcError = 0;
-               }
+               // 2 stage wted CV
                else
                {
-                  sgCV = thisSgStats.CV2 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
-                  if (thisStrStats.WeightedCV2 <= 0) sgSamp2 = 3;
-                  else sgSamp2 = Convert.ToInt32((sgCV / thisStrStats.WeightedCV2) * strSamp2);
-                  if (sgSamp2 < 3) sgSamp2 = 3;
-                  sgCV = thisSgStats.CV1 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
-                  if (thisStrStats.WeightedCV1 <= 0) sgSamp1 = 3;
-                  else sgSamp1 = Convert.ToInt32((sgCV / thisStrStats.WeightedCV1) * strSamp1);
-                  if (sgSamp1 < 3) sgSamp1 = 3;
-                  
-                  if (stage == 12)
-                  {
-                     if (sgSamp2 > sgSamp1) sgSamp1 = sgSamp2;
-                  }
-                  else
-                  {
-                     if (sgSamp1 > sgSamp2Stage1) sgSamp2Stage1 = sgSamp1;
-                  }
-
-                  thisSgStats.SampleSize1 = sgSamp1;
-                  thisSgStats.SampleSize2 = sgSamp2;
-                  sgCalcError = cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp1, sgSamp2);
+                  combWtCV = (thisStrStats.WeightedCV1 + thisStrStats.WeightedCV2) / 2.0;
+                  strCV = combWtCV * (tStrVol / totVolume);
+                  strSamp = Convert.ToInt32((strCV / saleCV) * saleSamples);
+                  strCalcError = cStat.getSampleError(combWtCV, strSamp, 2.0);
+                  cStat.getTwoStageSampleSize(thisStrStats.WeightedCV1, thisStrStats.WeightedCV2, strCalcError);
+                  // correct for t-value
+                  strSamp2 = cStat.sampleSize2;
+                  strSamp1 = cStat.checkTValueError2Stage(thisStrStats.WeightedCV1, thisStrStats.WeightedCV2, cStat.sampleSize1, cStat.sampleSize2, strCalcError);
                }
-               thisSgStats.SampleSize1 = sgSamp1;
-               thisSgStats.SampleSize2 = sgSamp2;
-               // update errors, frequency, KZ, BigBAF
-               if (thisStrStats.Method == "STR")
+//                    List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND CutLeave = 'C'", thisStrStats.StratumStats_CN));
+               List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(thisStrStats.StratumStats_CN).ToList());
+               long sgSamp2Stage1 = 0;
+               long sgSamp2Stage2 = 0;
+               foreach (SampleGroupStatsDO thisSgStats in mySgStats)
                {
-                  thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerAcre * thisStrStats.TotalAcres) / sgSamp1);
-                  strSample1 += sgSamp1;
-               }
-               else if (thisStrStats.Method == "S3P")
-               {
-                  thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerAcre * thisStrStats.TotalAcres) / sgSamp1);
-                  strSample1 += sgSamp1;
-                  strSample2 += sgSamp2;
-               }
-               else if (thisStrStats.Method == "100")
-               {
-                  thisSgStats.SamplingFrequency = 1;
-                  strSample1 += sgSamp1;
-               }
-               else if (thisStrStats.Method == "3P")
-               {
-                  thisSgStats.KZ = Convert.ToInt32((thisSgStats.VolumePerAcre * thisStrStats.TotalAcres) / sgSamp1);
-                  strSample1 += sgSamp1;
-               }
-               else if (thisStrStats.Method == "S3P")
-               {
-                  if (thisSgStats.TreesPerAcre > 0)
-                     thisSgStats.KZ = Convert.ToInt32(((thisSgStats.VolumePerAcre / thisSgStats.TreesPerAcre * sgSamp1) / sgSamp2));
-                  else
-                     thisSgStats.KZ = 1;
-                  strSample1 += sgSamp1;
-                  strSample2 += sgSamp2;
-               }
-               else if (thisStrStats.Method == "PNT" || thisStrStats.Method == "FIX")
-               {
-                  strSample1 = sgSamp1;
-                  strSample2 = sgSamp2;
-                  
-               }
-               // calc sg error
-               if(stage != 22)
-               {
+                  float sgTpa = thisSgStats.TreesPerAcre;
+                  long sgN = (long)Math.Ceiling(sgTpa * acres);
+                  // prorate to sample groups
                   if (stage == 11)
                   {
-                    thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1,sgSamp1, 0, sgN), 2));
+                     sgCV = thisSgStats.CV1 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
+                     if (thisStrStats.WeightedCV1 <= 0) sgSamp = 1;
+                     else sgSamp = Convert.ToInt32((sgCV / thisStrStats.WeightedCV1) * strSamp1);
+                     sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp, 2.0);
+                     // correct for t-value
+                     sgSamp1 = cStat.checkTValueError(thisSgStats.CV1, sgSamp, sgCalcError, sgN);
+                     if (sgSamp1 < 3) sgSamp1 = 3;
+                     sgSamp2 = 0;
+                     sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0, sgN);
                   }
                   else if (stage == 21)
                   {
-                     thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0), 2));
+                     sgCV = thisSgStats.CV1 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
+                     if (thisStrStats.WeightedCV1 <= 0) sgSamp = 1;
+                     else sgSamp = Convert.ToInt32((sgCV / thisStrStats.WeightedCV1) * strSamp1);
+                     sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp, 2.0);
+                     // correct for t-value
+                     sgSamp1 = cStat.checkTValueError(thisSgStats.CV1, sgSamp, sgCalcError);
+                     if (sgSamp1 < 3) sgSamp1 = 3;
+                     sgSamp2 = (long)(thisSgStats.TreesPerPlot * sgSamp1);
+
+                     if (sgSamp1 > sgSamp2Stage1) sgSamp2Stage1 = sgSamp1;
+
+                     sgCalcError = cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0);
                   }
-                  else if (stage == 12 || stage == 22)
+                  else if (stage == 10)
                   {
-                     thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp1, sgSamp2), 2));
+                     sgSamp1 = Convert.ToInt32(thisSgStats.TreesPerAcre * thisStrStats.TotalAcres);
+                     sgSamp2 = 0;
+                     sgCalcError = 0;
                   }
-                  // calc combined stratum error
-                  wtErr += (double)Math.Pow((thisSgStats.SgError * (thisSgStats.VolumePerAcre * thisStrStats.TotalAcres)), 2);
-               }
-               thisSgStats.Save();
-            }
-            if (stage > 20)
-            {
-               wtErr = 0;
-               //loop back through
-               foreach (SampleGroupStatsDO thisSgStats in mySgStats)
-               {
-                  // set each sample size to sgSamp2Stage
-                  strSample1 = sgSamp2Stage1;
-                  
-                  sgSamp2Stage2 = thisSgStats.SampleSize2;
-                  strSample2 += sgSamp2Stage2;
-                  // set frequencies
-                  if (thisStrStats.Method == "FCM")
+                  else
                   {
-                     thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1) / sgSamp2Stage2);
+                     sgCV = thisSgStats.CV2 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
+                     if (thisStrStats.WeightedCV2 <= 0) sgSamp2 = 3;
+                     else sgSamp2 = Convert.ToInt32((sgCV / thisStrStats.WeightedCV2) * strSamp2);
+                     if (sgSamp2 < 3) sgSamp2 = 3;
+                     sgCV = thisSgStats.CV1 * (thisSgStats.VolumePerAcre / thisStrStats.VolumePerAcre);
+                     if (thisStrStats.WeightedCV1 <= 0) sgSamp1 = 3;
+                     else sgSamp1 = Convert.ToInt32((sgCV / thisStrStats.WeightedCV1) * strSamp1);
+                     if (sgSamp1 < 3) sgSamp1 = 3;
+
+                     if (stage == 12)
+                     {
+                        if (sgSamp2 > sgSamp1) sgSamp1 = sgSamp2;
+                     }
+                     else
+                     {
+                        if (sgSamp1 > sgSamp2Stage1) sgSamp2Stage1 = sgSamp1;
+                     }
+
+                     thisSgStats.SampleSize1 = sgSamp1;
+                     thisSgStats.SampleSize2 = sgSamp2;
+                     sgCalcError = cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp1, sgSamp2);
                   }
-                  else if (thisStrStats.Method == "PCM")
+                  thisSgStats.SampleSize1 = sgSamp1;
+                  thisSgStats.SampleSize2 = sgSamp2;
+                  // update errors, frequency, KZ, BigBAF
+                  if (thisStrStats.Method == "STR")
                   {
-                     thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1) / sgSamp2Stage2);
-                     thisSgStats.BigBAF = Convert.ToSingle(thisSgStats.SamplingFrequency * thisStrStats.BasalAreaFactor);
+                     thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerAcre * thisStrStats.TotalAcres) / sgSamp1);
+                     strSample1 += sgSamp1;
                   }
-                  else if (thisStrStats.Method == "P3P")
+                  else if (thisStrStats.Method == "S3P")
                   {
-                     thisSgStats.KZ = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1 * thisSgStats.AverageHeight) / sgSamp2Stage2);
+                     thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerAcre * thisStrStats.TotalAcres) / sgSamp1);
+                     strSample1 += sgSamp1;
+                     strSample2 += sgSamp2;
                   }
-                  else if (thisStrStats.Method == "F3P" || thisStrStats.Method == "3PPNT")
+                  else if (thisStrStats.Method == "100")
+                  {
+                     thisSgStats.SamplingFrequency = 1;
+                     strSample1 += sgSamp1;
+                  }
+                  else if (thisStrStats.Method == "3P")
+                  {
+                     thisSgStats.KZ = Convert.ToInt32((thisSgStats.VolumePerAcre * thisStrStats.TotalAcres) / sgSamp1);
+                     strSample1 += sgSamp1;
+                  }
+                  else if (thisStrStats.Method == "S3P")
                   {
                      if (thisSgStats.TreesPerAcre > 0)
-                        thisSgStats.KZ = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1 * (thisSgStats.VolumePerAcre / thisSgStats.TreesPerAcre)) / sgSamp2Stage2);
+                        thisSgStats.KZ = Convert.ToInt32(((thisSgStats.VolumePerAcre / thisSgStats.TreesPerAcre * sgSamp1) / sgSamp2));
                      else
                         thisSgStats.KZ = 1;
+                     strSample1 += sgSamp1;
+                     strSample2 += sgSamp2;
                   }
-                  thisSgStats.SampleSize1 = sgSamp2Stage1;
-                  if(stage == 22)
-                     thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp2Stage1, sgSamp2Stage2), 2));
-                  else
-                     thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sgSamp2Stage1, 0),2));
+                  else if (thisStrStats.Method == "PNT" || thisStrStats.Method == "FIX")
+                  {
+                     strSample1 = sgSamp1;
+                     strSample2 = sgSamp2;
 
-               // calc combined stratum error
+                  }
+                  // calc sg error
+                  if (stage != 22)
+                  {
+                     if (stage == 11)
+                     {
+                        thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0, sgN), 2));
+                     }
+                     else if (stage == 21)
+                     {
+                        thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sgSamp1, 0), 2));
+                     }
+                     else if (stage == 12 || stage == 22)
+                     {
+                        thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp1, sgSamp2), 2));
+                     }
+                     // calc combined stratum error
+                     wtErr += (double)Math.Pow((thisSgStats.SgError * (thisSgStats.VolumePerAcre * thisStrStats.TotalAcres)), 2);
+                  }
                   thisSgStats.Save();
-                  wtErr += (double)Math.Pow((thisSgStats.SgError * (thisSgStats.VolumePerAcre * thisStrStats.TotalAcres)), 2);
                }
-            }
-            
-            // Update Stratum
-            if(mySale.DefaultUOM == "01")
-               thisStrStats.StrError = (float)(Math.Sqrt(wtErr) / (tStrVol));
-            else
-               thisStrStats.StrError = (float)(Math.Sqrt(wtErr) / (tStrVol));
+               if (stage > 20)
+               {
+                  wtErr = 0;
+                  //loop back through
+                  foreach (SampleGroupStatsDO thisSgStats in mySgStats)
+                  {
+                     // set each sample size to sgSamp2Stage
+                     strSample1 = sgSamp2Stage1;
 
-            thisStrStats.SampleSize1 = strSample1;
-            thisStrStats.SampleSize2 = strSample2;
-            if (stage > 20)
-            {
-               thisStrStats.PlotSpacing = (int)Math.Floor(Math.Sqrt((thisStrStats.TotalAcres * 43560) / strSample1));
+                     sgSamp2Stage2 = thisSgStats.SampleSize2;
+                     strSample2 += sgSamp2Stage2;
+                     // set frequencies
+                     if (thisStrStats.Method == "FCM")
+                     {
+                        thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1) / sgSamp2Stage2);
+                     }
+                     else if (thisStrStats.Method == "PCM")
+                     {
+                        thisSgStats.SamplingFrequency = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1) / sgSamp2Stage2);
+                        thisSgStats.BigBAF = Convert.ToSingle(thisSgStats.SamplingFrequency * thisStrStats.BasalAreaFactor);
+                     }
+                     else if (thisStrStats.Method == "P3P")
+                     {
+                        thisSgStats.KZ = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1 * thisSgStats.AverageHeight) / sgSamp2Stage2);
+                     }
+                     else if (thisStrStats.Method == "F3P" || thisStrStats.Method == "3PPNT")
+                     {
+                        if (thisSgStats.TreesPerAcre > 0)
+                           thisSgStats.KZ = Convert.ToInt32((thisSgStats.TreesPerPlot * sgSamp2Stage1 * (thisSgStats.VolumePerAcre / thisSgStats.TreesPerAcre)) / sgSamp2Stage2);
+                        else
+                           thisSgStats.KZ = 1;
+                     }
+                     thisSgStats.SampleSize1 = sgSamp2Stage1;
+                     if (stage == 22)
+                        thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getTwoStageError(thisSgStats.CV1, thisSgStats.CV2, sgSamp2Stage1, sgSamp2Stage2), 2));
+                     else
+                        thisSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(thisSgStats.CV1, sgSamp2Stage1, 0), 2));
+
+                     // calc combined stratum error
+                     thisSgStats.Save();
+                     wtErr += (double)Math.Pow((thisSgStats.SgError * (thisSgStats.VolumePerAcre * thisStrStats.TotalAcres)), 2);
+                  }
+               }
+
+               // Update Stratum
+               if (mySale.DefaultUOM == "01")
+                  thisStrStats.StrError = (float)(Math.Sqrt(wtErr) / (tStrVol));
+               else
+                  thisStrStats.StrError = (float)(Math.Sqrt(wtErr) / (tStrVol));
+
+               thisStrStats.SampleSize1 = strSample1;
+               thisStrStats.SampleSize2 = strSample2;
+               if (stage > 20)
+               {
+                  thisStrStats.PlotSpacing = (int)Math.Floor(Math.Sqrt((thisStrStats.TotalAcres * 43560) / strSample1));
+               }
+               thisStrStats.Save();
+               sumError += (double)Math.Pow((tStrVol * thisStrStats.StrError), 2);
+               sumVolume += tStrVol;
             }
-            thisStrStats.Save();
-            sumError += (double)Math.Pow((tStrVol * thisStrStats.StrError),2);
-            sumVolume += tStrVol;
          }
          // Update Sale Error and Cost
          getSaleError();
@@ -1241,62 +1300,65 @@ namespace CruiseDesign.Design_Pages
          foreach (StratumStatsDO thisStrStats in cdStratumStats)
          {
             int errCnt = 0;
+            if(thisStrStats.Method != "FIXCNT")
+            { 
  
-            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", thisStrStats.StratumStats_CN));
-            foreach (SampleGroupStatsDO thisSgStats in mySgStats)
-            {
-               // check for CV1 > 0
-               if (thisSgStats.CV1 <= 0)
+               List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(thisStrStats.StratumStats_CN).ToList());
+               foreach (SampleGroupStatsDO thisSgStats in mySgStats)
                {
-                  errCnt++;
-                  sMsg += "Missing CV1: Stratum ";
-                  sMsg += thisStrStats.Code;
-                  sMsg += " Sample Group ";
-                  sMsg += thisSgStats.Code;
-                  sMsg += "\n";
-               }
-               // check for Trees/Acre > 0
-               if (thisSgStats.TreesPerAcre <= 0)
-               {
-                  errCnt++;
-                  sMsg += "Missing Trees/Acre: Stratum ";
-                  sMsg += thisStrStats.Code;
-                  sMsg += " Sample Group ";
-                  sMsg += thisSgStats.Code;
-                  sMsg += "\n";
-               }
-               // check for Volume/Acre > 0
-               if (thisSgStats.VolumePerAcre <= 0)
-               {
-                  errCnt++;
-                  sMsg += "Missing VolumePerAcre: Stratum ";
-                  sMsg += thisStrStats.Code;
-                  sMsg += " Sample Group ";
-                  sMsg += thisSgStats.Code;
-                  sMsg += "\n";
-               }
-               // if plot cruise
-               if (thisStrStats.Method == "PCM" || thisStrStats.Method == "P3P" || thisStrStats.Method == "F3P" || thisStrStats.Method == "FCM")
-               {
-                  // check for Trees/Plot > 0
-                  if(thisSgStats.TreesPerPlot <= 0)
+                  // check for CV1 > 0
+                  if (thisSgStats.CV1 <= 0)
                   {
                      errCnt++;
-                     sMsg += "Missing TreesPerPlot: Stratum ";
+                     sMsg += "Missing CV1: Stratum ";
                      sMsg += thisStrStats.Code;
                      sMsg += " Sample Group ";
                      sMsg += thisSgStats.Code;
                      sMsg += "\n";
                   }
-                  // check for CV2 > 0
-                  if(thisSgStats.CV2 <= 0)
+                  // check for Trees/Acre > 0
+                  if (thisSgStats.TreesPerAcre <= 0)
                   {
                      errCnt++;
-                     sMsg += "Missing CV2: Stratum ";
+                     sMsg += "Missing Trees/Acre: Stratum ";
                      sMsg += thisStrStats.Code;
                      sMsg += " Sample Group ";
                      sMsg += thisSgStats.Code;
                      sMsg += "\n";
+                  }
+                  // check for Volume/Acre > 0
+                  if (thisSgStats.VolumePerAcre <= 0)
+                  {
+                     errCnt++;
+                     sMsg += "Missing VolumePerAcre: Stratum ";
+                     sMsg += thisStrStats.Code;
+                     sMsg += " Sample Group ";
+                     sMsg += thisSgStats.Code;
+                     sMsg += "\n";
+                  }
+                  // if plot cruise
+                  if (thisStrStats.Method == "PCM" || thisStrStats.Method == "P3P" || thisStrStats.Method == "F3P" || thisStrStats.Method == "FCM")
+                  {
+                     // check for Trees/Plot > 0
+                     if (thisSgStats.TreesPerPlot <= 0)
+                     {
+                        errCnt++;
+                        sMsg += "Missing TreesPerPlot: Stratum ";
+                        sMsg += thisStrStats.Code;
+                        sMsg += " Sample Group ";
+                        sMsg += thisSgStats.Code;
+                        sMsg += "\n";
+                     }
+                     // check for CV2 > 0
+                     if (thisSgStats.CV2 <= 0)
+                     {
+                        errCnt++;
+                        sMsg += "Missing CV2: Stratum ";
+                        sMsg += thisStrStats.Code;
+                        sMsg += " Sample Group ";
+                        sMsg += thisSgStats.Code;
+                        sMsg += "\n";
+                     }
                   }
                }
             }
@@ -1373,7 +1435,7 @@ namespace CruiseDesign.Design_Pages
             reportForm.createStratumTable(myStr.Code, myStr.Method, strError, totVol, myStr.Description, baf, fps, pSpacing,tAcres,units);
             // create sample group table
             reportDescrip += ";  " + myStr.Code + " = " + myStr.Method;
-            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", myStr.StratumStats_CN));
+            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(myStr.StratumStats_CN).ToList());
             int sgCnt = mySgStats.Count();
             int rowcnt = 0;
             switch (myStr.Method)
@@ -1444,14 +1506,14 @@ namespace CruiseDesign.Design_Pages
       {
          if (myGlobals.Count == 0 || myGlobals == null)
          {
-            crewCost = 50;
-            crewSize = 3;
-            costPaint = 15;
-            paintTrees = 35;
-            travelTime = 30;
-            timeTree = 5;
-            timePlot = 10;
-            walkRate = 130;
+            _cData.crewCost = 50;
+            _cData.crewSize = 3;
+            _cData.costPaint = 15;
+            _cData.paintTrees = 35;
+            _cData.travelTime = 30;
+            _cData.timeTree = 5;
+            _cData.timePlot = 10;
+            _cData.walkRate = 130;
          }
          else
          {
@@ -1460,28 +1522,28 @@ namespace CruiseDesign.Design_Pages
                switch (gDO.Key)
                {
                   case "CrewCost":
-                     crewCost = Convert.ToInt32(gDO.Value);
+                     _cData.crewCost = Convert.ToInt32(gDO.Value);
                      break;
                   case "CrewSize":
-                     crewSize = Convert.ToInt32(gDO.Value);
+                     _cData.crewSize = Convert.ToInt32(gDO.Value);
                      break;
                   case "PaintCost":
-                     costPaint = Convert.ToInt32(gDO.Value);
+                     _cData.costPaint = Convert.ToInt32(gDO.Value);
                      break;
                   case "PaintTrees":
-                     paintTrees = Convert.ToInt32(gDO.Value);
+                     _cData.paintTrees = Convert.ToInt32(gDO.Value);
                      break;
                   case "TravelTime":
-                     travelTime = Convert.ToInt32(gDO.Value);
+                     _cData.travelTime = Convert.ToInt32(gDO.Value);
                      break;
                   case "TimeTree":
-                     timeTree = Convert.ToInt32(gDO.Value);
+                     _cData.timeTree = Convert.ToInt32(gDO.Value);
                      break;
                   case "TimePlot":
-                     timePlot = Convert.ToInt32(gDO.Value);
+                     _cData.timePlot = Convert.ToInt32(gDO.Value);
                      break;
                   case "WalkRate":
-                     walkRate = Convert.ToInt32(gDO.Value);
+                     _cData.walkRate = Convert.ToInt32(gDO.Value);
                      break;
                }
             }
@@ -1541,9 +1603,12 @@ namespace CruiseDesign.Design_Pages
             float vpa = thisSgStats.VolumePerAcre;
             float tpa = thisSgStats.TreesPerAcre;
 
-            // sql command selecting all samplegroups where Stratum_CN and SgSet and code from current Sg
-            List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", " JOIN StratumStats ON SampleGroupStats.StratumStats_CN = StratumStats.StratumStats_CN WHERE StratumStats.Stratum_CN = ? AND SampleGroupStats.SgSet = ? AND SampleGroupStats.Code = ?", thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code));
-            // for each set tpa and vpa
+                // sql command selecting all samplegroups where Stratum_CN and SgSet and code from current Sg
+//                List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", " JOIN StratumStats ON SampleGroupStats.StratumStats_CN = StratumStats.StratumStats_CN WHERE StratumStats.Stratum_CN = ? AND SampleGroupStats.SgSet = ? AND SampleGroupStats.Code = ?", thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code));
+            List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Join("StratumStats AS ss","USING (StratumStats_CN)")
+                                                                             .Where("ss.Stratum_CN = @p1 AND SampleGroupStats.SgSet = @p2 AND SampleGroupStats.Code = @p3")
+                                                                             .Read(thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code).ToList());
+                // for each set tpa and vpa
             foreach (SampleGroupStatsDO _mySgStats in _SgStats)
             {
                _mySgStats.TreesPerAcre = tpa;
@@ -1568,9 +1633,12 @@ namespace CruiseDesign.Design_Pages
             float tpp = thisSgStats.TreesPerPlot;
 
             // sql command selecting all samplegroups where Stratum_CN and SgSet and code from current Sg
-            List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", " JOIN StratumStats ON SampleGroupStats.StratumStats_CN = StratumStats.StratumStats_CN WHERE StratumStats.Stratum_CN = ? AND SampleGroupStats.SgSet = ? AND SampleGroupStats.Code = ?", thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code));
-            // for each set tpa and vpa
-            foreach (SampleGroupStatsDO _mySgStats in _SgStats)
+//            List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", " JOIN StratumStats ON SampleGroupStats.StratumStats_CN = StratumStats.StratumStats_CN WHERE StratumStats.Stratum_CN = ? AND SampleGroupStats.SgSet = ? AND SampleGroupStats.Code = ?", thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code));
+              List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Join("StratumStats AS ss", "USING (StratumStats_CN")
+                                                                                 .Where("ss.Stratum_CN = @p1 AND SampleGroupStats.SgSet = @p2 AND SampleGroupStats.Code = @p3")
+                                                                                 .Read(thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code).ToList());
+                // for each set tpa and vpa 
+                foreach (SampleGroupStatsDO _mySgStats in _SgStats)
             {
                if (thisSgStats.StratumStats.Method == "FIX" || thisSgStats.StratumStats.Method == "FCM" || thisSgStats.StratumStats.Method == "F3P")
                {

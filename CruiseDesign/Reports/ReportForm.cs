@@ -22,8 +22,9 @@ namespace CruiseDesign.Reports
       TableLayoutPanel table2;
       //Bitmap memoryImage;
       int layoutPrintStartHeight, layoutPrintEndHeight, layoutStartWidth, strCnt = 0;
-      int[] strHeights;
-      int sHts;
+      int[] strHeights, pageHeightStart, pageHeightEnd;
+      int endHt = 0;
+      int pageCnt = 0;
       public ReportForm(int strNum)
       {
          InitializeComponent();
@@ -33,6 +34,10 @@ namespace CruiseDesign.Reports
       }
       public void setSaleInfo(string num, string name, string reg, string forst, string dist, string err, string cost,string vol,string uom)
       {
+        
+         
+         labelTime.Text = DateTime.Now.ToString("dd-MMM-yyyy"); 
+         
          labelNumber.Text =   "Sale Number:  " + num;
          labelName.Text =     "Sale Name:  " + name;
          labelRegion.Text =   "Region:  " + reg;
@@ -572,8 +577,11 @@ namespace CruiseDesign.Reports
       }
       private void printSetup(object sender, EventArgs e)
       {
+         pageHeightStart = new int[strCnt];
+         pageHeightEnd = new int[strCnt];
+
          printDialog1.Document = printDocument1;
-         printDocument1.PrintPage += this.printDocument1_PrintPage;
+//         printDocument1.PrintPage += this.printDocument1_PrintPage;
 
          layoutStartWidth = 0;
          // find page height
@@ -583,32 +591,28 @@ namespace CruiseDesign.Reports
          if (result == DialogResult.OK)
          {
             // determine number of pages to print
-          // loop through array, stop when strHeights > 1012
-            int startHt = 0;
-            int endHt = 0;
-            int cnt = 0;
-
-            do
-            {
-               cnt++;
-               endHt = startHt + 1000;
-               layoutPrintStartHeight = startHt;
+            // loop through array, stop when strHeights > 1012
+            int Cnt = 0;
+          pageCnt = 0;
+          endHt = 1000;
+          pageHeightStart[Cnt] = 25;
                
-               for (int i = 0; i < strCnt; i++)
+          for (int i = 0; i < strCnt; i++)
+          {
+               if (strHeights[i] > endHt)
                {
-                  if (strHeights[i] < endHt)
-                     layoutPrintEndHeight = strHeights[i];
+                  pageHeightEnd[Cnt] = strHeights[i - 1];
+                  Cnt++;
+                  pageHeightStart[Cnt] = strHeights[i - 1];
+                  endHt = strHeights[i - 1] + 1000;
                }
+          }
+            pageHeightEnd[Cnt] = strHeights[strCnt - 1];
+            endHt = strHeights[strCnt - 1];
 
-               this.Height = (layoutPrintEndHeight - layoutPrintStartHeight)+25;
-               flowLayoutPanel1.AutoScrollPosition = new Point(0, layoutPrintStartHeight);
-
-
-               printDocument1.Print();
+            printDocument1.Print();
                
-               startHt = layoutPrintEndHeight;
 
-            } while (endHt < flowLayoutPanel1.DisplayRectangle.Height);
          }
       }
 
@@ -618,12 +622,21 @@ namespace CruiseDesign.Reports
          //float y = e.MarginBounds.Top;
          //printDocument1.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
          //printDocument1.PrinterSettings.DefaultPageSettings.Margins = new Margins(50, 50, 50, 50);
+         layoutPrintStartHeight = pageHeightStart[pageCnt];
+         layoutPrintEndHeight = pageHeightEnd[pageCnt];
 
-//         Bitmap bmp = new Bitmap(flowLayoutPanel1.Width, layoutPrintEndHeight - layoutPrintStartHeight);
+         this.Height = (layoutPrintEndHeight - layoutPrintStartHeight) + 25;
+         flowLayoutPanel1.AutoScrollPosition = new Point(0, layoutPrintStartHeight);
+
+
+         //         Bitmap bmp = new Bitmap(flowLayoutPanel1.Width, layoutPrintEndHeight - layoutPrintStartHeight);
          Bitmap bmp = new Bitmap(752, layoutPrintEndHeight - layoutPrintStartHeight);
          flowLayoutPanel1.DrawToBitmap(bmp, new Rectangle(0, 0, 736, layoutPrintEndHeight - layoutPrintStartHeight));
 //         flowLayoutPanel1.DrawToBitmap(bmp, new Rectangle(0, 0, flowLayoutPanel1.Width, layoutPrintEndHeight - layoutPrintStartHeight));
          e.Graphics.DrawImage((Image)bmp, 25, 25);
+
+         pageCnt++;
+         e.HasMorePages = (endHt > layoutPrintEndHeight);
       }
 
       private void saveToolStripButton_Click(object sender, EventArgs e)

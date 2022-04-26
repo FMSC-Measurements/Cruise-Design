@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using CruiseDAL;
 using CruiseDAL.DataObjects;
+using FMSC.ORM;
 using System.Data;
 using System.Collections;
 using System.Windows.Forms;
@@ -37,7 +38,7 @@ namespace CruiseDesign.Stats
          // set up StratumStats, SampleGroupStats
          
          // get stratum definitions
-         stratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
+         stratum = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
          removePopulations();
 
          // loop through stratum
@@ -96,7 +97,7 @@ namespace CruiseDesign.Stats
          double comberr2 = 0;
          double totalVolume = 0;
          // for each sample group
-         sampleGroups = new List<SampleGroupDO>(cdDAL.Read<SampleGroupDO>("SampleGroup", "Where Stratum_CN = ?", currentStratum.Stratum_CN));
+         sampleGroups = new List<SampleGroupDO>(cdDAL.From<SampleGroupDO>().Where("Stratum_CN = @p1").Read(currentStratum.Stratum_CN).ToList());
 
          foreach (SampleGroupDO sg in sampleGroups)
          {
@@ -113,7 +114,7 @@ namespace CruiseDesign.Stats
             currentSgStats.DefaultLiveDead = sg.DefaultLiveDead;
             currentSgStats.Description = sg.Description;
             // get POP data
-            selectedPOP = cdDAL.ReadSingleRow<POPDO>("POP", "WHERE Stratum = ? AND SampleGroup = ?", currentStratum.Code, sg.Code);
+            selectedPOP = cdDAL.From<POPDO>().Where("Stratum = @p1 AND SampleGroup = @p2").Read(currentStratum.Code, sg.Code).FirstOrDefault();
             
             // calculate statistics (based on method)
             if (selectedPOP == null)
@@ -138,7 +139,9 @@ namespace CruiseDesign.Stats
             else
                cv2 = 0;
             // find errors stage 11=tree,single 12=tree,2 stage 21=plot,single 22=plot,2 stage
-            if (stage == 11 || stage == 21)
+            if (stage == 11)
+               sampErr = statClass.getSampleError(cv1, n1, 0, talliedTrees);
+            else if (stage == 21)
                sampErr = statClass.getSampleError(cv1, n1, 0);
             else if (stage == 12 || stage == 22)
                sampErr = statClass.getTwoStageError(cv1, cv2, n1, n2);
@@ -168,7 +171,7 @@ namespace CruiseDesign.Stats
             currentSgStats.SgError = Convert.ToSingle(sampErr);
 
             // get LCD data
-            selectedLCD = cdDAL.Read<LCDDO>("LCD", "WHERE Stratum = ? AND SampleGroup = ?", currentStratum.Code, sg.Code);
+            selectedLCD = cdDAL.From<LCDDO>().Where("Stratum = @p1 AND SampleGroup = @p2").Read(currentStratum.Code, sg.Code).ToList();
             sumExpFac = 0;
             sumNetVol = 0;
             //foreach (SampleGroupDO sg in Owner.histSampleGroup)
@@ -189,22 +192,25 @@ namespace CruiseDesign.Stats
                treesPerAcre = Convert.ToSingle(Math.Round((sumExpFac / totalAcres), 2));
                currentSgStats.TreesPerAcre = treesPerAcre;
                currentSgStats.VolumePerAcre = Convert.ToSingle(Math.Round((sumNetVol / totalAcres), 2));
+               currentSgStats.TPA_Def = (long)(sumExpFac + 0.5);
             }
             else
             {
-               treesPerAcre = Convert.ToSingle(Math.Round((sumExpFac), 2));
+               treesPerAcre = Convert.ToSingle(Math.Round((sumExpFac), 3));
                currentSgStats.TreesPerAcre = treesPerAcre;
                currentSgStats.VolumePerAcre = Convert.ToSingle(Math.Round((sumNetVol), 2));
                if (stage == 21)
                   currentSgStats.TreesPerPlot = Convert.ToSingle(Math.Round((Convert.ToSingle((float)measTrees / (float)n1)), 1));
                else
                   currentSgStats.TreesPerPlot = Convert.ToSingle(Math.Round((Convert.ToSingle((float)talliedTrees / (float)n1)), 1));
+               currentSgStats.TPA_Def = (long)(treesPerAcre * totalAcres);
             }
-            currentSgStats.TPA_Def = (long)(treesPerAcre * totalAcres);
+            
+            currentSgStats.VPA_Def = (long)sumNetVol;
             // find frequency/KZ/BigBAF values
             if ((stage == 11 || stage == 12 || stage == 22) && measTrees > 0)
             {
-               freq = Convert.ToInt32((talliedTrees / measTrees));
+               freq = Convert.ToInt32(((float)talliedTrees / (float)measTrees)+.4);
                kz = Convert.ToInt32((sumKpi / measTrees));
 
                if (currentStratum.Method == "S3P")
@@ -234,7 +240,7 @@ namespace CruiseDesign.Stats
             }
 
             currentSgStats.Save();
-            currentSgStats.TreeDefaultValueStats.Save();
+ //           currentSgStats.TreeDefaultValueStats.Save();
             
          }
          return (0);
@@ -243,7 +249,7 @@ namespace CruiseDesign.Stats
       public int getInsuranceTrees(SampleGroupDO currentSg)
       {
          int insTrees;
-         myTrees = new List<TreeDO>(cdDAL.Read<TreeDO>("Tree", "Where SampleGroup_CN = ? AND CountOrMeasure = ?", currentSg.SampleGroup_CN, "I"));
+         myTrees = new List<TreeDO>(cdDAL.From<TreeDO>().Where("SampleGroup_CN = @p1 AND CountOrMeasure = 'I'").Read(currentSg.SampleGroup_CN).ToList());
 
          insTrees = myTrees.Count();
 
@@ -259,7 +265,7 @@ namespace CruiseDesign.Stats
          string _UOM = "";
          //loop through SampleGroupStats
          
-         mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", thisStrStats.StratumStats_CN));
+         mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(thisStrStats.StratumStats_CN).ToList());
          // loop through sample groups
          //totalVolumeAcre = getTotals(mySgStats);
          totalVolumeAcre = mySgStats.Sum(P => P.VolumePerAcre);
@@ -329,7 +335,7 @@ namespace CruiseDesign.Stats
 
          List<StratumStatsDO> strataStats;
 
-         strataStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", null, null));
+         strataStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Read().ToList());
          // loop by stratumstats for multiple SgSets
          foreach (StratumStatsDO curStrStats in strataStats)
          {

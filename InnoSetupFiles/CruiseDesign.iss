@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 ; #defines require the ISPP add-on: http://sourceforge.net/projects/ispp/
 #define APP "Cruise Design"
-#define VERSION "2016.05.03"
+#define VERSION "2022.03.04"
 #define SPECIALTAG "Production"
 #define BASEURL "http://www.fs.fed.us/fmsc/measure"
 #define ORGANIZATION "U.S. Forest Service, Forest Management Service Center"
@@ -28,7 +28,7 @@ VersionInfoVersion={#VERSION}
 
 Compression=lzma
 SolidCompression=yes
-PrivilegesRequired=admin
+PrivilegesRequired=lowest
 ChangesEnvironment=yes
 ChangesAssociations=yes
 AllowUNCPath=no
@@ -48,7 +48,9 @@ Name: desktopicon; Description: {cm:CreateDesktopIcon}; GroupDescription: {cm:Ad
 ; need to update the paths below after the solution files and folders are updated.
 Source: "..\CruiseDesign\bin\x86\Release\CruiseDesign.exe"; DestDir: {app}; Flags: ignoreversion
 Source: "..\CruiseDesign\bin\x86\Release\*.dll"; DestDir: {app}; Flags: ignoreversion
-Source: "..\CruiseDesign\bin\x86\Release\*.setup"; DestDir: {app}; Flags: ignoreversion
+Source: "..\CruiseDesign\bin\x86\Release\*.config"; DestDir: {app}; Flags: ignoreversion
+Source: "..\CruiseDesign\bin\x86\Release\x86\*.dll"; DestDir: {app}\x86; Flags: ignoreversion;
+
 ;Source: "..\CruiseDesignBeta.docx"; DestDir: {app}; Flags: ignoreversion
 
 
@@ -64,20 +66,20 @@ Filename: "{app}\{#EXEName}"; Description: "{cm:LaunchProgram,Cruise Design}"; F
 
 [Registry]
 ;Register app path
-Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#EXEName}; ValueType: string; ValueData: "{app}\{#EXEName}"; Flags: uninsdeletevalue;  
+;Root: HKLM; Subkey: SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\{#EXEName}; ValueType: string; ValueData: "{app}\{#EXEName}"; Flags: uninsdeletevalue;  
 
 ; Register cruise file
-Root: HKCR; SubKey: .design; ValueType: string; ValueData: NCS.DesignFile; Flags: uninsdeletekey
-Root: HKCR; SubKey: NCS.DesignFile; ValueType: string; ValueData: Design File; Flags: uninsdeletekey
-Root: HKCR; SubKey: NCS.DesignFile\Shell\Open\Command; ValueType: string; ValueData: """{app}\{#EXEName}"" ""%1"""; Flags: uninsdeletevalue
+;Root: HKCR; SubKey: .design; ValueType: string; ValueData: NCS.DesignFile; Flags: uninsdeletekey
+;Root: HKCR; SubKey: NCS.DesignFile; ValueType: string; ValueData: Design File; Flags: uninsdeletekey
+;Root: HKCR; SubKey: NCS.DesignFile\Shell\Open\Command; ValueType: string; ValueData: """{app}\{#EXEName}"" ""%1"""; Flags: uninsdeletevalue
 ; NEED NEW FILE ICONS Root: HKCR; Subkey: NCS.CruiseFile\DefaultIcon; ValueType: string; ValueData: {app}\crz1.ico; Flags: uninsdeletevalue
 
 
 ; Modify OpenWithList and FileExts for crz (Requires admin privledges.)
 ; If user doesn't have admin privledges, setup simply skips these registry changes.
-Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design; ValueName: Application; ValueType: string; ValueData: " "; Flags: uninsdeletevalue
-Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: a; ValueType: string; ValueData: {#EXEName}; Flags: uninsdeletevalue
-Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: b; ValueType: string; ValueData: " "; Flags: uninsdeletevalue
-Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: c; ValueType: string; ValueData: " "; Flags: uninsdeletevalue
-Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: MRUList ValueType: string; ValueData: a; Flags: uninsdeletevalue
+;Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design; ValueName: Application; ValueType: string; ValueData: " "; Flags: uninsdeletevalue
+;Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: a; ValueType: string; ValueData: {#EXEName}; Flags: uninsdeletevalue
+;Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: b; ValueType: string; ValueData: " "; Flags: uninsdeletevalue
+;Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: c; ValueType: string; ValueData: " "; Flags: uninsdeletevalue
+;Root: HKCU; SubKey: Software\Microsoft\Windows\CurrentVersion\Explorer\FileExts\.design\OpenWithList; ValueName: MRUList ValueType: string; ValueData: a; Flags: uninsdeletevalue
 

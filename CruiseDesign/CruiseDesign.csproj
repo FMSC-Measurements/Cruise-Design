@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -10,10 +10,18 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CruiseDesign</RootNamespace>
     <AssemblyName>CruiseDesign</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>cruisetree_design2.ico</ApplicationIcon>
     <IsWebBootstrapper>false</IsWebBootstrapper>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
     <PublishUrl>publish\</PublishUrl>
     <Install>true</Install>
     <InstallFrom>Disk</InstallFrom>
@@ -37,6 +45,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -45,6 +54,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -53,6 +63,8 @@
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -61,10 +73,16 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject>CruiseDesign.Program</StartupObject>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.ReportViewer.Common, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
-    <Reference Include="Microsoft.ReportViewer.WinForms, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="PresentationCore">
       <RequiredTargetFramework>3.0</RequiredTargetFramework>
     </Reference>
@@ -81,9 +99,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Services" />
     <Reference Include="System.Xml.Linq">
-      <RequiredTargetFramework>3.5</RequiredTargetFramework>
-    </Reference>
-    <Reference Include="System.Data.DataSetExtensions">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
@@ -201,6 +216,12 @@
     <Compile Include="Stats\calcStats.cs" />
     <Compile Include="Stats\getPopulationStatistics.cs" />
     <Compile Include="Stats\getProductionStatistics.cs" />
+    <Compile Include="Stats\userSelectStratum.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Stats\userSelectStratum.Designer.cs">
+      <DependentUpon>userSelectStratum.cs</DependentUpon>
+    </Compile>
     <Compile Include="StrataSetupWizard.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -277,6 +298,9 @@
       <DependentUpon>ReportViewer.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Stats\userSelectStratum.resx">
+      <DependentUpon>userSelectStratum.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="StrataSetupWizard.resx">
       <DependentUpon>StrataSetupWizard.cs</DependentUpon>
       <SubType>Designer</SubType>
@@ -331,6 +355,36 @@
       <DependentUpon>Resources.resx</DependentUpon>
       <DesignTime>True</DesignTime>
     </Compile>
+    <None Include="app.config" />
+    <None Include="NuGet.Config" />
+    <None Include="packages\cruisedal.legacy\3.0.0.3\.nupkg.metadata" />
+    <None Include="packages\cruisedal.legacy\3.0.0.3\cruisedal.legacy.3.0.0.3.nupkg" />
+    <None Include="packages\cruisedal.legacy\3.0.0.3\cruisedal.legacy.3.0.0.3.nupkg.sha512" />
+    <None Include="packages\cruisedal.legacy\3.0.0.3\cruisedal.legacy.nuspec" />
+    <None Include="packages\cruisedal\3.0.0.4\.nupkg.metadata" />
+    <None Include="packages\cruisedal\3.0.0.4\cruisedal.3.0.0.4.nupkg" />
+    <None Include="packages\cruisedal\3.0.0.4\cruisedal.3.0.0.4.nupkg.sha512" />
+    <None Include="packages\cruisedal\3.0.0.4\cruisedal.nuspec" />
+    <None Include="packages\fmsc.orm\2.4.2\.nupkg.metadata" />
+    <None Include="packages\fmsc.orm\2.4.2\fmsc.orm.2.4.2.nupkg" />
+    <None Include="packages\fmsc.orm\2.4.2\fmsc.orm.2.4.2.nupkg.sha512" />
+    <None Include="packages\fmsc.orm\2.4.2\fmsc.orm.nuspec" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\.nupkg.metadata" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\.signature.p7s" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\build\net20\System.Data.SQLite.Core.targets" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\build\net40\System.Data.SQLite.Core.targets" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\build\net451\System.Data.SQLite.Core.targets" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\build\net45\System.Data.SQLite.Core.targets" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\build\net46\System.Data.SQLite.Core.targets" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\lib\net20\System.Data.SQLite.dll.config" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\lib\net40\System.Data.SQLite.dll.config" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\lib\net451\System.Data.SQLite.dll.config" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\lib\net45\System.Data.SQLite.dll.config" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\lib\net46\System.Data.SQLite.dll.config" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\lib\netstandard2.0\System.Data.SQLite.dll.config" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\system.data.sqlite.core.1.0.111.nupkg" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\system.data.sqlite.core.1.0.111.nupkg.sha512" />
+    <None Include="packages\system.data.sqlite.core\1.0.111\system.data.sqlite.core.nuspec" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -472,9 +526,6 @@
     <None Include="Resources\bouncingProgressBar.gif" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="cruisetree_design2.ico" />
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Framework.2.0">
       <Visible>False</Visible>
       <ProductName>.NET Framework 2.0 %28x86%29</ProductName>
@@ -490,6 +541,11 @@
       <ProductName>.NET Framework 3.5</ProductName>
       <Install>true</Install>
     </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
     <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
       <Visible>False</Visible>
       <ProductName>Windows Installer 3.1</ProductName>
@@ -497,10 +553,21 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\CruiseDAL\CruiseDAL\CruiseDAL_FF35.csproj">
-      <Project>{BAF1842E-F8C5-47A5-94C6-ADABA8A4B3AF}</Project>
-      <Name>CruiseDAL_FF35</Name>
-    </ProjectReference>
+    <PackageReference Include="Backpack.SqlBuilder">
+      <Version>1.1.2.32</Version>
+    </PackageReference>
+    <PackageReference Include="CruiseDAL.Core">
+      <Version>3.0.0.95</Version>
+    </PackageReference>
+    <PackageReference Include="CruiseDAL.V2">
+      <Version>2.7.3.95</Version>
+    </PackageReference>
+    <PackageReference Include="FMSC.ORM">
+      <Version>2.6.11.1</Version>
+    </PackageReference>
+    <PackageReference Include="System.Data.SQLite.Core">
+      <Version>1.0.115.5</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

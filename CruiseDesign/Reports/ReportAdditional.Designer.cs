@@ -96,6 +96,7 @@
          this.printToolStripButton.Name = "printToolStripButton";
          this.printToolStripButton.Size = new System.Drawing.Size(23, 22);
          this.printToolStripButton.Text = "&Print";
+         this.printToolStripButton.Click += new System.EventHandler(this.printToolStripButton_Click);
          // 
          // panel1
          // 
