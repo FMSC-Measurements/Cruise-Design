@@ -1,198 +1,0 @@
-8
-
-dir
-0
-http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc/CruiseDesign/trunk/CruiseDesign
-http://slftcweb001.ftcol.wo.fs.fed.us/svn/repos/fmsc
-add
-
-
-
-
-
-
-
-svn:special svn:externals svn:needs-lock
-
-StrataSetupWizard.resx
-file
-
-
-
-add
-
-StrataSetup.Designer.cs
-file
-
-
-
-add
-
-CruiseDesign.csproj
-file
-
-
-
-add
-
-StrataSetup.cs
-file
-
-
-
-add
-
-Design_Pages
-dir
-
-
-
-add
-
-PageHost.resx
-file
-
-
-
-add
-
-CruiseDesignMain.Designer.cs
-file
-
-
-
-add
-
-Properties
-dir
-
-
-
-add
-
-CruiseDesignMain.cs
-file
-
-
-
-add
-
-CustomControl1.Designer.cs
-file
-
-
-
-add
-
-StrataSetup.resx
-file
-
-
-
-add
-
-CustomControl1.cs
-file
-
-
-
-add
-
-Service References
-dir
-
-
-
-add
-
-UserControls
-dir
-
-
-
-add
-
-StrataSetupWizard.Designer.cs
-file
-
-
-
-add
-
-StrataSetupWizard.cs
-file
-
-
-
-add
-
-WindowsFormsControlLibrary1.csproj
-file
-
-
-
-add
-
-bin
-dir
-
-
-
-add
-
-WindowsFormsControlLibrary1
-dir
-
-
-
-add
-
-CruiseDesignMain.resx
-file
-
-
-
-add
-
-obj
-dir
-
-
-
-add
-
-Resources
-dir
-
-
-
-add
-
-Program.cs
-file
-
-
-
-add
-
-CustomControl1.resx
-file
-
-
-
-add
-
-PageHost.cs
-file
-
-
-
-add
-
-Strata_setup
-dir
-
-
-
-add
-

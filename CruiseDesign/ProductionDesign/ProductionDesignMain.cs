@@ -641,7 +641,7 @@ namespace CruiseDesign.ProductionDesign
 
       private void buttonReport_Click(object sender, EventArgs e)
       {
-         long newTree,oldTree,newPlot,oldPlot;
+         long newTree, oldTree, newPlot, oldPlot;
          Reports.ReportAdditional reportForm = new CruiseDesign.Reports.ReportAdditional(cdStratumStats.Count());
          //Reports.ReportViewer reportForm = new CruiseDesign.Reports.ReportViewer();
          // create sale table
