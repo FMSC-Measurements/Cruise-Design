@@ -202,7 +202,7 @@ namespace CruiseDesign.Strata_setup
         private long getLastSgSet(long? stratumCN)
         {
           //  List<StratumStatsDO> myStratumStats = new List<StratumStatsDO>(Owner.cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? and Method = ? ORDER BY SgSet", stratumCN, "100"));
-            List<StratumStatsDO> myStratumStats = new List<StratumStatsDO>(Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 and Method = @p2").OrderBy("SgSet").Read("stratumCN","100").ToList());
+            List<StratumStatsDO> myStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 and Method = @p2").OrderBy("SgSet").Read(stratumCN, "100").ToList();
             int cnt = myStratumStats.Count;
            long nSgSet = Convert.ToInt32(myStratumStats[cnt - 1].SgSet);
            return (nSgSet);

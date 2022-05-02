@@ -361,7 +361,7 @@ namespace CruiseDesign.Historical_setup
             //loop through SampleGroupStats
 
             //thisStrStats = (Owner.cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE StratumStats_CN = ?", stratumStatsCN));
-            thisStrStats = Owner.cdDAL.From<StratumStatsDO>().Where("StratumStats_CN = ?").Read(stratumStatsCN).FirstOrDefault();
+            thisStrStats = Owner.cdDAL.From<StratumStatsDO>().Where("StratumStats_CN = @p1").Read(stratumStatsCN).FirstOrDefault();
 
             //mySgStats = new List<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND CutLeave = 'C'", stratumStatsCN));
             mySgStats = new List<SampleGroupStatsDO>(Owner.cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(stratumStatsCN).ToList());

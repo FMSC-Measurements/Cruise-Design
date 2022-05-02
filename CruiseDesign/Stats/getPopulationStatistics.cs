@@ -278,7 +278,7 @@ namespace CruiseDesign.Stats
          // loop through stratum
          foreach (StratumDO curStr in stratum)
          {
-            strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = ? AND SgSet = 1 AND Method = ?").Read(curStr.Stratum_CN, "100").FirstOrDefault());
+            strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1 AND Method = @p2").Read(curStr.Stratum_CN, "100").FirstOrDefault());
             if (curStr.Method == "100" && strStats.Used == 2)
             {
                curStr.CuttingUnits.Populate();
