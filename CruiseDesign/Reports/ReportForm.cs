@@ -6,13 +6,9 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.IO;
-using System.Printing;
 using System.Windows.Forms;
-using System.Windows.Xps;
-using System.Windows.Xps.Packaging;
 using System.Drawing.Imaging;
 using System.Drawing.Printing;
-using System.Windows.Documents;
 using System.Windows.Markup;
 
 namespace CruiseDesign.Reports
