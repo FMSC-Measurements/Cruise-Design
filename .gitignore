@@ -1,4 +1,6 @@
 
+.vs/
+
 /InnoSetupFiles/Output/
 /CruiseSystemManager/STPinfo/
 
@@ -233,3 +235,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+!**/local-packages/*.nupkg
+
