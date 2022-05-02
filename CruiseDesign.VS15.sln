@@ -5,6 +5,17 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CruiseDesign", "CruiseDesign\CruiseDesign.csproj", "{1E7546EE-F99A-4185-8029-A2C60781781F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{520F6180-73C4-47AD-81D2-8AA026312BF6}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		Build_Installer.bat = Build_Installer.bat
+		Build_Release.cmd = Build_Release.cmd
+		Build_ZipArtifact.cmd = Build_ZipArtifact.cmd
+		CruiseDesign.iss = CruiseDesign.iss
+		NuGet.Config = NuGet.Config
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug with args|Any CPU = Debug with args|Any CPU
