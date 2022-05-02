@@ -6,6 +6,7 @@
 		<Copyright>CC0 Public Domain</Copyright>
 		<Company>USDA Forest Service</Company>
 		<Authors>Ken Cormier</Authors>
+		<Version>2022.03.04</Version>
 	</PropertyGroup>
 
 	<PropertyGroup Label="Build Config">

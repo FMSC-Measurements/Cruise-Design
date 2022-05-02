@@ -420,7 +420,6 @@
             this.MinimumSize = new System.Drawing.Size(625, 467);
             this.Name = "CruiseDesignMain";
             this.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.Text = "Cruise Design 2022.03.04";
             this.Load += new System.EventHandler(this.CruiseDesignMain_Load);
             this.RootLayoutPanel.ResumeLayout(false);
             this.RootLayoutPanel.PerformLayout();

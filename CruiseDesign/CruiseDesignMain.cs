@@ -12,6 +12,7 @@ using CruiseDesign.Historical_setup;
 using CruiseDesign.Stats;
 using CruiseDesign.ProductionDesign;
 using CruiseDAL;
+using System.Reflection;
 
 namespace CruiseDesign
 {
@@ -32,6 +33,11 @@ namespace CruiseDesign
         public CruiseDesignMain(string[] args)
         {
             InitializeComponent();
+
+            // to update version change the Version property in the project file
+            var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
+            this.Text = $"Cruise Design {version}";
+
             if (args.Length != 0)
             {
                Text = Convert.ToString(args[0]);
