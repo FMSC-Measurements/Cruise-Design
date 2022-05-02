@@ -75,27 +75,28 @@ namespace CruiseDesign.Historical_setup
                }
                catch (System.IO.IOException ie)
                {
-                  Logger.Log.E(ie);
+                  //Logger.Log.E(ie);
                }
                catch (System.Exception ie)
                {
-                  Logger.Log.E(ie);
+                  //Logger.Log.E(ie);
                }
             }
             else
             {
                return;
             }
-            Owner.Sale = new SaleDO(Owner.hDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+            Owner.Sale = new SaleDO(Owner.hDAL.From<SaleDO>().Read().FirstOrDefault());
             string sUOM = Owner.Sale.DefaultUOM;
             if (sUOM != Owner.UOM)
             {
                MessageBox.Show("Cruise does not have same UOM.\nCannot import data.", "Warning");
                return;
             }
-            //set binding list for stratum
-            Owner.histStratum = new BindingList<StratumDO>(Owner.hDAL.Read<StratumDO>("Stratum", null, null));
-            bindingSourceStratum.DataSource = Owner.histStratum;
+                //set binding list for stratum
+                //            Owner.histStratum = new BindingList<StratumDO>(Owner.hDAL.Read<StratumDO>("Stratum", null, null));
+                Owner.histStratum = new BindingList<StratumDO>(Owner.hDAL.From<StratumDO>().Read().ToList());
+                bindingSourceStratum.DataSource = Owner.histStratum;
          }
       }
       private void buttonNext_Click(object sender, EventArgs e)
@@ -133,8 +134,10 @@ namespace CruiseDesign.Historical_setup
       {
          Owner.selectedStratum = bindingSourceStratum.Current as StratumDO;
 
-         Owner.histSampleGroup = new BindingList<SampleGroupDO>(Owner.hDAL.Read<SampleGroupDO>("SampleGroup", "Where Stratum_CN = ?", Owner.selectedStratum.Stratum_CN));
-         bindingSourceSG.DataSource = Owner.histSampleGroup;
+            // Owner.histSampleGroup = new BindingList<SampleGroupDO>(Owner.hDAL.Read<SampleGroupDO>("SampleGroup", "Where Stratum_CN = ?", Owner.selectedStratum.Stratum_CN));
+            Owner.histSampleGroup = new BindingList<SampleGroupDO>(Owner.hDAL.From<SampleGroupDO>().Where("Stratum_CN = @p1").Read(Owner.selectedStratum.Stratum_CN).ToList());
+          
+            bindingSourceSG.DataSource = Owner.histSampleGroup;
       }
 
 //*************************************************************************
@@ -221,7 +224,7 @@ namespace CruiseDesign.Historical_setup
             Owner.currentSgStats.Description = sg.Description;
             // get POP data
             //Owner.selectedPOP = new POPDO(Owner.hDAL);
-            Owner.selectedPOP = Owner.hDAL.ReadSingleRow<POPDO>("POP", "WHERE Stratum = ? AND SampleGroup = ?", Owner.selectedStratum.Code, sg.Code);
+            Owner.selectedPOP = Owner.hDAL.From<POPDO>().Where("Stratum = @p1 AND SampleGroup = @p2").Read(Owner.selectedStratum.Code, sg.Code).FirstOrDefault();
             // calculate statistics (based on method)
             if (Owner.selectedPOP == null)
             {
@@ -259,8 +262,9 @@ namespace CruiseDesign.Historical_setup
             
             Owner.currentSgStats.SgError = Convert.ToSingle(sampErr);
 
-            // get LCD data
-            Owner.selectedLCD = Owner.hDAL.Read<LCDDO>("LCD", "WHERE Stratum = ? AND SampleGroup = ?", Owner.selectedStratum.Code, sg.Code);
+                // get LCD data
+                //Owner.selectedLCD = Owner.hDAL.Read<LCDDO>("LCD", "WHERE Stratum = ? AND SampleGroup = ?", Owner.selectedStratum.Code, sg.Code);
+            Owner.selectedLCD = Owner.hDAL.From<LCDDO>().Where("Stratum = @p1 AND SampleGroup = @p2").Read(Owner.selectedStratum.Code, sg.Code).ToList();
             sumExpFac = 0;
             sumNetVol = 0;
             //foreach (SampleGroupDO sg in Owner.histSampleGroup)
@@ -315,7 +319,8 @@ namespace CruiseDesign.Historical_setup
             foreach (TreeDefaultValueDO tdv in sg.TreeDefaultValues)
             {
                // check with current TDV values
-               Owner.currentTreeDefaults = Owner.cdDAL.ReadSingleRow<TreeDefaultValueDO>("TreeDefaultValue", "WHERE Species = ? AND PrimaryProduct = ? AND LiveDead = ?",tdv.Species,tdv.PrimaryProduct,tdv.LiveDead);
+               Owner.currentTreeDefaults = Owner.cdDAL.From<TreeDefaultValueDO>().Where("Species = @p1 AND PrimaryProduct = @p2 AND LiveDead = @p3")
+                                    .Read(tdv.Species,tdv.PrimaryProduct,tdv.LiveDead).FirstOrDefault();
                if (Owner.currentTreeDefaults == null)
                {
                   // if null, add tdv to list then create link
@@ -353,14 +358,16 @@ namespace CruiseDesign.Historical_setup
          float cv1, cv2, wtErr, sgErr, treesAcre;
          long sampleSize1, sampleSize2;
          string _UOM = "";
-         //loop through SampleGroupStats
-         
-         thisStrStats = (Owner.cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE StratumStats_CN = ?", stratumStatsCN));
-         
-         mySgStats = new List<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", stratumStatsCN));
-         // loop through sample groups
-         //totalVolumeAcre = getTotals(mySgStats);
-         totalVolumeAcre = mySgStats.Sum(P => P.VolumePerAcre);
+            //loop through SampleGroupStats
+
+            //thisStrStats = (Owner.cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE StratumStats_CN = ?", stratumStatsCN));
+            thisStrStats = Owner.cdDAL.From<StratumStatsDO>().Where("StratumStats_CN = @p1").Read(stratumStatsCN).FirstOrDefault();
+
+            //mySgStats = new List<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND CutLeave = 'C'", stratumStatsCN));
+            mySgStats = new List<SampleGroupStatsDO>(Owner.cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(stratumStatsCN).ToList());
+            // loop through sample groups
+            //totalVolumeAcre = getTotals(mySgStats);
+            totalVolumeAcre = mySgStats.Sum(P => P.VolumePerAcre);
          totalVolume = totalVolumeAcre * thisStrStats.TotalAcres;
          treesAcre = 0;
          sampleSize1 = 0;

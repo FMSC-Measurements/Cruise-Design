@@ -43,12 +43,12 @@ namespace CruiseDesign
             }
             catch (System.IO.IOException e)
             {
-               Logger.Log.E(e);
+                    //FMSC.ORM.Core.Logger..Log.E(e);
                MessageBox.Show("Error: Cannot open recon file");
             }
             catch (System.Exception e)
             {
-               Logger.Log.E(e);
+                    //Logger.Log.E(e);
                MessageBox.Show("Error: Cannot open recon file");
             }
          }
@@ -113,12 +113,11 @@ namespace CruiseDesign
 
         private void InitializeDataBindings()
         {
-           cdCuttingUnits = new BindingList<CuttingUnitDO>(cdDAL.Read<CuttingUnitDO>("CuttingUnit", null, null));
-           cdStratum = new BindingList<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
+           cdCuttingUnits = new BindingList<CuttingUnitDO>(cdDAL.From<CuttingUnitDO>().Read().ToList());
+           cdStratum = new BindingList<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
            cdTreeDefaults = new BindingList<TreeDefaultValueDO>();
-           cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", null, null));
-           cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", null, null));
-           //mySale = (cdDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+           cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Read().ToList());
+           cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Read().ToList());
 
         }
   
@@ -136,9 +135,14 @@ namespace CruiseDesign
         public void GoToStrataPage(int pageID)
         {
 
-           // If from UnitPage - get new currentStratumStats
-           mySale.DefaultUOM = sUOM;
-           
+            // If from UnitPage - get new currentStratumStats
+            //var mSale = cdDAL.QuerySingleRecord<SaleDO>("Select * from Sale");
+            var mSale = cdDAL.Query<SaleDO>("Select * from Sale").First();
+            //var mSale = cdDAL.ReadSingleRow<SaleDO>(0);
+
+           mSale.DefaultUOM = sUOM;
+           mSale.Save();
+
            //currentStratumStats.Save();
            //setUsed(currentStratumStats.Stratum_CN);
          
@@ -149,7 +153,8 @@ namespace CruiseDesign
            currentStratumStats.Save();
            setUsed(currentStratumStats.Stratum_CN);
            
-           cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ?", currentStratumStats.StratumStats_CN, currentStratumStats.SgSet));
+           cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND SgSet = @p2")
+                                                          .Read(currentStratumStats.StratumStats_CN, currentStratumStats.SgSet).ToList());
            // setup Tree Default Values by CuttingUnits
            fillTreeDefaultList();
            //getTreeDefaultSql();
@@ -195,34 +200,36 @@ namespace CruiseDesign
         public void setUsed(long? stratumCN)
         {
            // get stratumstats where stratumcn, sgSet = 1 and method = 100
-           //StratumStatsDO thisStrStats = (cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND Method = ?", stratumCN,"100"));
-           List<StratumStatsDO> thisStrStats = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND Method = ?", stratumCN, "100"));
+           List<StratumStatsDO> thisStrStats = cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Method = @p2").Read(stratumCN, "100").ToList();
            foreach (StratumStatsDO myStStats in thisStrStats)
            {
               myStStats.Used = 2;
               myStStats.Save();
            }
-           currentStratum.Method = "100";
+           if(currentStratum.Method != "FIXCNT")
+              currentStratum.Method = "100";
            currentStratum.Save();
+ 
         }
 
          public void GoToSgPage(int compCheck)
          {
            if (currentStratum == null ) return;
-           //viewStratumPage.bindingSourceStratum.DataSource = cdStratum;
-           //set binding list using currentStratum_cn
-            if(compCheck == 0)
-               cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND Method = 100", currentStratum.Stratum_CN));
+            //viewStratumPage.bindingSourceStratum.DataSource = cdStratum;
+            //set binding list using currentStratum_cn
+            if (compCheck == 0)
+                cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Method = 100").Read(currentStratum.Stratum_CN).ToList());
             else
-               cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", currentStratum.Stratum_CN));
-               
+                cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(currentStratum.Stratum_CN).ToList());
+
            //currentStratumStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = 1", currentStratum.Stratum_CN));
-           if (currentStratumStats == null) return;
+            if (currentStratumStats == null) return;
 
            //sgselectPage.bindingSourceStratumStats.DataSource = cdStratumStats;
            viewStratumPage.bindingSourceStratumStats.DataSource = cdStratumStats;
            //set sg binding list using stratumstats_cn
-           cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ?", currentStratumStats.StratumStats_CN, currentStratumStats.SgSet));
+           cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND SgSet = @p2")
+                                                          .Read(currentStratumStats.StratumStats_CN, currentStratumStats.SgSet).ToList());
            //set TDV binding list using sgstats_tdv link
            
            //sgselectPage.bindingSourcSampleGroup.DataSource = cdSgStats;
@@ -272,10 +279,12 @@ namespace CruiseDesign
         private void checkSalePurpose()
         {
           
-          mySale = new SaleDO(cdDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+          //mySale = new SaleDO(cdDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+           var mSale = cdDAL.Query<SaleDO>("Select * from Sale").First();
 //           mySale = cdDAL.ReadSingleRow<SaleDO>("Sale", null, null);
-           sUOM = mySale.DefaultUOM;
-           String remark = mySale.Remarks;
+                          
+           sUOM = mSale.DefaultUOM;
+           String remark = mSale.Remarks;
            if (remark == "Historical Design")
               reconExists = false;
            
@@ -291,17 +300,19 @@ namespace CruiseDesign
            {
               foreach (CuttingUnitDO cu in currentStratum.CuttingUnits)
               {
-                 CuttingUnitDO cur = rDAL.ReadSingleRow<CuttingUnitDO>("CuttingUnit", "Where code = ?", cu.Code);
+                 CuttingUnitDO cur = rDAL.From<CuttingUnitDO>().Where("code = @p1").Read(cu.Code).FirstOrDefault();
                  if (cur != null)
                  {
-                    //CuttingUnitDO cur = rDAL.Read<CuttingUnitDO>("CuttingUnit", "Where code = ?", cu.Code);
-                    List<TreeDO> treer = new List<TreeDO>(rDAL.Read<TreeDO>("Tree", "Where CuttingUnit_CN = ? GROUP BY TreeDefaultValue_CN", cur.CuttingUnit_CN));
+                    List<TreeDO> treer = rDAL.From<TreeDO>().Where("CuttingUnit_CN = @p1")
+                                           .GroupBy("TreeDefaultValue_CN").Read(cur.CuttingUnit_CN).ToList();
 
                     //myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
                     foreach (TreeDO tree in treer)
                     {
                        // get the record from Design TDV where recon spec, prod, LD match.
-                       List<TreeDefaultValueDO> checkTDV = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", "WHERE Species = ? AND PrimaryProduct = ? AND LiveDead = ?", tree.TreeDefaultValue.Species, tree.TreeDefaultValue.PrimaryProduct, tree.TreeDefaultValue.LiveDead));
+                       List<TreeDefaultValueDO> checkTDV = cdDAL.From<TreeDefaultValueDO>()
+                                .Where("Species = @p1 AND PrimaryProduct = @p2 AND LiveDead = @p3")
+                                .Read(tree.TreeDefaultValue.Species, tree.TreeDefaultValue.PrimaryProduct, tree.TreeDefaultValue.LiveDead).ToList();
                        foreach (TreeDefaultValueDO myTDV in checkTDV)
                           if (!myTreeDefaultList.Contains(myTDV))
                              myTreeDefaultList.Add(myTDV);
@@ -325,7 +336,7 @@ namespace CruiseDesign
            else
            {
               // add all tree default values
-              myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+              myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
            }
            foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
               cdTreeDefaults.Add(myTDV);
@@ -355,13 +366,13 @@ namespace CruiseDesign
               }
               foreach (CuttingUnitDO cu in currentStratum.CuttingUnits)
               {
-                 CuttingUnitDO cur = rDAL.ReadSingleRow<CuttingUnitDO>("CuttingUnit", "Where code = ?", cu.Code);
+                 CuttingUnitDO cur = rDAL.From<CuttingUnitDO>().Where("code = @p1").Read(cu.Code).FirstOrDefault();
                  if (cur != null)
                  {
                     cur.Strata.Populate();
                     foreach (StratumDO strr in cur.Strata)
                     {
-                       List<SampleGroupDO> sgr = rDAL.Read<SampleGroupDO>("SampleGroup", "Where Stratum_CN = ?", strr.Stratum_CN);
+                       List<SampleGroupDO> sgr = rDAL.From<SampleGroupDO>().Where("Stratum_CN = @p1").Read(strr.Stratum_CN).ToList();
                        if (sgr != null)
                        {
                           foreach (SampleGroupDO mysgr in sgr)
@@ -369,9 +380,18 @@ namespace CruiseDesign
                              mysgr.TreeDefaultValues.Populate();
                              foreach (TreeDefaultValueDO myTDVr in mysgr.TreeDefaultValues)
                              {
-                                TreeDefaultValueDO checkTDV = cdDAL.ReadSingleRow<TreeDefaultValueDO>("TreeDefaultValue", "Where TreeDefaultValue_CN = ?", myTDVr.TreeDefaultValue_CN);
-                                if (!myTreeDefaultList.Contains(checkTDV))
-                                   myTreeDefaultList.Add(checkTDV);
+                                        TreeDefaultValueDO checkTDV = cdDAL.From<TreeDefaultValueDO>()
+                                                    .Where("TreeDefaultValue_CN = @p1")
+                                                    .Read(myTDVr.TreeDefaultValue_CN).FirstOrDefault();
+                              //if (!myTreeDefaultList.Contains(checkTDV))
+                                 int cnt = 0;
+                                 foreach(TreeDefaultValueDO check in myTreeDefaultList)
+                                 {
+                                    if (checkTDV.TreeDefaultValue_CN == check.TreeDefaultValue_CN)
+                                       cnt++;
+                                 }
+                                 if(cnt == 0 || myTreeDefaultList.Count() == 0)
+                                    myTreeDefaultList.Add(checkTDV);
                              }
                           }
                        }
@@ -382,7 +402,7 @@ namespace CruiseDesign
            else
            {
               // add all tree default values
-              myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+              myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
            }
            foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
               cdTreeDefaults.Add(myTDV);

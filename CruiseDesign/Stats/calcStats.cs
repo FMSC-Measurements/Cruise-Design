@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Numeric;
+
 
 namespace CruiseDesign
 {
@@ -61,7 +61,7 @@ namespace CruiseDesign
       {
          double cv;
          // seg Std Deviation
-         if (n < 2)
+         if (n < 2 || x <= 0)
             return (0);
 
          double var = (x2 - ((x * x) / n)) / (n - 1);
@@ -79,7 +79,7 @@ namespace CruiseDesign
       {
          double cv;
          // seg Std Deviation
-         if (plotCount < 2)
+         if (plotCount < 2 || vBars <= 0)
             return (0);
 
          double var = (vBars2 - ((vBars * vBars) / plotCount)) / (plotCount - 1);
@@ -116,7 +116,10 @@ namespace CruiseDesign
             if (tScore <= 0)
                tScore = getTScore(n);
 
-            sampErr = Math.Round(Math.Sqrt(((tScore*tScore * cv*cv)/Convert.ToDouble(n)) - ((tScore*tScore * cv*cv)/Convert.ToDouble(N))), 2);
+            //sampErr = Math.Round(Math.Sqrt(((tScore*tScore * cv*cv)/Convert.ToDouble(n)) - ((tScore*tScore * cv*cv)/Convert.ToDouble(N))), 2);
+            double sampErr1 = ((tScore * cv) / (Math.Sqrt(Convert.ToDouble(n))));
+            double sampErr2 = Math.Sqrt((1- (Convert.ToDouble(n)/Convert.ToDouble(N))));
+            sampErr = Math.Round(sampErr1 * sampErr2, 2);
          }
          return (sampErr);
       }
@@ -158,7 +161,7 @@ namespace CruiseDesign
       public int getSampleSize(double Error, double CV)
       {
          if (Error == 0)
-            return (1);
+            return (3);
          double nCalc = (4 * (CV * CV)) / (Error * Error);
          int n = (int)Math.Ceiling(nCalc);
          if (n < 3) n = 3;
@@ -168,8 +171,8 @@ namespace CruiseDesign
       //**********************************
       public int getSampleSize(double Error, double CV, long N)
       {
-         if (Error == 0)
-            return (1);
+         if (Error == 0 || CV <= 0)
+            return (3);
          
          double nCalc = (4 * (CV * CV)) / (Error * Error + ((4 * (CV * CV))/N));
 
@@ -182,7 +185,7 @@ namespace CruiseDesign
       
       public void getTwoStageSampleSize(double CV, double CV2, double Error) 
       {
-         if (Error > 1)
+         if (Error > 1 || CV <= 0)
          {
             double size2 = Math.Ceiling((4 * (CV * CV2 + CV2 * CV2)) / (Error * Error));
             if (size2 < 3) size2 = 3;
@@ -205,14 +208,17 @@ namespace CruiseDesign
       {
          double calcError;
          // calculate error using CV and calcSamp 
+         int add1 = 0;
          int cnt = 0;
          do
          {
-            calcSamp += cnt;
+            calcSamp += add1;
             calcError = getSampleError(CV, calcSamp, 0);
             cnt++;
+            if (cnt == 1)
+               add1 = 1;
             // compare to Error
-         } while (calcError > Error);
+         } while (calcError > Error && cnt < 10);
 
          return (calcSamp);
          // return sample size
@@ -222,14 +228,17 @@ namespace CruiseDesign
       {
          double calcError;
          // calculate error using CV and calcSamp 
+         int add1 = 0;
          int cnt = 0;
          do
          {
-            calcSamp += cnt;
+            calcSamp += add1;
             calcError = getSampleError(CV, calcSamp, 0, N);
             cnt++;
+            if (cnt == 1)
+               add1++;
             // compare to Error
-         } while (calcError > Error);
+         } while (calcError > Error && cnt < 10);
 
          return (calcSamp);
          // return sample size
@@ -238,13 +247,16 @@ namespace CruiseDesign
       public long checkTValueError2Stage(double CV1, double CV2, long n1, long n2, double Error)
       {
          double calcError;
+         int add1 = 0;
          int cnt = 0;
          do
          {
-            n1 += cnt;
+            n1 += add1;
             calcError = getTwoStageError(CV1, CV2, n1, n2);
             cnt++;
-         } while (calcError > Error);
+            if (cnt == 1)
+               add1++;
+         } while (calcError > Error && cnt < 10);
 
          return (n1);
 

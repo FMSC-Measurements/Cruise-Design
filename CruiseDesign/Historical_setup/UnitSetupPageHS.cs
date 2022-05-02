@@ -160,7 +160,7 @@ namespace CruiseDesign.Historical_setup
 
            List<StratumStatsDO> strataStats;
 
-           strataStats = new List<StratumStatsDO>(Owner.cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", stratum_cn));
+           strataStats = new List<StratumStatsDO>(Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(stratum_cn).ToList());
            // loop by stratumstats for multiple SgSets
            foreach (StratumStatsDO curStrStats in strataStats)
            {

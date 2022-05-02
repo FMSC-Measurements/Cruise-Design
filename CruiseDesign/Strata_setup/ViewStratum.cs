@@ -76,7 +76,7 @@ namespace CruiseDesign.Strata_setup
       {
          Owner.currentStratumStats = bindingSourceStratumStats.Current as StratumStatsDO;
 
-         Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ?", Owner.currentStratumStats.StratumStats_CN, Owner.currentStratumStats.SgSet));
+         Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND SgSet = @p2").Read(Owner.currentStratumStats.StratumStats_CN, Owner.currentStratumStats.SgSet).ToList());
          bindingSourcSampleGroup.DataSource = Owner.cdSgStats;
 
       }
@@ -96,19 +96,20 @@ namespace CruiseDesign.Strata_setup
       {
          Owner.currentStratum = bindingSourceStratum.Current as StratumDO;
          if (Owner.currentStratum.Stratum_CN == null) return;
-         Owner.cdStratumStats = new BindingList<StratumStatsDO>(Owner.cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND Method = 100", Owner.currentStratum.Stratum_CN));
-
+         Owner.cdStratumStats = new BindingList<StratumStatsDO>(Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Method = 100").Read(Owner.currentStratum.Stratum_CN).ToList());
          //currentStratumStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = 1", currentStratum.Stratum_CN));
          if (Owner.cdStratumStats.Count == 0)
          {
-            Owner.cdStratumStats = new BindingList<StratumStatsDO>(Owner.cdDAL.Read<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ?", Owner.currentStratum.Stratum_CN));
+            Owner.cdStratumStats = new BindingList<StratumStatsDO>(Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(Owner.currentStratum.Stratum_CN).ToList());
          }
 
          //set sg binding list using stratumstats_cn
          bindingSourceStratumStats.DataSource = Owner.cdStratumStats;
          //sgselectPage.bindingSourceStratumStats.DataSource = cdStratumStats;
 
-         Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ?", Owner.currentStratumStats.StratumStats_CN, Owner.currentStratumStats.SgSet));
+         Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.From<SampleGroupStatsDO>()
+                                                              .Where("Where StratumStats_CN = @p1 AND SgSet = @p2")
+                                                              .Read(Owner.currentStratumStats.StratumStats_CN, Owner.currentStratumStats.SgSet).ToList());
             //set TDV binding list using sgstats_tdv link
 
             //sgselectPage.bindingSourcSampleGroup.DataSource = cdSgStats;

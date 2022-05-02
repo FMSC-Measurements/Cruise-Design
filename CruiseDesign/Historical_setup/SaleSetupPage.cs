@@ -8,7 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL;
 using CruiseDAL.DataObjects;
-
+using FMSC.ORM.Core.SQL;
 
 namespace CruiseDesign.Historical_setup
 {
@@ -149,11 +149,11 @@ namespace CruiseDesign.Historical_setup
          }
          catch (System.IO.IOException ie)
          {
-            Logger.Log.E(ie);
+            //Logger.Log.E(ie);
          }
          catch (System.Exception ie)
          {
-            Logger.Log.E(ie);
+            //Logger.Log.E(ie);
          }
 
          copyTemplateData(df);
@@ -165,31 +165,76 @@ namespace CruiseDesign.Historical_setup
       private void copyTemplateData(dataFiles df)
       {
          //copy TreeDefaultValues table
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
-         //copy globals table
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
-         //copy logfieldsetupdefault
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-         //copy messagelog
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
-         //copy reports
-         df.cdDAL.DirectCopy(df.tmpDAL, "Reports", null, OnConflictOption.Ignore);
-         //copy treefieldsetupdefault
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-         //copy volumeequations
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
-         //copy treeauditvalue
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
-         //copy treedefaultvaluetreeauditvalue
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
-         //copy tally
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
-         //copy cruise methods
-         df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
- 
-      }
+         //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
+            foreach (TreeDefaultValueDO fld in df.tmpDAL.From<TreeDefaultValueDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "TreeDefaultValue", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy globals table
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
+            foreach (GlobalsDO fld in df.tmpDAL.From<GlobalsDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "Globals", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy logfieldsetupdefault
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+            foreach (LogFieldSetupDefaultDO fld in df.tmpDAL.From<LogFieldSetupDefaultDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "LogFieldSetupDefault", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy messagelog
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
+            foreach (MessageLogDO fld in df.tmpDAL.From<MessageLogDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "MessageLog", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy reports
+            //df.cdDAL.DirectCopy(df.tmpDAL, "Reports", null, OnConflictOption.Ignore);
+            foreach (ReportsDO fld in df.tmpDAL.From<ReportsDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "Reports", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy treefieldsetupdefault
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
+            foreach (TreeFieldSetupDefaultDO fld in df.tmpDAL.From<TreeFieldSetupDefaultDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "TreeFieldSetupDefault", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy volumeequations
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
+            foreach (VolumeEquationDO fld in df.tmpDAL.From<VolumeEquationDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "VolumeEquation", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy treeauditvalue
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
+            foreach (TreeAuditValueDO fld in df.tmpDAL.From<TreeAuditValueDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "TreeAuditValue", Backpack.SqlBuilder.OnConflictOption.Replace);
 
-      private void copySaleData(dataFiles df)
+            }
+            //copy treedefaultvaluetreeauditvalue
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
+            foreach (TreeDefaultValueTreeAuditValueDO fld in df.tmpDAL.From<TreeDefaultValueTreeAuditValueDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "TreeDefaultValueTreeAuditValue", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy tally
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
+            foreach (TallyDO fld in df.tmpDAL.From<TallyDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+            //copy cruise methods
+            //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
+            foreach (CruiseMethodsDO fld in df.tmpDAL.From<CruiseMethodsDO>().Query())
+            {
+                df.cdDAL.Insert(fld, "CruiseMethods", Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+
+        }
+
+        private void copySaleData(dataFiles df)
       {
          SaleDO sale = new SaleDO(df.cdDAL);
          sale.SaleNumber = df.SaleNumber;

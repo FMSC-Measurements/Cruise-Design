@@ -55,10 +55,14 @@ namespace CruiseDesign.ProductionDesign
       float totAcres;
       private void InitializeDatabaseTables()
       {
-        // cdStratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
-         cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
-         mySale = cdDAL.ReadSingleRow<SaleDO>("Sale", null, null);
-         myGlobals = cdDAL.Read<GlobalsDO>("Globals", "WHERE Block = ?", "CruiseDesign");
+            // cdStratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
+            //            cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
+            cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>()
+                                 .Join("Stratum AS s", "USING (Stratum_CN)").Join("StratumStats AS ss", "USING (Method)")
+                                 .Where("ss.Used = 1").OrderBy("Stratum.Code").Read().ToList());
+
+         mySale = cdDAL.From<SaleDO>().Read().FirstOrDefault();
+         myGlobals = cdDAL.From<GlobalsDO>().Where("Block = 'CruiseDesign'").Read().ToList();
       }
       
       private void InitializeDataBindings()
@@ -75,7 +79,7 @@ namespace CruiseDesign.ProductionDesign
          currentStratumStats = bindingSourceStratumStats.Current as StratumStatsDO;
          if (currentStratumStats != null)
          {
-            cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", currentStratumStats.StratumStats_CN));
+            cdSgStats = new BindingList<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(currentStratumStats.StratumStats_CN).ToList());
             bindingSourceSgStats.DataSource = cdSgStats;
             meth = currentStratumStats.Method;
             totAcres = currentStratumStats.TotalAcres;
@@ -333,8 +337,13 @@ namespace CruiseDesign.ProductionDesign
          // check for plot cruise, if yes, all SampleSize1 is changed and errors recomputed            
          if (stage == 11)
          {
-            float tpa = _currentSgStats.TreesPerAcre;
-            long N = (long)Math.Ceiling(tpa * totAcres);
+            long N = _currentSgStats.TPA_Def;
+
+            if(N <= 0)
+            {
+               float tpa = _currentSgStats.TreesPerAcre;
+               N = (long)Math.Ceiling(tpa * totAcres);
+            }
 
             _currentSgStats.SgError = Convert.ToSingle(Math.Round(cStat.getSampleError(sgCV, n, 0, N), 2));
          }
@@ -393,29 +402,31 @@ namespace CruiseDesign.ProductionDesign
             else
             {
                long n2 = thisSgStats.SampleSize2;
-               if (n2 < 1) return;
                float tpp = thisSgStats.TreesPerPlot;
                float vpa = thisSgStats.VolumePerAcre;
                float tpa = thisSgStats.TreesPerAcre;
-               if (tpa <= 0) tpa = 1;
+               if (n2 > 0)
+               { 
+                  if (tpa <= 0) tpa = 1;
 
-               if (meth == "PCM" || meth == "FCM")
-               {
-                  // update freq
-                  _freq = thisSgStats.SamplingFrequency;
-                  if (_freq == 1)
+                  if (meth == "PCM" || meth == "FCM")
                   {
-                     thisSgStats.SampleSize2 = Convert.ToInt32((tpp * sampSize));
-                  }
-                  else if (_freq <= 0)
-                  {
-                     _freq = Convert.ToInt32((tpp * sampSize) / n2);
-                     thisSgStats.SamplingFrequency = _freq;
-                     thisSgStats.SampleSize2 = Convert.ToInt32((tpp * sampSize) / _freq);
-                  }
-                  else
-                  {
-                     thisSgStats.SampleSize2 = Convert.ToInt32((tpp * sampSize) / _freq);
+                     // update freq
+                     _freq = thisSgStats.SamplingFrequency;
+                     if (_freq == 1)
+                     {
+                        thisSgStats.SampleSize2 = Convert.ToInt32((tpp * sampSize));
+                     }
+                     else if (_freq <= 0)
+                     {
+                        _freq = Convert.ToInt32(((tpp * sampSize) / (float)n2)+.4);
+                        thisSgStats.SamplingFrequency = _freq;
+                        thisSgStats.SampleSize2 = Convert.ToInt32((tpp * sampSize) / _freq);
+                     }
+                     else
+                     {
+                        thisSgStats.SampleSize2 = Convert.ToInt32((tpp * sampSize) / _freq);
+                     }
                   }
                }
                else if (meth == "F3P")
@@ -516,7 +527,7 @@ namespace CruiseDesign.ProductionDesign
          currentStratumStats.WeightedCV2 = wtCv2;
 
         
-         currentStratumStats.Save();
+        currentStratumStats.Save();
       }
     
 
@@ -630,7 +641,7 @@ namespace CruiseDesign.ProductionDesign
 
       private void buttonReport_Click(object sender, EventArgs e)
       {
-         long newTree,oldTree,newPlot,oldPlot;
+         long newTree, oldTree, newPlot, oldPlot;
          Reports.ReportAdditional reportForm = new CruiseDesign.Reports.ReportAdditional(cdStratumStats.Count());
          //Reports.ReportViewer reportForm = new CruiseDesign.Reports.ReportViewer();
          // create sale table
@@ -642,7 +653,7 @@ namespace CruiseDesign.ProductionDesign
          foreach (StratumStatsDO myStr in cdStratumStats)
          {
             string Meth = myStr.Method;
-            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", myStr.StratumStats_CN));
+            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(myStr.StratumStats_CN).ToList());
 
             if (Meth == "P3P" || Meth == "PCM" || Meth == "3PPNT" || Meth == "F3P" || Meth == "FCM")
             {

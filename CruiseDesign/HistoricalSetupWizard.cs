@@ -111,7 +111,8 @@ namespace CruiseDesign
       public void GoToHistPage()
       {
          // If from UnitPage - get new currentStratumStats
-         currentStratumStats = (cdDAL.ReadSingleRow<StratumStatsDO>("StratumStats", "WHERE Stratum_CN = ? AND SgSet = 1", currentStratum.Stratum_CN));
+         currentStratumStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1")
+                .Read(currentStratum.Stratum_CN).FirstOrDefault());
 
          if (currentStratumStats != null)
          {
@@ -151,11 +152,11 @@ namespace CruiseDesign
                }
                catch (System.IO.IOException ie)
                {
-                  Logger.Log.E(ie);
+                  //Logger.Log.E(ie);
                }
                catch (System.Exception ie)
                {
-                  Logger.Log.E(ie);
+                  //Logger.Log.E(ie);
                }
             }
             else
@@ -163,7 +164,7 @@ namespace CruiseDesign
                return;
             }
 
-            Sale = new SaleDO(hDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+            Sale = new SaleDO(hDAL.From<SaleDO>().Read().FirstOrDefault());
             string sUOM = Sale.DefaultUOM;
             if (sUOM != UOM)
             {
@@ -171,9 +172,10 @@ namespace CruiseDesign
                return;
             }
 
-            //set binding list for stratum
-            histStratum = new BindingList<StratumDO>(hDAL.Read<StratumDO>("Stratum", null, null));
-            histPage.bindingSourceStratum.DataSource = histStratum;
+                //set binding list for stratum
+                //histStratum = new BindingList<StratumDO>(hDAL.Read<StratumDO>("Stratum", null, null));
+                histStratum = new BindingList<StratumDO>(hDAL.From<StratumDO>().Read().ToList());
+                histPage.bindingSourceStratum.DataSource = histStratum;
 
             pageHost2.Display(histPage);
          }
@@ -201,7 +203,7 @@ namespace CruiseDesign
 
       private void setSalePurpose()
       {
-         SaleDO sale = new SaleDO (cdDAL.ReadSingleRow<SaleDO>("Sale", null, null));
+         SaleDO sale = new SaleDO (cdDAL.From<SaleDO>().Read().FirstOrDefault());
 
          if (sale.DefaultUOM == null)
             UOM = "03";
@@ -237,13 +239,16 @@ namespace CruiseDesign
 
       private void InitializeDataBindings()
       {
-           cdCuttingUnits = new BindingList<CuttingUnitDO>(cdDAL.Read<CuttingUnitDO>("CuttingUnit", null, null));
-           cdStratum = new BindingList<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
-           cdTreeDefaults = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue",null,null));
-           
-      }
+           // cdCuttingUnits = new BindingList<CuttingUnitDO>(cdDAL.Read<CuttingUnitDO>("CuttingUnit", null, null));
+            cdCuttingUnits = new BindingList<CuttingUnitDO>(cdDAL.From<CuttingUnitDO>().Read().ToList());
+            //cdStratum = new BindingList<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
+            cdStratum = new BindingList<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
+            //cdTreeDefaults = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+            cdTreeDefaults = new List<TreeDefaultValueDO>(cdDAL.From<TreeDefaultValueDO>().Read().ToList());
 
-      private void createHistoricalData()
+        }
+
+        private void createHistoricalData()
       {
          // copy stratum row to design
          // copy stratumstats to design

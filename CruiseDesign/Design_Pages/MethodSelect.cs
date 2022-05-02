@@ -17,7 +17,7 @@ namespace CruiseDesign.Design_Pages
 
       public MethodSelect(DesignMain Owner)
       {
-         this.Owner = Owner;
+         this.SetOwner(Owner);
 
          InitializeComponent();
 
@@ -26,9 +26,19 @@ namespace CruiseDesign.Design_Pages
          InitializeDataBindings();
       }
 
-      public DesignMain Owner { get; set; }
-      
-      public long? stratumCN;
+        private DesignMain owner;
+
+        public DesignMain GetOwner()
+        {
+            return owner;
+        }
+
+        public void SetOwner(DesignMain value)
+        {
+            owner = value;
+        }
+
+        public long? stratumCN;
 
       public BindingList<SampleGroupStatsDO> sgStats { get; set; }
 
@@ -43,16 +53,17 @@ namespace CruiseDesign.Design_Pages
 
       private void InitializeDataBindings()
       {
-         bindingSourceStratumStats.DataSource = Owner.msStratumStats;
+         bindingSourceStratumStats.DataSource = GetOwner().msStratumStats;
          //bindingSourceSgStats.DataSource = Owner.cdSgStats;
       }
       #endregion
 
       private void bindingSourceStratumStats_CurrentChanged(object sender, EventArgs e)
       {
-         Owner.myStratumStats = bindingSourceStratumStats.Current as StratumStatsDO;
+            GetOwner().myStratumStats = bindingSourceStratumStats.Current as StratumStatsDO;
 
-         sgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ?", Owner.myStratumStats.StratumStats_CN, Owner.myStratumStats.SgSet));
+//            sgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND SgSet = ? AND CutLeave = 'C'", Owner.myStratumStats.StratumStats_CN, Owner.myStratumStats.SgSet));
+         sgStats = new BindingList<SampleGroupStatsDO>(GetOwner().cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND SgSet = @p2 AND CutLeave = 'C'").Read(GetOwner().myStratumStats.StratumStats_CN, GetOwner().myStratumStats.SgSet).ToList());
          bindingSourceSgStats.DataSource = sgStats;
       }
 
@@ -70,15 +81,15 @@ namespace CruiseDesign.Design_Pages
       private void MethodSelect_FormClosing(object sender, FormClosingEventArgs e)
       {
         // check to see if row is selected
-         if (Owner.myStratumStats == null)
-            Owner.currentStratumStats.Used = 1;
+         if (GetOwner().myStratumStats == null)
+                GetOwner().currentStratumStats.Used = 1;
          else
          {
-            Owner.myStratumStats.Used = 1;
-            Owner.currentStratumStats = Owner.myStratumStats;
-            Owner.currentStratum.Method = Owner.myStratumStats.Method;
-            Owner.currentStratum.BasalAreaFactor = Owner.myStratumStats.BasalAreaFactor;
-            Owner.currentStratum.FixedPlotSize = Owner.myStratumStats.FixedPlotSize;
+                GetOwner().myStratumStats.Used = 1;
+                GetOwner().currentStratumStats = GetOwner().myStratumStats;
+                GetOwner().currentStratum.Method = GetOwner().myStratumStats.Method;
+                GetOwner().currentStratum.BasalAreaFactor = GetOwner().myStratumStats.BasalAreaFactor;
+                GetOwner().currentStratum.FixedPlotSize = GetOwner().myStratumStats.FixedPlotSize;
          }
 
          //int strRowCnt = selectedItemsGridViewStratumStats.SelectedRows.Count;

@@ -55,7 +55,7 @@ namespace FMSC.Controls
             IList list = this.DataSource as IList;
             int index = e.RowIndex;
             if (list == null) { return; }
-            if (index < 0 || (index+1) > list.Count) { return; }
+            if (index < 0 || index > list.Count) { return; }
             if (e.ColumnIndex == 0 )
             {
                 e.Value = IsItemSelected(list[index]);

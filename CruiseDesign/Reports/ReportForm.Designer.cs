@@ -55,6 +55,7 @@
          this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
          this.printToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
          this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+         this.labelTime = new System.Windows.Forms.Label();
          this.flowLayoutPanel1.SuspendLayout();
          this.toolStrip1.SuspendLayout();
          this.panel1.SuspendLayout();
@@ -115,6 +116,7 @@
          // 
          // panel1
          // 
+         this.panel1.Controls.Add(this.labelTime);
          this.panel1.Controls.Add(this.textBoxTitle);
          this.panel1.Controls.Add(this.label1);
          this.panel1.Location = new System.Drawing.Point(7, 28);
@@ -275,18 +277,18 @@
             this.saveToolStripMenuItem,
             this.printToolStripMenuItem});
          this.contextMenuStrip1.Name = "contextMenuStrip1";
-         this.contextMenuStrip1.Size = new System.Drawing.Size(100, 48);
+         this.contextMenuStrip1.Size = new System.Drawing.Size(91, 48);
          // 
          // saveToolStripMenuItem
          // 
          this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-         this.saveToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+         this.saveToolStripMenuItem.Size = new System.Drawing.Size(90, 22);
          this.saveToolStripMenuItem.Text = "Save";
          // 
          // printToolStripMenuItem
          // 
          this.printToolStripMenuItem.Name = "printToolStripMenuItem";
-         this.printToolStripMenuItem.Size = new System.Drawing.Size(99, 22);
+         this.printToolStripMenuItem.Size = new System.Drawing.Size(90, 22);
          this.printToolStripMenuItem.Text = "Print";
          this.printToolStripMenuItem.Click += new System.EventHandler(this.printToolStripMenuItem_Click);
          // 
@@ -294,6 +296,15 @@
          // 
          this.saveFileDialog1.FileName = "*.xps";
          this.saveFileDialog1.Filter = "Cruise Design Report|*.xps";
+         // 
+         // labelTime
+         // 
+         this.labelTime.AutoSize = true;
+         this.labelTime.Location = new System.Drawing.Point(625, 13);
+         this.labelTime.Name = "labelTime";
+         this.labelTime.Size = new System.Drawing.Size(69, 15);
+         this.labelTime.TabIndex = 2;
+         this.labelTime.Text = "Time Stamp";
          // 
          // ReportForm
          // 
@@ -353,5 +364,6 @@
       public System.Windows.Forms.TextBox textBoxTitle;
       private System.Windows.Forms.SaveFileDialog saveFileDialog1;
       private System.Windows.Forms.Label label2;
+      private System.Windows.Forms.Label labelTime;
    }
 }

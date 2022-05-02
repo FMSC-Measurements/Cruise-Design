@@ -197,7 +197,7 @@
             "Pacific Southwest",
             "Pacific Northwest",
             "Southern",
-            "Northern",
+            "Eastern",
             "Alaska",
             "BLM",
             "DOD"});
