@@ -78,7 +78,7 @@ namespace CruiseDesign.Strata_setup
 
         private void setProductBox()
         {
-          ppList = new List<TreeDefaultValueDO>(Owner.cdDAL.From<TreeDefaultValueDO>().GroupBy("PrimaryProduct").Read().ToList());
+          ppList = Owner.cdDAL.From<TreeDefaultValueDO>().GroupBy("PrimaryProduct").Read().ToList();
           bindingSourcePPlist.DataSource = ppList;
         } 
       #endregion

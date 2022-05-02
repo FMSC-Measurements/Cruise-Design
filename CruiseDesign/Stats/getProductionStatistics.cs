@@ -38,7 +38,7 @@ namespace CruiseDesign.Stats
          // set up StratumStats, SampleGroupStats
          
          // get stratum definitions
-         stratum = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
+         stratum = cdDAL.From<StratumDO>().Read().ToList();
          removePopulations();
 
          // loop through stratum
@@ -335,7 +335,7 @@ namespace CruiseDesign.Stats
 
          List<StratumStatsDO> strataStats;
 
-         strataStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Read().ToList());
+         strataStats = cdDAL.From<StratumStatsDO>().Read().ToList();
          // loop by stratumstats for multiple SgSets
          foreach (StratumStatsDO curStrStats in strataStats)
          {

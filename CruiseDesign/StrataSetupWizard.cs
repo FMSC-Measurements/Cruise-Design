@@ -200,7 +200,7 @@ namespace CruiseDesign
         public void setUsed(long? stratumCN)
         {
            // get stratumstats where stratumcn, sgSet = 1 and method = 100
-           List<StratumStatsDO> thisStrStats = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Method = @p2").Read(stratumCN, "100").ToList());
+           List<StratumStatsDO> thisStrStats = cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Method = @p2").Read(stratumCN, "100").ToList();
            foreach (StratumStatsDO myStStats in thisStrStats)
            {
               myStStats.Used = 2;
@@ -303,16 +303,16 @@ namespace CruiseDesign
                  CuttingUnitDO cur = rDAL.From<CuttingUnitDO>().Where("code = @p1").Read(cu.Code).FirstOrDefault();
                  if (cur != null)
                  {
-                    List<TreeDO> treer = new List<TreeDO>(rDAL.From<TreeDO>().Where("CuttingUnit_CN = @p1")
-                                           .GroupBy("TreeDefaultValue_CN").Read(cur.CuttingUnit_CN).ToList());
+                    List<TreeDO> treer = rDAL.From<TreeDO>().Where("CuttingUnit_CN = @p1")
+                                           .GroupBy("TreeDefaultValue_CN").Read(cur.CuttingUnit_CN).ToList();
 
                     //myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
                     foreach (TreeDO tree in treer)
                     {
                        // get the record from Design TDV where recon spec, prod, LD match.
-                       List<TreeDefaultValueDO> checkTDV = new List<TreeDefaultValueDO>(cdDAL.From<TreeDefaultValueDO>()
+                       List<TreeDefaultValueDO> checkTDV = cdDAL.From<TreeDefaultValueDO>()
                                 .Where("Species = @p1 AND PrimaryProduct = @p2 AND LiveDead = @p3")
-                                .Read(tree.TreeDefaultValue.Species, tree.TreeDefaultValue.PrimaryProduct, tree.TreeDefaultValue.LiveDead).ToList());
+                                .Read(tree.TreeDefaultValue.Species, tree.TreeDefaultValue.PrimaryProduct, tree.TreeDefaultValue.LiveDead).ToList();
                        foreach (TreeDefaultValueDO myTDV in checkTDV)
                           if (!myTreeDefaultList.Contains(myTDV))
                              myTreeDefaultList.Add(myTDV);
@@ -336,7 +336,7 @@ namespace CruiseDesign
            else
            {
               // add all tree default values
-              myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.From<TreeDefaultValueDO>().Read().ToList());
+              myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
            }
            foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
               cdTreeDefaults.Add(myTDV);
@@ -402,7 +402,7 @@ namespace CruiseDesign
            else
            {
               // add all tree default values
-              myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.From<TreeDefaultValueDO>().Read().ToList());
+              myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
            }
            foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
               cdTreeDefaults.Add(myTDV);

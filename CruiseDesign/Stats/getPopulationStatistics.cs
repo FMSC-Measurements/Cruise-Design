@@ -125,10 +125,10 @@ namespace CruiseDesign.Stats
             return;
          }
          //get recon tree calculated list
-         myPlots = new List<PlotDO>(rDAL.From<PlotDO>().Read().ToList());
+         myPlots = rDAL.From<PlotDO>().Read().ToList();
 
          // get stratum definitions
-         stratum = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
+         stratum = cdDAL.From<StratumDO>().Read().ToList();
 
             usePNTstrCN = 0;
 
@@ -273,7 +273,7 @@ namespace CruiseDesign.Stats
       public void getDefaultData()
       {
          // get stratum definitions
-         stratum = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
+         stratum = cdDAL.From<StratumDO>().Read().ToList();
 
          // loop through stratum
          foreach (StratumDO curStr in stratum)

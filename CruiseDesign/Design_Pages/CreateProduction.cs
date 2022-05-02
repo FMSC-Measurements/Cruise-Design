@@ -8,7 +8,6 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL;
 using CruiseDAL.DataObjects;
-using System.Data.SQLite;
 
 
 
@@ -162,7 +161,7 @@ namespace CruiseDesign.Design_Pages
 
       protected String AskSavePath()
       {
-         saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+         saveFileDialog1 = new SaveFileDialog();
 
          saveFileDialog1.DefaultExt = "cruise";
          saveFileDialog1.Filter = "Cruise files(*.cruise)|*.cruise";
@@ -258,7 +257,7 @@ namespace CruiseDesign.Design_Pages
 
          logData = sale.LogGradingEnabled;
 
-            myMeth = new List<CruiseMethodsDO>(fsDAL.From<CruiseMethodsDO>().Read().ToList());
+            myMeth = fsDAL.From<CruiseMethodsDO>().Read().ToList();
          if (myMeth.Count() < 4)
          {
             myMeth.Clear();
@@ -409,7 +408,7 @@ namespace CruiseDesign.Design_Pages
       {
             //loop through design stratum table
             //            List<StratumDO> myStr = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
-            List<StratumDO> myStr = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
+            List<StratumDO> myStr = cdDAL.From<StratumDO>().Read().ToList();
             foreach (StratumDO curStr in myStr)
          {
             // create new stratumDO
@@ -434,7 +433,7 @@ namespace CruiseDesign.Design_Pages
       {
          //StratumDO cdStr;
          //List<StratumDO> myStr = new List<StratumDO>(fsDAL.Read<StratumDO>("Stratum", null, null));
-         List<StratumDO> myStr = new List<StratumDO>(cdDAL.From<StratumDO>().Read().ToList());
+         List<StratumDO> myStr = cdDAL.From<StratumDO>().Read().ToList();
          foreach (StratumDO curStr in myStr)
          {
                 // cdStr = cdDAL.From<StratumDO>().Where("Where Code = @p1").Read(curStr.Code).FirstOrDefault();
@@ -458,7 +457,7 @@ namespace CruiseDesign.Design_Pages
          StratumDO cdStr;
          TreeDefaultValueDO currentTDV = new TreeDefaultValueDO();
 //       List<StratumStatsDO> cdStratumStats = new List<StratumStatsDO>(cDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
-         List<StratumStatsDO> cdStratumStats = new List<StratumStatsDO>(cDAL.From<StratumStatsDO>().Join("Stratum AS s", "USING (Stratum_CN)").Where("StratumStats.Used = 1").OrderBy("s.Code").Read().ToList());
+         List<StratumStatsDO> cdStratumStats = cDAL.From<StratumStatsDO>().Join("Stratum AS s", "USING (Stratum_CN)").Where("StratumStats.Used = 1").OrderBy("s.Code").Read().ToList();
 
          List<PlotDO> myPlots = new List<PlotDO>();
          List<TreeDO> myTree = new List<TreeDO>();
@@ -498,28 +497,28 @@ namespace CruiseDesign.Design_Pages
                      setRecData = true;
                      if (method == "PNT")
                              //  myPlots = (rDAL.Read<PlotDO>("Plot", "JOIN Stratum ON Plot.Stratum_CN = Stratum.Stratum_CN WHERE Stratum.Method = ? AND Stratum.BasalAreaFactor = ?", method, myStStats.BasalAreaFactor));
-                            myPlots = (rDAL.From<PlotDO>()
+                            myPlots = rDAL.From<PlotDO>()
                                     .Join("Stratum AS s","USING (Stratum_CN)")
                                     .Where("s.Method = @p1 AND s.BasalAreaFactor = @p2")
-                                    .Read(method, myStStats.BasalAreaFactor).ToList());
+                                    .Read(method, myStStats.BasalAreaFactor).ToList();
                      else
                             //   myPlots = (rDAL.Read<PlotDO>("Plot", "JOIN Stratum ON Plot.Stratum_CN = Stratum.Stratum_CN WHERE Stratum.Method = ? AND Stratum.FixedPlotSize = ?", method, myStStats.FixedPlotSize));
-                            myPlots = (rDAL.From<PlotDO>()
+                            myPlots = rDAL.From<PlotDO>()
                                     .Join("Stratum AS s", "USING (Stratum_CN)")
                                     .Where("s.Method = @p1 AND s.FixedPlotSize = @p2")
-                                    .Read(method, myStStats.FixedPlotSize).ToList());
+                                    .Read(method, myStStats.FixedPlotSize).ToList();
 
                             if (myTree.Count == 0)
                      {
-                        myTree = (rDAL.From<TreeDO>().Read().ToList());
-                        myLogs = (rDAL.From<LogDO>().Read().ToList());
+                        myTree = rDAL.From<TreeDO>().Read().ToList();
+                        myLogs = rDAL.From<LogDO>().Read().ToList();
                      }
                   }
                }
             }
             // get fsDAl stratum record
             // List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", myStStats.StratumStats_CN));
-            var mySgStats = cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = ?").Query(myStStats.StratumStats_CN);
+            var mySgStats = cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Query(myStStats.StratumStats_CN);
             // loop through sample groups
             foreach (var sgStats in mySgStats)
             {
@@ -571,7 +570,7 @@ namespace CruiseDesign.Design_Pages
 
                var treeDefaults = cdDAL.From<TreeDefaultValueDO>()
                   .Join("SampleGroupStatsTreeDefaultValue", "USING (TreeDefaultValue_CN)")
-                  .Where("SampleGroupStats_CN = ?")
+                  .Where("SampleGroupStats_CN = @p1")
                   .Query(sgStatsCN100);
 
                foreach (var tdv in treeDefaults)
@@ -603,12 +602,12 @@ namespace CruiseDesign.Design_Pages
       {
          //for production file
          //  get all plots for thisStrCN
-         var myPlotList = fsDAL.From<PlotDO>().Where("Stratum_CN = ?").Query(thisStrCN);
+         var myPlotList = fsDAL.From<PlotDO>().Where("Stratum_CN = @p1").Query(thisStrCN);
 
          foreach (PlotDO curPlot in myPlotList)
          {
             // loop through, getting all tree records for each plot
-            var myTreeList = fsDAL.From<TreeDO>().Where("Plot_CN = ?").Query(curPlot.Plot_CN);
+            var myTreeList = fsDAL.From<TreeDO>().Where("Plot_CN = @p1").Query(curPlot.Plot_CN);
             if (myTreeList.Count() <= 0)
             { 
                curPlot.IsEmpty = "True";
@@ -623,11 +622,11 @@ namespace CruiseDesign.Design_Pages
          
          // find StratumStats_CN where Stratum_CN and SgSet and method = "100"
          var strStat100 = cdDAL.From<StratumStatsDO>()
-                .Where("Stratum_CN = ? AND method = ? AND SgSet = ?")
+                .Where("Stratum_CN = @p1 AND method = @p2 AND SgSet = @p3")
                .Query(strCN, meth, sgSet).FirstOrDefault();
 
          var sgStat100 = cdDAL.From<SampleGroupStatsDO>()
-               .Where("StratumStats_CN = ? AND Code = ?")
+               .Where("StratumStats_CN = @p1 AND Code = @p2")
                .Read(strStat100.StratumStats_CN, code).FirstOrDefault();
 
          return(sgStat100.SampleGroupStats_CN);
@@ -640,7 +639,7 @@ namespace CruiseDesign.Design_Pages
             //select from TreeFieldSetupDefault where method = stratum.method
 //            List<TreeFieldSetupDefaultDO> treeFieldDefaults = new List<TreeFieldSetupDefaultDO>(cDAL.Read<TreeFieldSetupDefaultDO>("TreeFieldSetupDefault", "WHERE Method = ? ORDER BY FieldOrder", myStStats.Method));
 //            treeFields = new BindingList<TreeFieldSetupDO>((fsDAL.Read<TreeFieldSetupDO>("TreeFieldSetup", null, null)));
-            List<TreeFieldSetupDefaultDO> treeFieldDefaults = new List<TreeFieldSetupDefaultDO>(cDAL.From<TreeFieldSetupDefaultDO>().Where("Method = @p1").OrderBy("FieldOrder").Read(myStStats.Method).ToList());
+            List<TreeFieldSetupDefaultDO> treeFieldDefaults = cDAL.From<TreeFieldSetupDefaultDO>().Where("Method = @p1").OrderBy("FieldOrder").Read(myStStats.Method).ToList();
             treeFields = new BindingList<TreeFieldSetupDO>(fsDAL.From<TreeFieldSetupDO>().Read().ToList());
 
             foreach (TreeFieldSetupDefaultDO tfd in treeFieldDefaults)
@@ -665,7 +664,7 @@ namespace CruiseDesign.Design_Pages
 
       public void getLogFieldSetup(DAL cDAL, DAL fsDAL, StratumStatsDO myStStats)
       {
-         List<LogFieldSetupDefaultDO> logFieldDefaults = new List<LogFieldSetupDefaultDO>(cDAL.From<LogFieldSetupDefaultDO>().Read().ToList());
+         List<LogFieldSetupDefaultDO> logFieldDefaults = cDAL.From<LogFieldSetupDefaultDO>().Read().ToList();
          foreach (LogFieldSetupDefaultDO lfd in logFieldDefaults)
          {
             LogFieldSetupDO lfs = new LogFieldSetupDO();
@@ -701,7 +700,7 @@ namespace CruiseDesign.Design_Pages
 
          var treeDefaults = cdDAL.From<TreeDefaultValueDO>()
             .Join("SampleGroupStatsTreeDefaultValue", "USING (TreeDefaultValue_CN)")
-            .Where("SampleGroupStats_CN = ?")
+            .Where("SampleGroupStats_CN = @p1")
             .Query(sgStatsCN100);
 
          double maxDbh = 200;

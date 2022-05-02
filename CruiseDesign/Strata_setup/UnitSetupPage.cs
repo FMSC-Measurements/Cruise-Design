@@ -56,7 +56,7 @@ namespace CruiseDesign.Strata_setup
             if (saveStratum(true) < 0)
                 return;
             //list of selected units
-            Owner.currentStratumStats = (Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(Owner.currentStratum.Stratum_CN).FirstOrDefault());
+            Owner.currentStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(Owner.currentStratum.Stratum_CN).FirstOrDefault();
 
             if (Owner.currentStratumStats != null)
             {
@@ -94,7 +94,7 @@ namespace CruiseDesign.Strata_setup
             if (saveStratum(true) < 0)
                 return;
             //list of selected units
-            Owner.currentStratumStats = (Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(Owner.currentStratum.Stratum_CN).FirstOrDefault());
+            Owner.currentStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(Owner.currentStratum.Stratum_CN).FirstOrDefault();
 
             checkUOMfield();
 
@@ -232,7 +232,7 @@ namespace CruiseDesign.Strata_setup
             int nestPlots = 0;
             bool chkFCNT = false;
             // open recon file
-            List<StratumDO> reconStratum = new List<StratumDO>(Owner.rDAL.From<StratumDO>().Read().ToList());
+            List<StratumDO> reconStratum = Owner.rDAL.From<StratumDO>().Read().ToList();
             foreach (StratumDO myRSt in reconStratum)
             {
                 // add stratum
@@ -296,7 +296,7 @@ namespace CruiseDesign.Strata_setup
                     if (addSG || chkFCNT)
                     {
                        // List<SampleGroupDO> reconSG = new List<SampleGroupDO>(Owner.rDAL.Read<SampleGroupDO>("SampleGroup", "WHERE Stratum_CN = ?", myRSt.Stratum_CN));
-                        List<SampleGroupDO> reconSG = new List<SampleGroupDO>(Owner.rDAL.From<SampleGroupDO>().Where("Stratum_CN = @p1").Read(myRSt.Stratum_CN).ToList());
+                        List<SampleGroupDO> reconSG = Owner.rDAL.From<SampleGroupDO>().Where("Stratum_CN = @p1").Read(myRSt.Stratum_CN).ToList();
 
                         //           getSampleGroupStats();
                         foreach (SampleGroupDO myRsg in reconSG)

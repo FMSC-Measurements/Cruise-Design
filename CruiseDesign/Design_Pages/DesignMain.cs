@@ -1098,7 +1098,7 @@ namespace CruiseDesign.Design_Pages
                   strSamp1 = cStat.checkTValueError2Stage(thisStrStats.WeightedCV1, thisStrStats.WeightedCV2, cStat.sampleSize1, cStat.sampleSize2, strCalcError);
                }
 //                    List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? AND CutLeave = 'C'", thisStrStats.StratumStats_CN));
-               List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(thisStrStats.StratumStats_CN).ToList());
+               List<SampleGroupStatsDO> mySgStats = cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 AND CutLeave = 'C'").Read(thisStrStats.StratumStats_CN).ToList();
                long sgSamp2Stage1 = 0;
                long sgSamp2Stage2 = 0;
                foreach (SampleGroupStatsDO thisSgStats in mySgStats)
@@ -1303,7 +1303,7 @@ namespace CruiseDesign.Design_Pages
             if(thisStrStats.Method != "FIXCNT")
             { 
  
-               List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(thisStrStats.StratumStats_CN).ToList());
+               List<SampleGroupStatsDO> mySgStats = cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(thisStrStats.StratumStats_CN).ToList();
                foreach (SampleGroupStatsDO thisSgStats in mySgStats)
                {
                   // check for CV1 > 0
@@ -1435,7 +1435,7 @@ namespace CruiseDesign.Design_Pages
             reportForm.createStratumTable(myStr.Code, myStr.Method, strError, totVol, myStr.Description, baf, fps, pSpacing,tAcres,units);
             // create sample group table
             reportDescrip += ";  " + myStr.Code + " = " + myStr.Method;
-            List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(myStr.StratumStats_CN).ToList());
+            List<SampleGroupStatsDO> mySgStats = cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Read(myStr.StratumStats_CN).ToList();
             int sgCnt = mySgStats.Count();
             int rowcnt = 0;
             switch (myStr.Method)
@@ -1634,9 +1634,9 @@ namespace CruiseDesign.Design_Pages
 
             // sql command selecting all samplegroups where Stratum_CN and SgSet and code from current Sg
 //            List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", " JOIN StratumStats ON SampleGroupStats.StratumStats_CN = StratumStats.StratumStats_CN WHERE StratumStats.Stratum_CN = ? AND SampleGroupStats.SgSet = ? AND SampleGroupStats.Code = ?", thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code));
-              List<SampleGroupStatsDO> _SgStats = new List<SampleGroupStatsDO>(cdDAL.From<SampleGroupStatsDO>().Join("StratumStats AS ss", "USING (StratumStats_CN")
+              List<SampleGroupStatsDO> _SgStats = cdDAL.From<SampleGroupStatsDO>().Join("StratumStats AS ss", "USING (StratumStats_CN")
                                                                                  .Where("ss.Stratum_CN = @p1 AND SampleGroupStats.SgSet = @p2 AND SampleGroupStats.Code = @p3")
-                                                                                 .Read(thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code).ToList());
+                                                                                 .Read(thisSgStats.StratumStats.Stratum_CN, thisSgStats.SgSet, thisSgStats.Code).ToList();
                 // for each set tpa and vpa 
                 foreach (SampleGroupStatsDO _mySgStats in _SgStats)
             {
