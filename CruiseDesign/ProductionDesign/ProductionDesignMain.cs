@@ -58,8 +58,8 @@ namespace CruiseDesign.ProductionDesign
             // cdStratum = new List<StratumDO>(cdDAL.Read<StratumDO>("Stratum", null, null));
             //            cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
             cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.From<StratumStatsDO>()
-                                 .Join("Stratum AS s", "USING (Stratum_CN)").Join("StratumStats AS ss", "USING (Method)")
-                                 .Where("ss.Used = 1").OrderBy("Stratum.Code").Read().ToList());
+                                 .Join("Stratum", "USING (Stratum_CN, Method)")
+                                 .Where("Used = 1").OrderBy("Stratum.Code").Read().ToList());
 
          mySale = cdDAL.From<SaleDO>().Read().FirstOrDefault();
          myGlobals = cdDAL.From<GlobalsDO>().Where("Block = 'CruiseDesign'").Read().ToList();

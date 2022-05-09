@@ -19,13 +19,14 @@ namespace CruiseDesign
     public partial class CruiseDesignMain : Form
     {
         public DAL cdDAL { get; set; }
+        public bool IsUsingV3File { get; set; }
+
         int ButtonSelect = 1;
         public string dalPathCruise;
         public string dalPathDesign;
         public string dalPathProcess;
         bool reconExists = true;
         bool prodFile = false;
-        bool v3File = false;
         public bool canCreateNew = false;
  //       bool openDAL = false;
         public int errFlag;
@@ -238,16 +239,16 @@ namespace CruiseDesign
                {
                   // check for cruise design database
                   Text = openFileDialogCruise.SafeFileName;
-                  dalPathCruise = openFileDialogCruise.FileName;
+                    dalPathCruise = openFileDialogCruise.FileName;
                     //check version 3
                     // if crz3, look for process file
-                    if (Text.Contains("crz3"))
+                    if (Path.GetExtension(dalPathCruise).Equals(".crz3", StringComparison.OrdinalIgnoreCase))
                     {
                         // if process file, change dalPathCruise to process file
                         if (doesProcessFileExist())
                         {
                             dalPathCruise = dalPathProcess;
-                            v3File = true;
+                            IsUsingV3File = true;
                         }
                         // if no process file, warning message and exit
                         else
@@ -261,7 +262,7 @@ namespace CruiseDesign
                     }
                     else
                     {
-                        v3File = false;
+                        IsUsingV3File = false;
                     }
                     reconExists = true;
                   // create design database for recon
@@ -508,25 +509,18 @@ namespace CruiseDesign
         {
             //opened a cruise file, does the design file exist? 
             dalPathDesign = dalPathCruise;
-            if (v3File)
+            if (IsUsingV3File)
                dalPathDesign = dalPathDesign.Replace(".process", ".design");
             else
                dalPathDesign = dalPathDesign.Replace(".cruise", ".design");
-            if (File.Exists(dalPathDesign))
-                 return (true);
-             else
-                 return (false);
+            return File.Exists(dalPathDesign);
+
         }
         private bool doesProcessFileExist()
         {
             dalPathProcess = dalPathCruise;
             dalPathProcess = dalPathCruise.Replace(".crz3", ".process");
-            if (File.Exists(dalPathProcess))
-            {
-                return (true);
-            }
-            else
-                return (false);
+            return File.Exists(dalPathProcess);
         }
 
         public bool openDesignFile()

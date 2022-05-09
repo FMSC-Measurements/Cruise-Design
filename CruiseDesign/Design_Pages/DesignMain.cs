@@ -15,14 +15,17 @@ namespace CruiseDesign.Design_Pages
 {
    public partial class DesignMain : Form
    {
-      public bool reconExists = new bool();
+      public bool reconExists = false;
+      public bool IsUsingV3File { get; protected set; }
 
       #region Constructor
-      public DesignMain(CruiseDesignMain Main, string dalPathRecon)
+      public DesignMain(CruiseDesignMain main, string dalPathRecon)
       {
          InitializeComponent();
 
-         cdDAL = Main.cdDAL;
+         IsUsingV3File = main.IsUsingV3File;
+
+         cdDAL = main.cdDAL;
          InitializeDatabaseTables();
          InitializeDataBindings();
          getCostData();
@@ -1560,11 +1563,6 @@ namespace CruiseDesign.Design_Pages
          CreateProduction pDlg = new CreateProduction(this);
 
          pDlg.ShowDialog();
-
-         if(pDlg.rDAL != null)
-            pDlg.rDAL.Dispose();
-         if (pDlg.fsDAL != null)
-            pDlg.fsDAL.Dispose();
        }
 
 
