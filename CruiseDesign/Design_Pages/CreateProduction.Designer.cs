@@ -81,7 +81,6 @@
             this.button1 = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.dataGridViewTextBoxColumn1 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.panel4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -569,11 +568,6 @@
             this.saveFileDialog1.DefaultExt = "cruise";
             this.saveFileDialog1.Filter = "Cruise files|*.cruise|All files|*.*";
             // 
-            // backgroundWorker1
-            // 
-            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-            // 
             // dataGridViewTextBoxColumn1
             // 
             this.dataGridViewTextBoxColumn1.DataPropertyName = "Tag";
@@ -624,7 +618,6 @@
       private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
       private System.Windows.Forms.SaveFileDialog saveFileDialog1;
       private System.Windows.Forms.BindingSource bindingSource1;
-      private System.ComponentModel.BackgroundWorker backgroundWorker1;
       private System.Windows.Forms.PictureBox pictureBox1;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
       private System.Windows.Forms.Panel panel3;
