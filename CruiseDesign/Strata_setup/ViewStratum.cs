@@ -108,7 +108,7 @@ namespace CruiseDesign.Strata_setup
          //sgselectPage.bindingSourceStratumStats.DataSource = cdStratumStats;
 
          Owner.cdSgStats = new BindingList<SampleGroupStatsDO>(Owner.cdDAL.From<SampleGroupStatsDO>()
-                                                              .Where("Where StratumStats_CN = @p1 AND SgSet = @p2")
+                                                              .Where("StratumStats_CN = @p1 AND SgSet = @p2")
                                                               .Read(Owner.currentStratumStats.StratumStats_CN, Owner.currentStratumStats.SgSet).ToList());
             //set TDV binding list using sgstats_tdv link
 

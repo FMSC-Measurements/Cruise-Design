@@ -53,10 +53,17 @@ namespace CruiseDesign.Strata_setup
 
         private void buttonStrata_Click(object sender, EventArgs e)
         {
+            var currentStratum = Owner.currentStratum;
+            if(currentStratum is null)
+            {
+                MessageBox.Show("No Stratum Selected");
+                return;
+            }
+
             if (saveStratum(true) < 0)
                 return;
             //list of selected units
-            Owner.currentStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(Owner.currentStratum.Stratum_CN).FirstOrDefault();
+            Owner.currentStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(currentStratum.Stratum_CN).FirstOrDefault();
 
             if (Owner.currentStratumStats != null)
             {
@@ -91,10 +98,17 @@ namespace CruiseDesign.Strata_setup
 
         private void buttonViewStratum_Click(object sender, EventArgs e)
         {
+            var currentStratum = Owner.currentStratum;
+            if (currentStratum is null)
+            {
+                MessageBox.Show("No Stratum Selected");
+                return;
+            }
+
             if (saveStratum(true) < 0)
                 return;
             //list of selected units
-            Owner.currentStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(Owner.currentStratum.Stratum_CN).FirstOrDefault();
+            Owner.currentStratumStats = Owner.cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1").Read(currentStratum.Stratum_CN).FirstOrDefault();
 
             checkUOMfield();
 
@@ -120,7 +134,14 @@ namespace CruiseDesign.Strata_setup
         }
         private void buttonDeleteStratum_Click(object sender, EventArgs e)
         {
-            if (StratumDO.DeleteStratum(Owner.currentStratum.DAL, Owner.currentStratum) < 0)
+            var currentStratum = Owner.currentStratum;
+            if (currentStratum is null)
+            {
+                MessageBox.Show("No Stratum Selected");
+                return;
+            }
+
+            if (StratumDO.DeleteStratum(currentStratum.DAL, currentStratum) < 0)
             {
                 MessageBox.Show("Stratum has data. Cannot delete.", "Warning", MessageBoxButtons.OK);
             }
