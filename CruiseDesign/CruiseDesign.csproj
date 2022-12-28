@@ -68,9 +68,9 @@
 	
 
 	<ItemGroup>
-		<PackageReference Include="CruiseDAL.V2" Version="2.7.3.104" />
-		<PackageReference Include="CruiseDAL.V3" Version="3.5.2.104" />
-		<PackageReference Include="CruiseDAL.V3.UpConvert" Version="3.5.2.10400" />
+		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
+		<PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
+		<PackageReference Include="CruiseDAL.V3.UpConvert" Version="3.6.1.11600" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.2" />
 	</ItemGroup>
 
