@@ -1,3 +1,5 @@
+*.local.cs
+
 /Artifacts
 .vs/
 
