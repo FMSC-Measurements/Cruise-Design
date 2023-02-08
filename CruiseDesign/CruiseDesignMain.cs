@@ -68,9 +68,6 @@ namespace CruiseDesign
         //Row One  -------------------------------------------------------------------------------
         private void buttonRowOne_Click(object sender, EventArgs e)
         {
-            throw new Exception();
-
-
             if (ButtonSelect == 0)
             {
                 //MessageBox.Show("Deleted", "Information");
