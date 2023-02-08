@@ -390,16 +390,14 @@
             // 
             this.openFileDialogCruise.DefaultExt = "cruise";
             this.openFileDialogCruise.DereferenceLinks = false;
-            this.openFileDialogCruise.FileName = "*.cruise";
-            this.openFileDialogCruise.Filter = "Cruise files|*.cruise|Cruise Design files|*.design|V3 Cruise files|*.crz3|All fil" +
-    "es|*.*";
+            this.openFileDialogCruise.FilterIndex = 3;
+            this.openFileDialogCruise.Filter = "All Files|*.cruise;*.crz3;*.design|Design files|*.design|Cruise files|*.cruise;*.crz3";
             this.openFileDialogCruise.FileOk += new System.ComponentModel.CancelEventHandler(this.openFileDialogCruise_FileOk);
             // 
             // openFileDialogDesign
             // 
             this.openFileDialogDesign.FileName = "*.design";
-            this.openFileDialogDesign.Filter = "Cruise Design files|*.design|Cruise files|*.cruise|V3 Cruise files|*.crz3|All fil" +
-    "es|*.*";
+            this.openFileDialogDesign.Filter = "All Files|*.cruise;*.crz3;*.design|Design files|*.design|Cruise files|*.cruise;*.crz3";
             // 
             // saveFileDialogDesign
             // 
