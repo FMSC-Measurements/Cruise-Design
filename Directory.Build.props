@@ -1,0 +1,13 @@
+<Project>
+	<PropertyGroup Label="Assembily Info">
+		<Copyright>CC0 Public Domain</Copyright>
+		<Company>USDA Forest Service</Company>
+		<Authors>Ken Cormier</Authors>
+		<Version>2023.02.08</Version>
+	</PropertyGroup>
+
+	<PropertyGroup Label="Build Config">
+		<TargetFramework>net472</TargetFramework>
+		<LangVersion>8.0</LangVersion>
+	</PropertyGroup>
+</Project>
