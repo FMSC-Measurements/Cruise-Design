@@ -25,6 +25,9 @@ namespace CruiseDesign.Test.Design_Pages
             var init = new DatabaseInitializer_V2();
             using var cruiseDb = init.CreateDatabaseFile(cruisePath);
 
+            var lm = new LogMatrix { ReportNumber = "1234", SEDmaximum = 2.2, SEDminimum = 1.1 };
+            cruiseDb.Insert(lm);
+
             var prodFilePath = GetTempFilePath("CreateProduction_Prod.cruise");
             var stCodes = cruiseDb
                .From<Stratum>()
@@ -43,6 +46,11 @@ namespace CruiseDesign.Test.Design_Pages
             CreateProduction.CreateProductionFile(dataFiles, true, false);
 
             File.Exists(prodFilePath).Should().BeTrue();
+
+            var prodDb = new DAL(prodFilePath);
+
+            var lmAgain = prodDb.From<LogMatrix>().Query().Single();
+            lmAgain.Should().BeEquivalentTo(lm);
         }
 
         [Fact]

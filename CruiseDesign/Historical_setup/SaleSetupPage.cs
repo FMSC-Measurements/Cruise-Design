@@ -225,6 +225,11 @@ namespace CruiseDesign.Historical_setup
             {
                 df.cdDAL.Insert(fld, "Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+
+            foreach (var lm in df.tmpDAL.From<LogMatrixDO>().Query())
+            {
+                df.cdDAL.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
             //copy cruise methods
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
             foreach (CruiseMethodsDO fld in df.tmpDAL.From<CruiseMethodsDO>().Query())
@@ -232,6 +237,7 @@ namespace CruiseDesign.Historical_setup
                 df.cdDAL.Insert(fld, "CruiseMethods", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
 
+            df.cdDAL.LogMessage("Sale Setup, Copied Template Data From File: " + df.tmpDAL.Path);
         }
 
         private void copySaleData(dataFiles df)
