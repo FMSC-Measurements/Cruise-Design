@@ -237,6 +237,7 @@ namespace CruiseDesign.Historical_setup
                 df.cdDAL.Insert(fld, "CruiseMethods", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
 
+            df.cdDAL.LogMessage("Sale Setup, Copied Template Data From File: " + df.tmpDAL.Path);
         }
 
         private void copySaleData(dataFiles df)
