@@ -225,6 +225,11 @@ namespace CruiseDesign.Historical_setup
             {
                 df.cdDAL.Insert(fld, "Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+
+            foreach (var lm in df.tmpDAL.From<LogMatrixDO>().Query())
+            {
+                df.cdDAL.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
             //copy cruise methods
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
             foreach (CruiseMethodsDO fld in df.tmpDAL.From<CruiseMethodsDO>().Query())

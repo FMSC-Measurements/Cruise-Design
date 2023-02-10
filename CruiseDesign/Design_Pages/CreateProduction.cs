@@ -328,6 +328,11 @@ namespace CruiseDesign.Design_Pages
             {
                 toDb.Insert(fld, "Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+
+            foreach (var lm in fromDb.From<LogMatrixDO>().Query())
+            {
+                toDb.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
             //copy Strata
             copyStratumToFScruise(fromDb, toDb);
             //copy cuttingUnitStratum

@@ -153,6 +153,11 @@ namespace CruiseDesign.Strata_setup
             {
                 df.cdDAL.Insert(fld,"Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+
+            foreach (var lm in rDAL.From<LogMatrixDO>().Query())
+            {
+                df.cdDAL.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
         }
 
         private void Finish(bool result)
