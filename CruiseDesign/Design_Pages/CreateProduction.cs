@@ -340,6 +340,8 @@ namespace CruiseDesign.Design_Pages
             {
                 toDb.Insert(cust, option: Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+
+            toDb.LogMessage("Create Production, Copied Data From File: " + fromDb.Path);
         }
 
         private static void copyStratumToFScruise(DAL fromDb, DAL toDb)

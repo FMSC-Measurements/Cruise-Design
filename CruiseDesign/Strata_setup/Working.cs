@@ -158,6 +158,8 @@ namespace CruiseDesign.Strata_setup
             {
                 df.cdDAL.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+
+            df.cdDAL.LogMessage("Working, Copied Data From File: " + rDAL.Path);
         }
 
         private void Finish(bool result)
