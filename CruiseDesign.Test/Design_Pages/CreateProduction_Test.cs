@@ -173,5 +173,34 @@ namespace CruiseDesign.Test.Design_Pages
 
             File.Exists(prodFilePath).Should().BeTrue();
         }
+
+        [Fact]
+        public void Issue_CrachOn_findSgStatCN100()
+        {
+            var designPath = GetTestFile("JohnneysHazardousFuelReduction_20230313.design");
+            var reconPath = GetTestFile("JohnneysHazardousFuelReduction_20230313.cruise");
+
+            using var designDb = new DAL(designPath);
+
+            var prodPath = GetTempFilePath("Issue_CrachOn_findSgStatCN100_Prod.cruise");
+
+            var stCodes = designDb
+               .From<Stratum>()
+               .Query()
+               .Select(x => x.Code).ToArray();
+
+            var dataFiles = new CreateProduction.DataFiles
+            {
+                CruiseDesignDb = designDb,
+                ProductionFilePath = prodPath,
+                SelectedStratumCodes = stCodes,
+                ReconFilePath = reconPath,
+                HasReconData = true,
+            };
+
+            if (File.Exists(prodPath)) File.Delete(prodPath);
+
+            CreateProduction.CreateProductionFile(dataFiles, true, false);
+        }
     }
 }
