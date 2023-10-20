@@ -31,7 +31,7 @@ namespace CruiseDesign.Strata_setup
          {
             Finish(true);
          }
-         else if (reconExists)
+         else
          {
             // create or open DAL
             if (!Main.openDesignFile())

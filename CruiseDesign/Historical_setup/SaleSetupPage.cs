@@ -27,7 +27,7 @@ namespace CruiseDesign.Historical_setup
       #region Properties
 
         
-      public String tempFile, regNum, forNum, defUOM;
+      public String templateFilePath, regNum, forNum, defUOM;
       string dalFile;
       bool canCreate;
 
@@ -36,8 +36,8 @@ namespace CruiseDesign.Historical_setup
       struct dataFiles
       {
          public DAL cdDAL { get; set; }
-         public DAL tmpDAL { get; set; }
-         public string tpFile;
+         public DAL TemplateDb { get; set; }
+         public string TemplateFilePath;
          public string SaleNumber;
          public string Name;
          public string Purpose;
@@ -57,7 +57,7 @@ namespace CruiseDesign.Historical_setup
          openFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\CruiseFiles\\Templates";
          if (openFileDialog1.ShowDialog() == DialogResult.OK)
          {
-            tempFile = openFileDialog1.FileName;
+            templateFilePath = openFileDialog1.FileName;
 
             textBoxFile.Text = openFileDialog1.SafeFileName;
 
@@ -70,7 +70,7 @@ namespace CruiseDesign.Historical_setup
       private void buttonFinish_Click(object sender, EventArgs e)
       {
 
-         if (string.IsNullOrEmpty(tempFile))
+         if (string.IsNullOrEmpty(templateFilePath))
          {
             MessageBox.Show(null,"No Template selected.","Warning", MessageBoxButtons.OK);
             return;
@@ -94,7 +94,7 @@ namespace CruiseDesign.Historical_setup
           
          setWorking(true);
 
-         df.tpFile = tempFile;
+         df.TemplateFilePath = templateFilePath;
          df.SaleNumber = textBoxNum.Text.ToString();
          df.Name = textBoxName.Text.ToString();
          df.Purpose = comboBoxPurpose.SelectedItem.ToString();
@@ -145,7 +145,7 @@ namespace CruiseDesign.Historical_setup
       {
          try
          {
-            df.tmpDAL = new DAL(df.tpFile);
+            df.TemplateDb = new DAL(df.TemplateFilePath);
          }
          catch (System.IO.IOException ie)
          {
@@ -166,78 +166,78 @@ namespace CruiseDesign.Historical_setup
       {
          //copy TreeDefaultValues table
          //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUE._NAME, null, OnConflictOption.Ignore);
-            foreach (TreeDefaultValueDO fld in df.tmpDAL.From<TreeDefaultValueDO>().Query())
+            foreach (TreeDefaultValueDO fld in df.TemplateDb.From<TreeDefaultValueDO>().Query())
             {
                 df.cdDAL.Insert(fld, "TreeDefaultValue", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy globals table
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
-            foreach (GlobalsDO fld in df.tmpDAL.From<GlobalsDO>().Query())
+            foreach (GlobalsDO fld in df.TemplateDb.From<GlobalsDO>().Query())
             {
                 df.cdDAL.Insert(fld, "Globals", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy logfieldsetupdefault
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.LOGFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-            foreach (LogFieldSetupDefaultDO fld in df.tmpDAL.From<LogFieldSetupDefaultDO>().Query())
+            foreach (LogFieldSetupDefaultDO fld in df.TemplateDb.From<LogFieldSetupDefaultDO>().Query())
             {
                 df.cdDAL.Insert(fld, "LogFieldSetupDefault", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy messagelog
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.MESSAGELOG._NAME, null, OnConflictOption.Ignore);
-            foreach (MessageLogDO fld in df.tmpDAL.From<MessageLogDO>().Query())
+            foreach (MessageLogDO fld in df.TemplateDb.From<MessageLogDO>().Query())
             {
                 df.cdDAL.Insert(fld, "MessageLog", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy reports
             //df.cdDAL.DirectCopy(df.tmpDAL, "Reports", null, OnConflictOption.Ignore);
-            foreach (ReportsDO fld in df.tmpDAL.From<ReportsDO>().Query())
+            foreach (ReportsDO fld in df.TemplateDb.From<ReportsDO>().Query())
             {
                 df.cdDAL.Insert(fld, "Reports", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy treefieldsetupdefault
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEFIELDSETUPDEFAULT._NAME, null, OnConflictOption.Ignore);
-            foreach (TreeFieldSetupDefaultDO fld in df.tmpDAL.From<TreeFieldSetupDefaultDO>().Query())
+            foreach (TreeFieldSetupDefaultDO fld in df.TemplateDb.From<TreeFieldSetupDefaultDO>().Query())
             {
                 df.cdDAL.Insert(fld, "TreeFieldSetupDefault", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy volumeequations
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.VOLUMEEQUATION._NAME, null, OnConflictOption.Ignore);
-            foreach (VolumeEquationDO fld in df.tmpDAL.From<VolumeEquationDO>().Query())
+            foreach (VolumeEquationDO fld in df.TemplateDb.From<VolumeEquationDO>().Query())
             {
                 df.cdDAL.Insert(fld, "VolumeEquation", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy treeauditvalue
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
-            foreach (TreeAuditValueDO fld in df.tmpDAL.From<TreeAuditValueDO>().Query())
+            foreach (TreeAuditValueDO fld in df.TemplateDb.From<TreeAuditValueDO>().Query())
             {
                 df.cdDAL.Insert(fld, "TreeAuditValue", Backpack.SqlBuilder.OnConflictOption.Replace);
 
             }
             //copy treedefaultvaluetreeauditvalue
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TREEDEFAULTVALUETREEAUDITVALUE._NAME, null, OnConflictOption.Ignore);
-            foreach (TreeDefaultValueTreeAuditValueDO fld in df.tmpDAL.From<TreeDefaultValueTreeAuditValueDO>().Query())
+            foreach (TreeDefaultValueTreeAuditValueDO fld in df.TemplateDb.From<TreeDefaultValueTreeAuditValueDO>().Query())
             {
                 df.cdDAL.Insert(fld, "TreeDefaultValueTreeAuditValue", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy tally
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.TALLY._NAME, null, OnConflictOption.Ignore);
-            foreach (TallyDO fld in df.tmpDAL.From<TallyDO>().Query())
+            foreach (TallyDO fld in df.TemplateDb.From<TallyDO>().Query())
             {
                 df.cdDAL.Insert(fld, "Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
 
-            foreach (var lm in df.tmpDAL.From<LogMatrixDO>().Query())
+            foreach (var lm in df.TemplateDb.From<LogMatrixDO>().Query())
             {
                 df.cdDAL.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
             }
             //copy cruise methods
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.CRUISEMETHODS._NAME, null, OnConflictOption.Ignore);
-            foreach (CruiseMethodsDO fld in df.tmpDAL.From<CruiseMethodsDO>().Query())
+            foreach (CruiseMethodsDO fld in df.TemplateDb.From<CruiseMethodsDO>().Query())
             {
                 df.cdDAL.Insert(fld, "CruiseMethods", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
 
-            df.cdDAL.LogMessage("Sale Setup, Copied Template Data From File: " + df.tmpDAL.Path);
+            df.cdDAL.LogMessage("Sale Setup, Copied Template Data From File: " + df.TemplateDb.Path);
         }
 
         private void copySaleData(dataFiles df)
@@ -269,8 +269,8 @@ namespace CruiseDesign.Historical_setup
       }
       private void Finish()
       {
-         if(df.tmpDAL != null)
-            df.tmpDAL.Dispose();
+         if(df.TemplateDb != null)
+            df.TemplateDb.Dispose();
          //if (cdDAL != null)
          //   cdDAL.Dispose();
          Close();

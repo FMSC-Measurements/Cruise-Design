@@ -37,7 +37,7 @@ namespace CruiseDesign.Design_Pages
          textBoxVolume.Text = (Math.Round(totVolume, 0)).ToString();
          textBoxCost.Text = (Math.Round(saleCost, 0)).ToString();
          //textBoxCost.Text = "0";
-         dalPathR = dalPathRecon;
+         reconFilePath = dalPathRecon;
       }
       #endregion
 
@@ -62,7 +62,7 @@ namespace CruiseDesign.Design_Pages
       public List<GlobalsDO> myGlobals { get; set; }
 
       string sColEdit;
-      public string meth, dalPath, dalPathR, defaultUOM;
+      public string meth, dalPath, reconFilePath, defaultUOM;
       float totAcres;
       double saleCost;
       struct costData
