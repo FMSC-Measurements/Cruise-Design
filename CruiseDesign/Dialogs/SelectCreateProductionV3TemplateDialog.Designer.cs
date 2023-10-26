@@ -203,7 +203,6 @@
             this._useReconFileRadioButton.Name = "_useReconFileRadioButton";
             this._useReconFileRadioButton.Size = new System.Drawing.Size(98, 17);
             this._useReconFileRadioButton.TabIndex = 0;
-            this._useReconFileRadioButton.TabStop = true;
             this._useReconFileRadioButton.Text = "Use Recon File";
             this._useReconFileRadioButton.UseVisualStyleBackColor = true;
             this._useReconFileRadioButton.CheckedChanged += new System.EventHandler(this._useReconFileRadioButton_CheckedChanged);

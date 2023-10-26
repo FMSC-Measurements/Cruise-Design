@@ -23,6 +23,7 @@ namespace CruiseDesign.Dialogs
             : this()
         {
             ReconFilePath = reconFilePath;
+            _useReconFileRadioButton.Checked = !string.IsNullOrEmpty(reconFilePath);
         }
 
         public IDialogService DialogService { get; }
@@ -102,12 +103,27 @@ namespace CruiseDesign.Dialogs
             Close();
         }
 
+        bool _changingRadioButtonCheckState = false;
         private void _useReconFileRadioButton_CheckedChanged(object sender, EventArgs e)
         {
+            if (_changingRadioButtonCheckState) { return; }
+            try
+            {
+                _changingRadioButtonCheckState = true;
+                _useTemplateFileRadioButton.Checked = !_useReconFileRadioButton.Checked;
+            }
+            finally { _changingRadioButtonCheckState = false; }
         }
 
         private void _useTemplateFileRadioButton_CheckedChanged(object sender, EventArgs e)
         {
+            if (_changingRadioButtonCheckState) { return; }
+            try
+            {
+                _changingRadioButtonCheckState = true;
+                _useReconFileRadioButton.Checked = !_useTemplateFileRadioButton.Checked;
+            }
+            finally { _changingRadioButtonCheckState = false; }
         }
     }
 }
