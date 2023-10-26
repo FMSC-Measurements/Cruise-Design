@@ -1,39 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.IO;
-using System.Windows.Forms;
-using CruiseDesign.Strata_setup;
+﻿using CruiseDesign.Design_Pages;
 using CruiseDesign.Historical_setup;
-using CruiseDesign.Stats;
 using CruiseDesign.ProductionDesign;
-using CruiseDAL;
+using CruiseDesign.Services;
+using CruiseDesign.Strata_setup;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System;
+using System.ComponentModel;
+using System.IO;
 using System.Reflection;
+using System.Windows.Forms;
 
 namespace CruiseDesign
 {
     public partial class CruiseDesignMain : Form
     {
-        public DAL cdDAL { get; set; }
-        public bool IsUsingV3File { get; set; }
+        private ICruiseDesignFileContextProvider _fileContextProvider;
 
-        int ButtonSelect = 1;
-        public string dalPathCruise;
-        public string dalPathDesign;
-        public string dalPathProcess;
-        bool reconExists = true;
-        bool prodFile = false;
-        public bool canCreateNew = false;
-        //       bool openDAL = false;
-        public int errFlag;
+        private int ButtonSelect { get; set; } = 1;
 
-        public CruiseDesignMain(string[] args)
+        public CruiseDesignFileContext FileContext => FileContextProvider.CurrentFileContext;
+        protected bool IsProductionFile => FileContext.IsProductionFile;
+
+        public IServiceProvider ServiceProvider { get; }
+        public ILogger Logger { get; }
+        public ICruiseDesignFileContextProvider FileContextProvider
+        {
+            get => _fileContextProvider;
+            protected set
+            {
+                if (_fileContextProvider != null)
+                {
+                    _fileContextProvider.FileContextChanged -= OnFileContextChanged;
+                }
+                _fileContextProvider = value;
+                if (value != null)
+                {
+                    value.FileContextChanged += OnFileContextChanged;
+                }
+            }
+        }
+
+        private void OnFileContextChanged(object sender, EventArgs e)
+        {
+            var fileContextProvider = (ICruiseDesignFileContextProvider)sender;
+            var newFileContext = fileContextProvider.CurrentFileContext;
+            if (newFileContext != null)
+            {
+                if (newFileContext.DesignFilePath != null)
+                {
+                    Text = Path.GetFileName(newFileContext.DesignFilePath);
+
+                    buttonSetup.Enabled = true;
+                    buttonDesign.Enabled = true;
+                    buttonTools.Enabled = true;
+                }
+                else if (newFileContext.ReconFilePath != null)
+                {
+                    Text = Path.GetFileName(newFileContext.ReconFilePath);
+                }
+            }
+        }
+
+        protected CruiseDesignMain()
         {
             InitializeComponent();
+        }
+
+        public CruiseDesignMain(string[] args)
+            : this()
+        {
+            ServiceProvider = Program.ServiceProvider;
+            Logger = ServiceProvider.GetRequiredService<ILogger<CruiseDesignMain>>();
+            FileContextProvider = ServiceProvider.GetRequiredService<ICruiseDesignFileContextProvider>();
 
             // to update version change the Version property in the project file
             var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
@@ -41,18 +80,14 @@ namespace CruiseDesign
 
             if (args.Length != 0)
             {
-                Text = Convert.ToString(args[0]);
-                dalPathDesign = Convert.ToString(args[0]);
-                // does .cruise file exist
-                reconExists = doesReconFileExist();
+                var newFileContext = new CruiseDesignFileContext()
+                { DesignFilePath = Convert.ToString(args[0]) };
 
-                canCreateNew = false;
+                newFileContext.SetReconFilePathFromDesign();
 
-                if (openDesignFile())
+                if (newFileContext.OpenDesignFile(ServiceProvider.GetRequiredService<ILogger>()))
                 {
-                    buttonSetup.Enabled = true;
-                    buttonDesign.Enabled = true;
-                    buttonTools.Enabled = true;
+                    FileContextProvider.CurrentFileContext = newFileContext;
                 }
                 else
                 {
@@ -63,8 +98,8 @@ namespace CruiseDesign
 
         private void CruiseDesignMain_Load(object sender, EventArgs e)
         {
-
         }
+
         //Row One  -------------------------------------------------------------------------------
         private void buttonRowOne_Click(object sender, EventArgs e)
         {
@@ -78,77 +113,25 @@ namespace CruiseDesign
                 // open recon file
                 if (openFileDialogDesign.ShowDialog() == DialogResult.OK)
                 {
-                    //set title bar with file name
-                    Text = openFileDialogDesign.SafeFileName;
-                    dalPathDesign = openFileDialogDesign.FileName;
-                    var fileExtention = Path.GetExtension(dalPathDesign);
-                    // check for design file vs production cruise
-                    if (fileExtention.Equals(".cruise", StringComparison.OrdinalIgnoreCase))
-                    {
-                        //test comment
-                        prodFile = true;
-                        reconExists = false;
-                        canCreateNew = false;
-                    }
-                    else if (fileExtention.Equals(".crz3", StringComparison.OrdinalIgnoreCase))
-                    {
-                        if (doesProcessFileExistD())
-                        {
-                            dalPathDesign = dalPathProcess;
-                            IsUsingV3File = true;
-                            prodFile = true;
-                            reconExists = false;
-                            canCreateNew = false;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        reconExists = doesReconFileExist();
-                        canCreateNew = false;
-                        prodFile = false;
-                    }
-                    if (openDesignFile())
-                    {
-                        buttonSetup.Enabled = true;
-                        buttonDesign.Enabled = true;
-                        buttonTools.Enabled = true;
-                    }
-                    else
-                        MessageBox.Show("Unable to open the file.", "Information");
-
+                    OpenExistingDesignFile(openFileDialogDesign.FileName);
                 }
             }
-            // SETUP TAB    Setup Using Recon  +++++++++++++       
+            // SETUP TAB    Setup Using Recon  +++++++++++++
             else if (ButtonSelect == 2)
             {
-                if (prodFile)
+                if (IsProductionFile)
                 {
                     MessageBox.Show("Production File Found.\nNo changes to the current design allowed.\n", "Warning", MessageBoxButtons.OK);
                     return;
                 }
 
-                StrataSetupWizard strDlg = new StrataSetupWizard(this, dalPathCruise, reconExists, prodFile, canCreateNew);
-                strDlg.Owner = this;
-
-                //        strDlg.dalFile = dalPath;
+                using StrataSetupWizard strDlg = ServiceProvider.GetRequiredService<StrataSetupWizard>();
                 strDlg.ShowDialog(this);
-
-                if (canCreateNew)
-                {
-                    this.cdDAL = new DAL(dalPathDesign, false);
-                }
-
-
             }
-            //DESIGN TAB    Design Cruise +++++++++++++++            
+            //DESIGN TAB    Design Cruise +++++++++++++++
             else if (ButtonSelect == 3)
             {
-                if (prodFile)
+                if (IsProductionFile)
                 {
                     MessageBox.Show("Production File Found.\nCannot modify selection frequencies.\n", "Warning", MessageBoxButtons.OK);
                     return;
@@ -156,32 +139,32 @@ namespace CruiseDesign
                 //MessageBox.Show("Design Cruise Selected", "Information");
                 Cursor.Current = Cursors.WaitCursor;
 
-                Design_Pages.Processing pDlg = new CruiseDesign.Design_Pages.Processing(this, dalPathCruise, reconExists, prodFile);
-                pDlg.ShowDialog();
+                Processing pDlg = ServiceProvider.GetRequiredService<Processing>();
+                pDlg.Show(this);
+                var success = FileContext.ProcessFile();
+                pDlg.Close();
+
+                if (!success)
+                {
+                    MessageBox.Show("Recon File has not been Processsed.\nStatistics set to default values.");
+                }
 
                 Cursor.Current = this.Cursor;
 
-                Design_Pages.DesignMain dmDlg = new CruiseDesign.Design_Pages.DesignMain(this, dalPathCruise);
+                using DesignMain dmDlg = ServiceProvider.GetRequiredService<DesignMain>();
                 dmDlg.ShowDialog(this);
-
-
-
-                // call DesignCruiseForm
-
             }
-            //TOOLS TAB  Compare with Production Cruise +++++++++++++           
+            //TOOLS TAB  Compare with Production Cruise +++++++++++++
             else if (ButtonSelect == 4)
                 MessageBox.Show("Compare Production Cruise with Design file./nFuture Enhancement.", "Information");
-
         }
 
         //Row Two  -------------------------------------------------------------------------------
         private void buttonRowTwo_Click(object sender, EventArgs e)
         {
-            // Main form  
+            // Main form
             if (ButtonSelect == 0)
             {
-
             }
             // FILE TAB - Open production cruise ++++++++++++++
             else if (ButtonSelect == 1)
@@ -193,27 +176,15 @@ namespace CruiseDesign
             // SETUP TAB   Historical Setup +++++++++++++++++
             else if (ButtonSelect == 2)
             {
-
-                if (prodFile)
+                if (IsProductionFile)
                 {
                     MessageBox.Show("Production File Found.\nCannot modify cruise design.\n", "Warning", MessageBoxButtons.OK);
                     return;
                 }
                 //MessageBox.Show("Historical Setup", "Information");
                 //  Pass in dalPathDesign
-                HistoricalSetupWizard hsDlg = new HistoricalSetupWizard(this, canCreateNew);
-                hsDlg.Owner = this;
+                HistoricalSetupWizard hsDlg = ServiceProvider.GetRequiredService<HistoricalSetupWizard>();
                 hsDlg.ShowDialog(this);
-
-                if (canCreateNew)
-                {
-                    this.cdDAL = new DAL(dalPathDesign, false);
-                }
-
-                buttonSetup.Enabled = true;
-                buttonDesign.Enabled = true;
-                buttonTools.Enabled = true;
-
             }
             //DESIGN TAB +++++++++++++++++
             else if (ButtonSelect == 3)
@@ -221,22 +192,26 @@ namespace CruiseDesign
                 //MessageBox.Show("Add Additional Samples Selected", "Information");
                 Cursor.Current = Cursors.WaitCursor;
 
-                Design_Pages.Processing pDlg = new CruiseDesign.Design_Pages.Processing(this, dalPathCruise, reconExists, prodFile);
-
-                if (errFlag == 1)
+                if (FileContext.IsProductionFile && !FileContext.CheckIsDesignFileProcessed())
                 {
-                    Cursor.Current = this.Cursor;
+                    MessageBox.Show("Cruise Not Processed. Please Process Cruise Before Continuing.", "Warning");
                     return;
                 }
 
-                pDlg.ShowDialog();
+                Processing pDlg = ServiceProvider.GetRequiredService<Processing>();
+                pDlg.Show(this);
+                var success = FileContext.ProcessFile();
+                pDlg.Close();
+
+                if (!success)
+                {
+                    MessageBox.Show("Recon File has not been Processsed.\nStatistics set to default values.");
+                }
 
                 Cursor.Current = this.Cursor;
 
-
-                ProductionDesign.ProductionDesignMain dmDlg = new CruiseDesign.ProductionDesign.ProductionDesignMain(this);
+                ProductionDesign.ProductionDesignMain dmDlg = ServiceProvider.GetRequiredService<ProductionDesignMain>();
                 dmDlg.ShowDialog(this);
-
             }
             //TOOLS TAB ++++++++++++++++++
             else if (ButtonSelect == 4)
@@ -251,93 +226,17 @@ namespace CruiseDesign
             //FILE TAB  Create New Cruise from Recon +++++++++++++++
             else if (ButtonSelect == 1)
             {
-                WaitForm waitFrm = new WaitForm();
-
                 if (openFileDialogCruise.ShowDialog() == DialogResult.OK)
                 {
-                    // check for cruise design database
-                    Text = openFileDialogCruise.SafeFileName;
-                    dalPathCruise = openFileDialogCruise.FileName;
-                    //check version 3
-                    // if crz3, look for process file
-                    if (Path.GetExtension(dalPathCruise).Equals(".crz3", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // if process file, change dalPathCruise to process file
-                        if (doesProcessFileExistC())
-                        {
-                            dalPathCruise = dalPathProcess;
-                            IsUsingV3File = true;
-                        }
-                        // if no process file, warning message and exit
-                        else
-                        {
-                            MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
-                            buttonSetup.Enabled = false;
-                            buttonDesign.Enabled = false;
-                            buttonTools.Enabled = false;
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        IsUsingV3File = false;
-                    }
-                    reconExists = true;
-                    // create design database for recon
-                    // does filename with .design extension exist
-                    if (doesDesignFileExist())
-                    {
-                        canCreateNew = false;
-                        if (!openDesignFile())
-                        {
-                            MessageBox.Show("Design file exists but unable to open the file", "Information");
-                            buttonSetup.Enabled = false;
-                            buttonDesign.Enabled = false;
-                            buttonTools.Enabled = false;
-                            return;
-                        }
-                        else
-                        {
-                            //MessageBox.Show("Design File Already Exists.", "Information");
-                            buttonSetup.Enabled = true;
-                            buttonDesign.Enabled = true;
-                            buttonTools.Enabled = true;
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        //Cursor.Current = Cursors.WaitCursor;
-                        Cursor.Current = Cursors.WaitCursor;
-                        waitFrm.Show();
-
-                        canCreateNew = true;
-                        //if (!openDesignFile())
-                        //{
-                        //   MessageBox.Show("Unable to create the design file", "Information");
-                        //   return;
-                        //}
-
-                        Working wDlg = new Working(this, dalPathCruise, reconExists);
-                        waitFrm.Close();
-                        Cursor.Current = this.Cursor;
-
-                        wDlg.ShowDialog();
-
-                        buttonSetup.Enabled = true;
-                        buttonDesign.Enabled = true;
-                        buttonTools.Enabled = true;
-                    }
-
+                    CreateNewFileFromRecon(openFileDialogCruise.FileName);
                 }
             }
             //SETUP TAB - Cost Setup ++++++++++++++++
             else if (ButtonSelect == 2)
             {
                 // MessageBox.Show("Setup Costs Selected", "Information");
-                CostSetupForm costDlg = new CostSetupForm(this);
-                costDlg.ShowDialog();
-
+                using CostSetupForm costDlg = ServiceProvider.GetRequiredService<CostSetupForm>();
+                costDlg.ShowDialog(this);
             }
             // DESIGN TAB
             else if (ButtonSelect == 3)
@@ -345,7 +244,6 @@ namespace CruiseDesign
             // TOOLS TAB
             else if (ButtonSelect == 4)
                 MessageBox.Show("", "Information");
-
         }
 
         //Row Four -------------------------------------------------------------------------------
@@ -359,25 +257,7 @@ namespace CruiseDesign
                 //MessageBox.Show("Create New Historical");
                 if (saveFileDialogDesign.ShowDialog() == DialogResult.OK)
                 {
-                    //set title bar with file name
-                    Text = saveFileDialogDesign.FileName;
-                    dalPathDesign = saveFileDialogDesign.FileName;
-                    canCreateNew = true;
-                    if (!openDesignFile())
-                    {
-                        MessageBox.Show("Unable to create the design file", "Information");
-                        return;
-                    }
-
-                    // open SaleSetupPage
-                    SaleSetupPage sDlg = new SaleSetupPage(this);
-                    sDlg.ShowDialog();
-
-                    canCreateNew = false;
-                    reconExists = false;
-                    buttonSetup.Enabled = true;
-                    buttonDesign.Enabled = true;
-                    buttonTools.Enabled = true;
+                    CreateNewFileFromHistorical(saveFileDialogDesign.FileName);
                 }
             }
             //SETUP TAB ++++++++++
@@ -389,17 +269,14 @@ namespace CruiseDesign
             //TOOLS TAB +++++++++++
             else if (ButtonSelect == 4)
                 MessageBox.Show("", "Information");
-
         }
 
         private void openFileDialogCruise_FileOk(object sender, CancelEventArgs e)
         {
-
         }
 
         private void buttonIcon_Click(object sender, EventArgs e)
         {
-
         }
 
         //FILE TAB
@@ -416,7 +293,6 @@ namespace CruiseDesign
             labelRowThree.Visible = true;
             labelRowFour.Text = "Create New From Historical Data";
             labelRowFour.Visible = true;
-
 
             buttonRowOne.Visible = true;
             buttonRowOne.Image = Properties.Resources.Cruisedesign48;
@@ -505,66 +381,139 @@ namespace CruiseDesign
             ButtonSelect = 4;
         }
 
-        private bool doesReconFileExist()
+        public void CreateNewFileFromHistorical(string path)
         {
-            //opened a design file, does the recon file exist? 
-            dalPathCruise = dalPathDesign;
-            dalPathCruise = Path.ChangeExtension(dalPathCruise, ".cruise");
-            if (File.Exists(dalPathCruise))
+            var newFileContext = new CruiseDesignFileContext();
+
+            newFileContext.DesignFilePath = path;
+
+            if (!newFileContext.OpenDesignFile(Logger, canCreateNew: true))
             {
-                return (true);
+                MessageBox.Show("Unable to create the design file", "Information");
+                return;
+            }
+
+            FileContextProvider.CurrentFileContext = newFileContext;
+            using var setupPage = ServiceProvider.GetRequiredService<SaleSetupPage>();
+            if (setupPage.ShowDialog(this) != DialogResult.OK)
+            {
+                // user exited dialog without clicking finish
+                FileContextProvider.CurrentFileContext = null;
+            }
+        }
+
+        public void CreateNewFileFromRecon(string path)
+        {
+            var newFileContext = new CruiseDesignFileContext();
+
+            // check for cruise design database
+            //check version 3
+            if (Path.GetExtension(path).Equals(".crz3", StringComparison.OrdinalIgnoreCase))
+            {
+                // if crz3, look for process file
+                if (newFileContext.SetProcessFilePathFromV3Cruise(path))
+                {
+                    newFileContext.ReconFilePath = path;
+                    newFileContext.V3FilePath = path;
+                }
+                else
+                {
+                    MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
+                    buttonSetup.Enabled = false;
+                    buttonDesign.Enabled = false;
+                    buttonTools.Enabled = false;
+                    return;
+                }
             }
             else
             {
-                dalPathCruise = Path.ChangeExtension(dalPathCruise, ".process");
-                if (File.Exists(dalPathDesign))
-                    return (true);
+                newFileContext.ReconFilePath = path;
+            }
+
+            // create design database for recon
+            // does filename with .design extension exist
+            if (newFileContext.SetDesignFilePathFromRecon())
+            {
+                if (newFileContext.OpenDesignFile(Logger))
+                {
+                    FileContextProvider.CurrentFileContext = newFileContext;
+                    return;
+                }
                 else
-                    return (false);
+                {
+                    MessageBox.Show("Design file exists but unable to open the file", "Information");
+                    FileContextProvider.CurrentFileContext = null;
+                    return;
+                }
             }
-        }
-        private bool doesDesignFileExist()
-        {
-            //opened a cruise file, does the design file exist? 
-            dalPathDesign = dalPathCruise;
-            dalPathDesign = Path.ChangeExtension(dalPathDesign, ".design");
-            return File.Exists(dalPathDesign);
-
-        }
-        private bool doesProcessFileExistC()
-        {
-            dalPathProcess = dalPathCruise;
-            dalPathProcess = Path.ChangeExtension(dalPathCruise, ".process");
-            return File.Exists(dalPathProcess);
-        }
-        private bool doesProcessFileExistD()
-        {
-            dalPathProcess = dalPathDesign;
-            dalPathProcess = Path.ChangeExtension(dalPathDesign, ".process");
-            return File.Exists(dalPathProcess);
-        }
-
-        public bool openDesignFile()
-        {
-            //MessageBox.Show("create design file", "Information");
-
-            // create or open DAL
-            try
+            else
             {
-                this.cdDAL = new DAL(dalPathDesign, canCreateNew);
-                return (true);
+                newFileContext.CanCreateNew = true;
+                FileContextProvider.CurrentFileContext = newFileContext;
+
+                using WaitForm waitFrm = new WaitForm();
+                //Cursor.Current = Cursors.WaitCursor;
+                Cursor.Current = Cursors.WaitCursor;
+                waitFrm.Show();
+
+                // copy limited data from cruise to design file
+                Working wDlg = ServiceProvider.GetRequiredService<Working>();
+                waitFrm.Close();
+                Cursor.Current = this.Cursor;
+
+                wDlg.ShowDialog();
             }
-            catch (System.IO.IOException e1)
+        }
+
+        public void OpenExistingDesignFile(string path)
+        {
+            var fileExtention = Path.GetExtension(path).ToLower();
+
+            var newFileContext = new CruiseDesignFileContext();
+
+            // check for design file vs production cruise
+            if (fileExtention is ".cruise")
             {
-                //Logger.Log.E(e1);
-                return (false);
+                newFileContext.DesignFilePath = path;
+                newFileContext.IsProductionFile = true;
             }
-            catch (System.Exception e1)
+            else if (fileExtention is ".crz3")
             {
-                //Logger.Log.E(e1);
-                return (false);
+                if (newFileContext.SetProcessFilePathFromV3Cruise(path))
+                {
+                    newFileContext.V3FilePath = path;
+                    newFileContext.DesignFilePath = newFileContext.ProcessFilePath;
+                    newFileContext.IsProductionFile = true;
+                    newFileContext.CanCreateNew = true;
+                }
+                else
+                {
+                    MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
+                    return;
+                }
+            }
+            else if (fileExtention == ".design")
+            {
+                newFileContext.SetReconFilePathFromDesign(path);
+            }
+            else
+            {
+                var message = "Unable to open file. Unrecognized extension";
+                Logger.LogWarning(message);
+                MessageBox.Show(message, "Information");
+                FileContextProvider.CurrentFileContext = null;
+                return;
             }
 
+            if (newFileContext.OpenDesignFile(Logger))
+            {
+                FileContextProvider.CurrentFileContext = newFileContext;
+            }
+            else
+            {
+                FileContextProvider.CurrentFileContext = null;
+                MessageBox.Show("Unable to open the file.", "Information");
+            }
         }
 
         private void ExitButton_Click(object sender, EventArgs e)
@@ -574,7 +523,6 @@ namespace CruiseDesign
 
         private void tableLayoutPanelFile_Paint(object sender, PaintEventArgs e)
         {
-
         }
     }
 }

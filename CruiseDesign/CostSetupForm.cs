@@ -8,36 +8,23 @@ using System.Text;
 using System.Windows.Forms;
 using CruiseDAL;
 using CruiseDAL.DataObjects;
-
+using CruiseDesign.Services;
 
 namespace CruiseDesign
 {
    public partial class CostSetupForm : Form
    {
-      public CostSetupForm(CruiseDesignMain Main)
-      {
-         InitializeComponent();
-         /*
-         try
-         {
-            this.cdDAL = new DAL(dalPathDesign);
-         }
-         catch (System.IO.IOException e)
-         {
-            Logger.Log.E(e);
-            MessageBox.Show("Error: Cannot open recon file");
-            //TODO display error message to user
-         }
-         catch (System.Exception e)
-         {
-            Logger.Log.E(e);
-            MessageBox.Show("Error: Cannot open recon file");
-         }
-          */
-         cdDAL = Main.cdDAL;
+        protected CostSetupForm()
+        {
+            InitializeComponent();
+        }
 
-         InitializeForm();
-      }
+        public CostSetupForm(ICruiseDesignFileContextProvider fileContextProvider)
+            : this()
+        {
+            var fileContext = fileContextProvider.CurrentFileContext;
+            cdDAL = fileContext.DesignDb;
+        }
 
       public DAL cdDAL { get; set; }
       public List<GlobalsDO> cdGlobals { get; set; }

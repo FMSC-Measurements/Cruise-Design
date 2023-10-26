@@ -41,7 +41,7 @@
             this.buttonBrowse = new System.Windows.Forms.Button();
             this.textBoxFile = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.selectedItemsGridView1 = new FMSC.Controls.SelectedItemsGridView();
+            this.reconStrataSelectedItemsGridView = new FMSC.Controls.SelectedItemsGridView();
             this.validatorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.stratumStatsCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.stratumCNDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -73,7 +73,7 @@
             this.selfDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.errorDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.tagDataGridViewTextBoxColumn = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.bindingSource1 = new System.Windows.Forms.BindingSource(this.components);
+            this.reconStrataBindingSource = new System.Windows.Forms.BindingSource(this.components);
             this.panel3 = new System.Windows.Forms.Panel();
             this.radioButton3 = new System.Windows.Forms.RadioButton();
             this.radioButton2 = new System.Windows.Forms.RadioButton();
@@ -87,8 +87,8 @@
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridView1)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.reconStrataSelectedItemsGridView)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.reconStrataBindingSource)).BeginInit();
             this.panel3.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -153,7 +153,7 @@
             this.labelRecon.Dock = System.Windows.Forms.DockStyle.Left;
             this.labelRecon.Location = new System.Drawing.Point(0, 0);
             this.labelRecon.Name = "labelRecon";
-            this.labelRecon.Size = new System.Drawing.Size(175, 16);
+            this.labelRecon.Size = new System.Drawing.Size(174, 16);
             this.labelRecon.TabIndex = 0;
             this.labelRecon.Text = "Select Recon Data to Import";
             // 
@@ -174,7 +174,7 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(9, 8);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(137, 16);
+            this.label1.Size = new System.Drawing.Size(136, 16);
             this.label1.TabIndex = 2;
             this.label1.Text = "Production File Name";
             // 
@@ -205,7 +205,7 @@
             this.tableLayoutPanel1.Controls.Add(this.panel1, 0, 0);
             this.tableLayoutPanel1.Controls.Add(this.panel2, 0, 2);
             this.tableLayoutPanel1.Controls.Add(this.panel4, 0, 4);
-            this.tableLayoutPanel1.Controls.Add(this.selectedItemsGridView1, 1, 3);
+            this.tableLayoutPanel1.Controls.Add(this.reconStrataSelectedItemsGridView, 1, 3);
             this.tableLayoutPanel1.Controls.Add(this.panel3, 0, 1);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
@@ -219,12 +219,12 @@
             this.tableLayoutPanel1.Size = new System.Drawing.Size(514, 393);
             this.tableLayoutPanel1.TabIndex = 0;
             // 
-            // selectedItemsGridView1
+            // reconStrataSelectedItemsGridView
             // 
-            this.selectedItemsGridView1.AllowUserToAddRows = false;
-            this.selectedItemsGridView1.AutoGenerateColumns = false;
-            this.selectedItemsGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.selectedItemsGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.reconStrataSelectedItemsGridView.AllowUserToAddRows = false;
+            this.reconStrataSelectedItemsGridView.AutoGenerateColumns = false;
+            this.reconStrataSelectedItemsGridView.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.reconStrataSelectedItemsGridView.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.validatorDataGridViewTextBoxColumn,
             this.stratumStatsCNDataGridViewTextBoxColumn,
             this.stratumCNDataGridViewTextBoxColumn,
@@ -256,16 +256,16 @@
             this.selfDataGridViewTextBoxColumn,
             this.errorDataGridViewTextBoxColumn,
             this.tagDataGridViewTextBoxColumn});
-            this.selectedItemsGridView1.DataSource = this.bindingSource1;
-            this.selectedItemsGridView1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.selectedItemsGridView1.Location = new System.Drawing.Point(3, 143);
-            this.selectedItemsGridView1.Name = "selectedItemsGridView1";
-            this.selectedItemsGridView1.RowHeadersVisible = false;
-            this.selectedItemsGridView1.SelectedItems = null;
-            this.selectedItemsGridView1.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.selectedItemsGridView1.Size = new System.Drawing.Size(508, 202);
-            this.selectedItemsGridView1.TabIndex = 4;
-            this.selectedItemsGridView1.VirtualMode = true;
+            this.reconStrataSelectedItemsGridView.DataSource = this.reconStrataBindingSource;
+            this.reconStrataSelectedItemsGridView.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.reconStrataSelectedItemsGridView.Location = new System.Drawing.Point(3, 143);
+            this.reconStrataSelectedItemsGridView.Name = "reconStrataSelectedItemsGridView";
+            this.reconStrataSelectedItemsGridView.RowHeadersVisible = false;
+            this.reconStrataSelectedItemsGridView.SelectedItems = null;
+            this.reconStrataSelectedItemsGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
+            this.reconStrataSelectedItemsGridView.Size = new System.Drawing.Size(508, 202);
+            this.reconStrataSelectedItemsGridView.TabIndex = 4;
+            this.reconStrataSelectedItemsGridView.VirtualMode = true;
             // 
             // validatorDataGridViewTextBoxColumn
             // 
@@ -493,9 +493,9 @@
             this.tagDataGridViewTextBoxColumn.Name = "tagDataGridViewTextBoxColumn";
             this.tagDataGridViewTextBoxColumn.Visible = false;
             // 
-            // bindingSource1
+            // reconStrataBindingSource
             // 
-            this.bindingSource1.DataSource = typeof(CruiseDAL.DataObjects.StratumStatsDO);
+            this.reconStrataBindingSource.DataSource = typeof(CruiseDAL.DataObjects.StratumStatsDO);
             // 
             // panel3
             // 
@@ -516,7 +516,7 @@
             this.radioButton3.AutoSize = true;
             this.radioButton3.Location = new System.Drawing.Point(328, 11);
             this.radioButton3.Name = "radioButton3";
-            this.radioButton3.Size = new System.Drawing.Size(116, 20);
+            this.radioButton3.Size = new System.Drawing.Size(115, 20);
             this.radioButton3.TabIndex = 7;
             this.radioButton3.Text = "Meas/Cnt Plots";
             this.radioButton3.UseVisualStyleBackColor = true;
@@ -526,7 +526,7 @@
             this.radioButton2.AutoSize = true;
             this.radioButton2.Location = new System.Drawing.Point(220, 11);
             this.radioButton2.Name = "radioButton2";
-            this.radioButton2.Size = new System.Drawing.Size(102, 20);
+            this.radioButton2.Size = new System.Drawing.Size(101, 20);
             this.radioButton2.TabIndex = 6;
             this.radioButton2.Text = "BigBAF/FPS";
             this.radioButton2.UseVisualStyleBackColor = true;
@@ -537,7 +537,7 @@
             this.radioButton1.Checked = true;
             this.radioButton1.Location = new System.Drawing.Point(160, 11);
             this.radioButton1.Name = "radioButton1";
-            this.radioButton1.Size = new System.Drawing.Size(54, 20);
+            this.radioButton1.Size = new System.Drawing.Size(53, 20);
             this.radioButton1.TabIndex = 5;
             this.radioButton1.TabStop = true;
             this.radioButton1.Text = "Freq";
@@ -559,7 +559,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(9, 13);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(145, 16);
+            this.label2.Size = new System.Drawing.Size(144, 16);
             this.label2.TabIndex = 0;
             this.label2.Text = "For PCM and FCM use:";
             // 
@@ -596,8 +596,8 @@
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.tableLayoutPanel1.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridView1)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.bindingSource1)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.reconStrataSelectedItemsGridView)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.reconStrataBindingSource)).EndInit();
             this.panel3.ResumeLayout(false);
             this.panel3.PerformLayout();
             this.ResumeLayout(false);
@@ -617,7 +617,7 @@
       private System.Windows.Forms.TextBox textBoxFile;
       private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
       private System.Windows.Forms.SaveFileDialog saveFileDialog1;
-      private System.Windows.Forms.BindingSource bindingSource1;
+      private System.Windows.Forms.BindingSource reconStrataBindingSource;
       private System.Windows.Forms.PictureBox pictureBox1;
       private System.Windows.Forms.DataGridViewTextBoxColumn dataGridViewTextBoxColumn1;
       private System.Windows.Forms.Panel panel3;
@@ -626,7 +626,7 @@
       private System.Windows.Forms.RadioButton radioButton3;
       private System.Windows.Forms.RadioButton radioButton2;
       private System.Windows.Forms.RadioButton radioButton1;
-      public FMSC.Controls.SelectedItemsGridView selectedItemsGridView1;
+      public FMSC.Controls.SelectedItemsGridView reconStrataSelectedItemsGridView;
       private System.Windows.Forms.DataGridViewTextBoxColumn validatorDataGridViewTextBoxColumn;
       private System.Windows.Forms.DataGridViewTextBoxColumn stratumStatsCNDataGridViewTextBoxColumn;
       private System.Windows.Forms.DataGridViewTextBoxColumn stratumCNDataGridViewTextBoxColumn;

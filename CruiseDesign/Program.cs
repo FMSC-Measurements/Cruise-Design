@@ -37,13 +37,35 @@ namespace CruiseDesign
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
-
+            var windowProvider = new WindowProvider();
             var host = Host.CreateDefaultBuilder()
-                .ConfigureServices(ConfigureServices)
+                .ConfigureServices((context, services) => ConfigureServices(context, services, windowProvider))
                 .ConfigureLogging(ConfigureLogging).Build();
             ServiceProvider = host.Services;
 
-            Application.Run(new CruiseDesignMain(args));
+            
+
+            //if (args.Length != 0)
+            //{
+            //    var fileContextProvider = ServiceProvider.GetRequiredService<ICruiseDesignFileContextProvider>();
+            //    var newFileContext = new CruiseDesignFileContext()
+            //    { DesignFilePath = Convert.ToString(args[0]) };
+
+            //    newFileContext.SetReconFilePathFromDesign();
+
+            //    if (newFileContext.OpenDesignFile(ServiceProvider.GetRequiredService<ILogger>()))
+            //    {
+            //        fileContextProvider.CurrentFileContext = newFileContext;
+            //    }
+            //    else
+            //    {
+            //        MessageBox.Show("Unable to open the design file", "Information");
+            //    }
+            //}
+
+            windowProvider.MainWindow = new CruiseDesignMain(args);
+
+            Application.Run(windowProvider.MainWindow);
         }
 
         private static void ConfigureLogging(HostBuilderContext context, ILoggingBuilder builder)
@@ -51,7 +73,7 @@ namespace CruiseDesign
             builder.AddAppCenterLogger();
         }
 
-        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services)
+        private static void ConfigureServices(HostBuilderContext context, IServiceCollection services, WindowProvider windowProvider)
         {
             //example
             //services.AddTransient<IMyService, MyService>();
@@ -86,6 +108,8 @@ namespace CruiseDesign
 
             // register other services
             services.AddSingleton<IDialogService, DialogService>();
+            services.AddSingleton<ICruiseDesignFileContextProvider, CruiseDesignFileContextProvider>();
+            services.AddSingleton<IWindowProvider>(windowProvider);
 
         }
 

@@ -45,11 +45,6 @@
          this.pictureBox1.TabIndex = 0;
          this.pictureBox1.TabStop = false;
          // 
-         // backgroundWorker1
-         // 
-         this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
-         this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
-         // 
          // Processing
          // 
          this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);

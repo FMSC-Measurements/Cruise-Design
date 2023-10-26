@@ -1,12 +1,18 @@
 ﻿using CruiseDAL;
 using CruiseDAL.DataObjects;
 using CruiseDAL.UpConvert;
+using CruiseDAL.V3.Models;
+using CruiseDAL.V3.Sync;
+using CruiseDesign.Services;
 using Microsoft.AppCenter.Crashes;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -14,97 +20,104 @@ namespace CruiseDesign.Design_Pages
 {
     public partial class CreateProduction : Form
     {
+        protected ILogger Logger { get; }
+        protected IDialogService DialogService { get; }
+
         public bool IsUsingV3File { get; protected set; }
+        public string V3FilePath { get; protected set; }
 
-        public CreateProduction(DesignMain owner)
+        protected CreateProduction()
         {
-            this.Owner = owner;
-
-            IsUsingV3File = owner.IsUsingV3File;
-
-            cdDAL = owner.cdDAL;
-            reconPath = owner.dalPathR;
-            string saleNumber = owner.mySale.SaleNumber;
-            string saleName = owner.mySale.Name;
-            fileName = saleNumber + "_" + saleName + "_TS.cruise";
             InitializeComponent();
-
-            //         if (Owner.reconExists)
-            //         {
-            // bindinglist -> join stratumstats and sgstats and select where methods and reconplots
-            // bindingsource to data select grid, show str code, method, description, recon plots, recontrees.
-            InitializeDatabaseTables();
-            InitializeDataBindings();
-
-            selectedItemsGridView1.SelectedItems = new List<StratumStatsDO>();
-            //selectedItemsGridView1.SelectedItems = _df.selItems;
-
-            //         }
-            //         else
-            //         {
-            //            selectedItemsGridView1.Visible = false;
-            //            selectedItemsGridView1.Enabled = false;
-            //         }
         }
 
-        private string destPath, reconPath, fileName;
-        public DAL cdDAL { get; set; }
-        public BindingList<StratumStatsDO> reconStratum { get; set; }
-        public BindingList<TreeFieldSetupDO> treeFields { get; set; }
-        public BindingList<LogFieldSetupDO> logFields { get; set; }
-        public List<StratumStatsDO> myStratum { get; set; }
-        public List<SampleGroupStatsDO> mySgStats { get; set; }
-        private bool hasRedonData;
-        public bool logData;
+        public CreateProduction(ICruiseDesignFileContextProvider contextProvider, ILogger logger, IDialogService dialogService)
+            : this()
+        {
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
+
+            var fileContext = contextProvider.CurrentFileContext;
+
+            IsUsingV3File = fileContext.IsUsingV3File;
+            V3FilePath = fileContext.V3FilePath;
+            DesignDb = fileContext.DesignDb;
+            _reconPath = fileContext.ReconFilePath;
+
+            var curSale = DesignDb.From<SaleDO>().Query().First();
+            string saleNumber = curSale.SaleNumber;
+            string saleName = curSale.Name;
+            _defaultProductionFileName = saleNumber + "_" + saleName + "_TS.cruise";
+
+            InitializeDatabaseTables();
+
+            reconStrataSelectedItemsGridView.SelectedItems = new List<StratumStatsDO>();
+        }
+
+        private string _destPath;
+        private string _reconPath;
+        private string _defaultProductionFileName;
+
+        public DAL DesignDb { get; set; }
 
         public class DataFiles
         {
             public string ReconFilePath;
             public string ProductionFilePath;
-            public bool HasReconData;
-            public DAL CruiseDesignDb { get; set; }
+            public DAL DesignDb { get; set; }
             public string[] SelectedStratumCodes;
         };
 
         private void InitializeDatabaseTables()
         {
             //get stratumstats used == 1 methods == (pnt, fix, pcm, fcm)
-            reconStratum = new BindingList<StratumStatsDO>();
-            //         myStratum = new List<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "Where StratumStats.Used = 1 Order By StratumStats.Code", null));
-            myStratum = new List<StratumStatsDO>(cdDAL.From<StratumStatsDO>().Where("StratumStats.Used = 1").OrderBy("StratumStats.Code").Read().ToList());
+            var reconStrata = new BindingList<StratumStatsDO>();
+
+            var strata = DesignDb.From<StratumStatsDO>()
+                .Where("StratumStats.Used = 1")
+                .OrderBy("StratumStats.Code")
+                .Query();
+
             // loop through stratumstats
-            foreach (StratumStatsDO _stratum in myStratum)
+            foreach (StratumStatsDO st in strata)
             {
                 // get sgstats where reconplots > 0
-                if (_stratum.Method == "PNT" || _stratum.Method == "FIX" || _stratum.Method == "PCM" || _stratum.Method == "FCM" || _stratum.Method == "FIXCNT")
+                if (st.Method == "PNT"
+                    || st.Method == "FIX"
+                    || st.Method == "PCM"
+                    || st.Method == "FCM"
+                    || st.Method == "FIXCNT")
                 {
-                    //              mySgStats = cdDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ? and SampleGroupStats.ReconPlots > 0", _stratum.StratumStats_CN);
-                    mySgStats = cdDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1 and SampleGroupStats.ReconPlots > 0").Read(_stratum.StratumStats_CN).ToList();
+                    var sgStatCount = DesignDb.From<SampleGroupStatsDO>()
+                        .Where("StratumStats_CN = @p1 and SampleGroupStats.ReconPlots > 0")
+                        .Read(st.StratumStats_CN).Count();
+
                     // if count > 0, add to reconStratum
-                    if (mySgStats.Count > 0)
-                        reconStratum.Add(_stratum);
+                    if (sgStatCount > 0)
+                    { reconStrata.Add(st); }
                 }
             }
             //reconStratum = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", "JOIN SampleGroupStats ON StratumStats.StratumStats_CN = SampleGroupStats.StratumStats_CN AND StratumStats.Used = 1 AND SampleGroupStats.ReconPlots > 0 Where StratumStats.Method = ? OR StratumStats.Method = ? OR StratumStats.Method = ? OR StratumStats.Method = ? ORDER BY StratumStats.Code", "PNT","FIX","PCM","FCM"));
-            if (reconStratum.Count <= 0)
+            if (reconStrata.Count <= 0)
             {
                 labelRecon.Text = "No Recon Data Found.";
-                hasRedonData = false;
             }
-            else
-                hasRedonData = true;
 
-            //cdStratumStats = new BindingList<StratumStatsDO>(cdDAL.Read<StratumStatsDO>("StratumStats", null, null));
-        }
-
-        private void InitializeDataBindings()
-        {
-            bindingSource1.DataSource = reconStratum;
+            reconStrataBindingSource.DataSource = reconStrata;
         }
 
         private void buttonBrowse_Click(object sender, EventArgs e)
         {
-            destPath = AskSavePath();
+            var destPath = DialogService.AskSaveProductionFilePath(IsUsingV3File, _defaultProductionFileName);
+
+            if (destPath != null && destPath == _reconPath)
+            {
+                DialogService.ShowMessage("Cannot overwrite the Recon file.\nPlease select a different file name.");
+                destPath = null;
+            }
+
+            _destPath = destPath;
+            textBoxFile.Text = _destPath;
         }
 
         private void buttonCancel_Click(object sender, EventArgs e)
@@ -114,19 +127,18 @@ namespace CruiseDesign.Design_Pages
 
         private async void buttonCreate_Click(object sender, EventArgs e)
         {
-            if (destPath == null)
+            if (_destPath == null)
             {
-                MessageBox.Show("Please enter filename.", "Information");
+                DialogService.ShowMessage("Please enter filename.", "Information");
                 return;
             }
 
             var dataFiles = new DataFiles
             {
-                CruiseDesignDb = cdDAL,
-                ReconFilePath = reconPath,
-                ProductionFilePath = destPath,
-                HasReconData = hasRedonData,
-                SelectedStratumCodes = selectedItemsGridView1.SelectedItems
+                DesignDb = DesignDb,
+                ReconFilePath = _reconPath,
+                ProductionFilePath = _destPath,
+                SelectedStratumCodes = reconStrataSelectedItemsGridView.SelectedItems
                   .OfType<StratumStatsDO>()
                   .Select(stRec => stRec.Code).ToArray(),
             };
@@ -134,7 +146,7 @@ namespace CruiseDesign.Design_Pages
             this.UseWaitCursor = true;
             pictureBox1.Visible = true;
             panel1.Enabled = false;
-            selectedItemsGridView1.Enabled = false;
+            reconStrataSelectedItemsGridView.Enabled = false;
             buttonCancel.Enabled = false;
             buttonCreate.Enabled = false;
 
@@ -145,53 +157,39 @@ namespace CruiseDesign.Design_Pages
 
             pictureBox1.Visible = false;
             panel1.Enabled = true;
-            selectedItemsGridView1.Enabled = true;
+            reconStrataSelectedItemsGridView.Enabled = true;
             buttonCancel.Enabled = true;
             buttonCreate.Enabled = true;
             this.UseWaitCursor = false;
 
-            string sMes = "Production Cruise File has been created.\n";
-            sMes += "Open in Cruise Manager - Customize to create the Tally Setup forms before putting file on Data Recorder";
-
-            MessageBox.Show(sMes);
+            string sMes = "Production Cruise File has been created.\r\n" +
+                          "Open in Cruise Manager - Customize to create the Tally Setup forms before putting file on Data Recorder";
+            DialogService.ShowMessage(sMes);
 
             Close();
         }
 
-        private void startProductionSave()
-        {
-        }
-
-        protected String AskSavePath()
-        {
-            saveFileDialog1 = new SaveFileDialog();
-
-            saveFileDialog1.DefaultExt = (IsUsingV3File) ? ".crz3" : ".cruise";
-            saveFileDialog1.Filter = "V2 Cruise File|*.cruise|V3 Cruise File|*.crz3";
-            saveFileDialog1.FileName = fileName;
-            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                if (saveFileDialog1.FileName == reconPath)
-                {
-                    MessageBox.Show("Cannot overwrite the Recon file.\nPlease select a different file name.");
-                    return null;
-                }
-                textBoxFile.Text = saveFileDialog1.FileName;
-
-                return saveFileDialog1.FileName;
-            }
-            return null;
-        }
-
         public Task CreateProductionFileAsync(DataFiles dataFiles, bool useFreqSelected, bool useBigBAFFPSSelected)
         {
-            return Task.Run(() => CreateProductionFile(dataFiles, useFreqSelected, useBigBAFFPSSelected));
+            return Task.Run(() => CreateProductionFile(dataFiles, useFreqSelected, useBigBAFFPSSelected, DialogService, Logger, this));
         }
 
-        public static void CreateProductionFile(DataFiles dataFiles, bool useFreqSelected, bool useBigBAFFPSSelected)
+        public static void CreateProductionFile(DataFiles dataFiles, bool useFreqSelected, bool useBigBAFFPSSelected, IDialogService dialogService, ILogger logger, Form thisForm)
         {
-            if (!dataFiles.SelectedStratumCodes.Any())
-            { dataFiles.HasReconData = false; }
+            var hasReconData = dataFiles.SelectedStratumCodes.Any()
+                && File.Exists(dataFiles.ReconFilePath);
+
+            var prodFilePath = dataFiles.ProductionFilePath;
+            var prodExtention = Path.GetExtension(prodFilePath).ToLower();
+            var isCreateingV3ProdFile = prodExtention == ".crz3";
+
+            string v3TemplateSource = null;
+            if (isCreateingV3ProdFile)
+            {
+                
+                v3TemplateSource = (string)thisForm.Invoke(new Action(() => dialogService.AskSelectCreateProductionV3Template(dataFiles.ReconFilePath)));
+            }
+
 
             // create an in memory db to create our production db
             // we will copy the db over to a file later on in the process
@@ -200,31 +198,33 @@ namespace CruiseDesign.Design_Pages
             DAL reconDb = null;
             try
             {
-                if (dataFiles.HasReconData)
+                if (hasReconData)
                 {
                     try
                     {
                         reconDb = new DAL(dataFiles.ReconFilePath, false);
                     }
-                    catch
+                    catch(IOException ex)
                     {
-                        dataFiles.HasReconData = false;
+                        var msg = "Error Opening Recon File";
+                        logger.LogError(ex, msg);
+                        dialogService.ShowMessage(msg);
+                        return;
                     }
                 }
 
-                copyTablesToFScruise(dataFiles.CruiseDesignDb, productionDb);
+                copyTablesToFScruise(dataFiles.DesignDb, productionDb);
 
-                copyPopulations(dataFiles.CruiseDesignDb,
+                copyPopulations(dataFiles.DesignDb,
                    reconDb,
                    productionDb,
-                   dataFiles.HasReconData,
+                   hasReconData,
                    dataFiles.SelectedStratumCodes,
                    useFreqSelected,
                    useBigBAFFPSSelected);
 
-                var prodFilePath = dataFiles.ProductionFilePath;
-                var prodExtention = Path.GetExtension(prodFilePath).ToLower();
-                if (prodExtention == ".crz3")
+                
+                if (isCreateingV3ProdFile)
                 {
                     var tmpV2Path = prodFilePath + ".tmp";
                     // dump the in memory production db into a temporary file
@@ -241,17 +241,47 @@ namespace CruiseDesign.Design_Pages
                         using var v3Db = new CruiseDatastore_V3();
                         var migrator = new Migrator();
                         migrator.MigrateFromV2ToV3(tmpV2Db, v3Db, Environment.UserName);
+
+
+                        if(v3TemplateSource != null)
+                        {
+                            var templateSourceDb = new CruiseDatastore_V3(v3TemplateSource);
+                            var sourceCruiseID  =  templateSourceDb.From<CruiseDAL.V3.Models.Cruise>().Query().First().CruiseID;
+                            var destCruiseID = v3Db.From<CruiseDAL.V3.Models.Cruise>().Query().First().CruiseID;
+
+                            if(true)
+                            {
+                                v3Db.Execute("DELETE FROM " + nameof(TreeFieldHeading) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(LogFieldHeading) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(StratumTemplateTreeFieldSetup) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(StratumTemplateLogFieldSetup) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(StratumTemplate) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(TreeDefaultValue) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(TreeAuditRuleSelector) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(TreeAuditRule) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(LogGradeAuditRule) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(CruiseDAL.V3.Models.Reports) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(VolumeEquation) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(ValueEquation) + ";");
+                                v3Db.Execute("DELETE FROM " + nameof(BiomassEquation) + ";");
+                            }
+
+                            var templateCopier = new TemplateCopier() { DefaultOnConflictOption = Backpack.SqlBuilder.OnConflictOption.Replace };
+                            templateCopier.Copy(templateSourceDb, v3Db, sourceCruiseID, destCruiseID);
+                        }
+
                         v3Db.BackupDatabase(prodFilePath);
                     }
-                    catch(FMSC.ORM.ConstraintException e)
+                    catch (FMSC.ORM.ConstraintException e)
                     {
-                        MessageBox.Show("Data Error. Ensure cruise has been processed using latest version of Cruise Processing");
-                        Crashes.TrackError(e);
+                        var message = "Data Error. Ensure cruise has been processed using latest version of Cruise Processing";
+                        dialogService.ShowMessage(message);
+                        logger.LogError(e, message);
                     }
-                    catch(Exception e)
+                    catch (Exception e)
                     {
-                        MessageBox.Show("Create Production: Migrate Error (" + e.GetType().Name + ")");
-                        Crashes.TrackError(e);
+                        var message = "Create Production: Migrate Error (" + e.GetType().Name + ")";
+                        dialogService.ShowMessage(message);
                         throw;
                     }
                     finally
@@ -281,6 +311,14 @@ namespace CruiseDesign.Design_Pages
             {
                 toDb.Insert(fld, option: Backpack.SqlBuilder.OnConflictOption.Replace);
             }
+            //copy Strata
+            copyStratumToFScruise(fromDb, toDb);
+            //copy cuttingUnitStratum
+            foreach (var cust in fromDb.From<CuttingUnitStratumDO>().Query())
+            {
+                toDb.Insert(cust, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+            }
+
             //copy TreeDefaultValues table
             foreach (TreeDefaultValueDO fld in fromDb.From<TreeDefaultValueDO>().Query())
             {
@@ -333,13 +371,7 @@ namespace CruiseDesign.Design_Pages
             {
                 toDb.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
             }
-            //copy Strata
-            copyStratumToFScruise(fromDb, toDb);
-            //copy cuttingUnitStratum
-            foreach (var cust in fromDb.From<CuttingUnitStratumDO>().Query())
-            {
-                toDb.Insert(cust, option: Backpack.SqlBuilder.OnConflictOption.Replace);
-            }
+           
 
             toDb.LogMessage("Create Production, Copied Data From File: " + fromDb.Path);
         }
@@ -466,7 +498,7 @@ namespace CruiseDesign.Design_Pages
             }
         }
 
-        private static void copyPopulations(DAL cDAL, DAL rDAL, DAL fsDAL, bool reconData, string[] stRecCodes, bool useFreqSelected, bool useBigBAFFPSSelected)
+        private static void copyPopulations(DAL designDb, DAL reconDb, DAL prodDb, bool hasReconData, string[] stRecCodes, bool useFreqSelected, bool useBigBAFFPSSelected)
         {
             //treeFields = new BindingList<TreeFieldSetupDO>((fsDAL.Read<TreeFieldSetupDO>("TreeFieldSetup", null, null)));
             //logFields = new BindingList<LogFieldSetupDO>();
@@ -475,7 +507,7 @@ namespace CruiseDesign.Design_Pages
 
             //       List<StratumStatsDO> cdStratumStats = new List<StratumStatsDO>(cDAL.Read<StratumStatsDO>("StratumStats", "JOIN Stratum ON StratumStats.Stratum_CN = Stratum.Stratum_CN AND StratumStats.Method = Stratum.Method AND StratumStats.Used = 1 ORDER BY Stratum.Code", null));
             // TODO do we need to join using method as well? like in the original query
-            var cdStratumStats = cDAL.From<StratumStatsDO>()
+            var cdStratumStats = designDb.From<StratumStatsDO>()
                .Join("Stratum AS s", "USING (Stratum_CN)")
                .Where("StratumStats.Used = 1")
                .OrderBy("s.Code").Query().ToArray();
@@ -484,14 +516,14 @@ namespace CruiseDesign.Design_Pages
             {
                 // check if recon data is to be saved
                 string stCode = stStat.Code;
-                var cdStr = fsDAL.From<StratumDO>()
+                var cdStr = prodDb.From<StratumDO>()
                    .Where("Code = @p1")
                    .Query(stCode).FirstOrDefault();
 
                 var curStratumCN = cdStr.Stratum_CN.Value;
 
                 var method = "100";
-                if (reconData)
+                if (hasReconData)
                 {
                     if (stStat.Method == "PNT" || stStat.Method == "PCM")
                         method = "PNT";
@@ -504,35 +536,35 @@ namespace CruiseDesign.Design_Pages
                 var myPlots = new List<PlotDO>();
                 var myTree = new List<TreeDO>();
                 var myLogs = new List<LogDO>();
-                var setRecData = reconData && stRecCodes.Contains(stCode);
+                var setRecData = hasReconData && stRecCodes.Contains(stCode);
                 if (setRecData)
                 {
                     if (method == "PNT")
                         //  myPlots = (rDAL.Read<PlotDO>("Plot", "JOIN Stratum ON Plot.Stratum_CN = Stratum.Stratum_CN WHERE Stratum.Method = ? AND Stratum.BasalAreaFactor = ?", method, myStStats.BasalAreaFactor));
-                        myPlots = rDAL.From<PlotDO>()
+                        myPlots = reconDb.From<PlotDO>()
                                  .Join("Stratum AS s", "USING (Stratum_CN)")
                                  .Where("s.Method = @p1 AND s.BasalAreaFactor = @p2")
                                  .Query(method, stStat.BasalAreaFactor).ToList();
                     else
                         //   myPlots = (rDAL.Read<PlotDO>("Plot", "JOIN Stratum ON Plot.Stratum_CN = Stratum.Stratum_CN WHERE Stratum.Method = ? AND Stratum.FixedPlotSize = ?", method, myStStats.FixedPlotSize));
-                        myPlots = rDAL.From<PlotDO>()
+                        myPlots = reconDb.From<PlotDO>()
                                  .Join("Stratum AS s", "USING (Stratum_CN)")
                                  .Where("s.Method = @p1 AND s.FixedPlotSize = @p2")
                                  .Query(method, stStat.FixedPlotSize).ToList();
 
-                    myTree = rDAL.From<TreeDO>().Query().ToList();
-                    myLogs = rDAL.From<LogDO>().Query().ToList();
+                    myTree = reconDb.From<TreeDO>().Query().ToList();
+                    myLogs = reconDb.From<LogDO>().Query().ToList();
                 }
 
                 // get fsDAl stratum record
                 // List<SampleGroupStatsDO> mySgStats = new List<SampleGroupStatsDO>(cDAL.Read<SampleGroupStatsDO>("SampleGroupStats", "Where StratumStats_CN = ?", myStStats.StratumStats_CN));
-                var mySgStats = cDAL.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Query(stStat.StratumStats_CN);
+                var mySgStats = designDb.From<SampleGroupStatsDO>().Where("StratumStats_CN = @p1").Query(stStat.StratumStats_CN);
                 // loop through sample groups
                 var first = true; // only copy plot data for first sg in st
                 foreach (var sgStats in mySgStats)
                 {
                     var measHit = 0;
-                    SampleGroupDO fsSg = new SampleGroupDO(fsDAL);
+                    SampleGroupDO fsSg = new SampleGroupDO(prodDb);
                     // save sample group information
                     fsSg.Stratum_CN = curStratumCN;
                     fsSg.Code = sgStats.Code;
@@ -574,11 +606,11 @@ namespace CruiseDesign.Design_Pages
                     // find SampleGroupStats_CN where StrataumStats_CN and code = sgStats.code
                     long? sgStatsCN100pct;
                     if (stStat.SgSetDescription == "Comparison Cruise" || method == "FIXCNT")
-                        sgStatsCN100pct = findSgStatCN100(cDAL, stStat.Stratum_CN, sgStats.Code, sgStats.SgSet, stStat.Method);
+                        sgStatsCN100pct = findSgStatCN100(designDb, stStat.Stratum_CN, sgStats.Code, sgStats.SgSet, stStat.Method);
                     else
-                        sgStatsCN100pct = findSgStatCN100(cDAL, stStat.Stratum_CN, sgStats.Code, sgStats.SgSet, "100");
+                        sgStatsCN100pct = findSgStatCN100(designDb, stStat.Stratum_CN, sgStats.Code, sgStats.SgSet, "100");
 
-                    var treeDefaults = cDAL.From<TreeDefaultValueDO>()
+                    var treeDefaults = designDb.From<TreeDefaultValueDO>()
                        .Join("SampleGroupStatsTreeDefaultValue", "USING (TreeDefaultValue_CN)")
                        .Where("SampleGroupStats_CN = @p1")
                        .Query(sgStatsCN100pct);
@@ -594,9 +626,9 @@ namespace CruiseDesign.Design_Pages
                     {
                         getReconData(stStat,
                            sgStats,
-                           cDAL,
-                           rDAL,
-                           fsDAL,
+                           designDb,
+                           reconDb,
+                           prodDb,
                            myPlots,
                            myTree,
                            myLogs,
@@ -612,9 +644,9 @@ namespace CruiseDesign.Design_Pages
                 }
 
                 // check stratum plots for null plots
-                if (reconData)
+                if (hasReconData)
                 {
-                    SetNullPlots(fsDAL, curStratumCN);
+                    SetNullPlots(prodDb, curStratumCN);
                 }
                 //getTreeFieldSetup(cDAL,fsDAL,myStStats);
                 //if(logData)
@@ -640,7 +672,7 @@ namespace CruiseDesign.Design_Pages
             }
         }
 
-        private static long? findSgStatCN100(DAL db, long? strCN, string code, long sgSet, string meth)
+        public static long? findSgStatCN100(DAL db, long? strCN, string code, long sgSet, string meth)
         {
             // find StratumStats_CN where Stratum_CN and SgSet and method = "100"
             var strStat100 = db.From<StratumStatsDO>()
@@ -709,7 +741,7 @@ namespace CruiseDesign.Design_Pages
         public static int getReconData(StratumStatsDO curStrStats,
                                 SampleGroupStatsDO curSgStats,
                                 DAL cdDAL,
-                                DAL rDAL,
+                                DAL rDAL, // rDAL not used here because all recon data is provided via myPlots, myTrees, myLogs
                                 DAL fsDAL,
                                 List<PlotDO> myPlots,
                                 List<TreeDO> myTree,
@@ -902,7 +934,7 @@ namespace CruiseDesign.Design_Pages
             sMes += "Meas/Cnt Plots: Some plots have all Measured trees with the rest having all Count trees.\n";
             sMes += "      All recon trees will be tagged as Measured trees.\n";
 
-            MessageBox.Show(sMes, "Information");
+            DialogService.ShowMessage(sMes, "Information");
         }
     }
 }
