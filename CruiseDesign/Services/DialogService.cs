@@ -6,9 +6,51 @@ namespace CruiseDesign.Services
 {
     public class DialogService : IDialogService
     {
+        public IWindowProvider WindowProvider { get; }
+        public Form MainWindow => WindowProvider.MainWindow;
+
+        public DialogService(IWindowProvider windowProvider)
+        {
+            WindowProvider = windowProvider ?? throw new ArgumentNullException(nameof(windowProvider));
+        }
+
+        protected DialogResult ShowDialog(Form form)
+        {
+            var mainWindow = MainWindow;
+            if(mainWindow != null && mainWindow.InvokeRequired)
+            {
+                return (DialogResult)mainWindow.Invoke(new Action(() =>  ShowDialog(form)));
+            }
+            else
+            {
+                return form.ShowDialog(mainWindow);
+            }
+        }
+
+        protected DialogResult ShowDialog(FileDialog form)
+        {
+            var mainWindow = MainWindow;
+            if (mainWindow != null && mainWindow.InvokeRequired)
+            {
+                return (DialogResult)mainWindow.Invoke(new Action(() => ShowDialog(form)));
+            }
+            else
+            {
+                return form.ShowDialog(mainWindow);
+            }
+        }
+
         public void ShowMessage(string message, string caption = "")
         {
-            MessageBox.Show(message, caption);
+            var mainWindow = MainWindow;
+            if (mainWindow != null && mainWindow.InvokeRequired)
+            {
+                mainWindow.Invoke(new Action(() => ShowMessage(message, caption)));
+            }
+            else
+            {
+                MessageBox.Show(message, caption);
+            }
         }
 
         public string AskOpenV3TemplateFile(string initialDir = null)
@@ -21,7 +63,7 @@ namespace CruiseDesign.Services
                 InitialDirectory = initialDir,
             };
 
-            if (fileDialog.ShowDialog() != DialogResult.OK)
+            if (ShowDialog(fileDialog) != DialogResult.OK)
             {
                 return null;
             }
@@ -38,7 +80,7 @@ namespace CruiseDesign.Services
                 FileName = defaultFileName,
             };
 
-            if(fileDialog.ShowDialog() != DialogResult.OK) { return null; }
+            if(ShowDialog(fileDialog) != DialogResult.OK) { return null; }
 
             return fileDialog.FileName;
         }
@@ -47,7 +89,7 @@ namespace CruiseDesign.Services
         {
             using var dialog = new SelectCreateProductionV3TemplateDialog(reconFilePath);
 
-            var result = dialog.ShowDialog();
+            var result = ShowDialog(dialog);
 
             if(result == DialogResult.OK)
             {
