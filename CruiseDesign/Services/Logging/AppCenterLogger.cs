@@ -1,4 +1,5 @@
-﻿using Microsoft.AppCenter.Analytics;
+﻿using CruiseDesign.Util;
+using Microsoft.AppCenter.Analytics;
 using Microsoft.AppCenter.Crashes;
 using Microsoft.Extensions.Logging;
 using System;
@@ -45,6 +46,17 @@ namespace CruiseDesign.Services.Logging
                 { nameof(message), message },
                 { nameof(logLevel), GetLogLevelString(logLevel) }
             };
+
+            if (state is IReadOnlyCollection<KeyValuePair<string, object>> stateParms)
+            {
+                foreach (var kvp in stateParms)
+                {
+                    if (!properties.ContainsKey(kvp.Key))
+                    {
+                        properties.Add(kvp.Key, kvp.Value?.ToString());
+                    }
+                }
+            }
 
             if(exception != null) { properties.Add(nameof(exception), exception.ToString()); }
 
