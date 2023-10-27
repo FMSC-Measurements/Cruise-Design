@@ -59,7 +59,8 @@ namespace CruiseDesign
             windowProvider.MainWindow = new CruiseDesignMain(args,
                 ServiceProvider,
                 ServiceProvider.GetRequiredService<ILogger<CruiseDesignMain>>(),
-                ServiceProvider.GetRequiredService<ICruiseDesignFileContextProvider>());
+                ServiceProvider.GetRequiredService<ICruiseDesignFileContextProvider>(),
+                ServiceProvider.GetRequiredService<IDialogService>());
 
             Application.Run(windowProvider.MainWindow);
         }

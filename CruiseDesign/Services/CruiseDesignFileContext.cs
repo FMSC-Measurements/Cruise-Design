@@ -4,6 +4,7 @@ using CruiseDesign.Stats;
 using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace CruiseDesign.Services
@@ -31,13 +32,18 @@ namespace CruiseDesign.Services
 
         public bool SetProcessFilePathFromV3Cruise(string cruisePath)
         {
-            var processFilePath = Path.ChangeExtension(cruisePath, ".process");
+            var processFilePath = GetProcessFilePathFromV3Cruise(cruisePath);
             if (File.Exists(processFilePath))
             {
                 ProcessFilePath = processFilePath;
                 return true;
             }
             return false;
+        }
+
+        public static string GetProcessFilePathFromV3Cruise(string cruisePath)
+        {
+            return Path.ChangeExtension(cruisePath, ".process");
         }
 
         public bool SetReconFilePathFromDesign()
@@ -66,20 +72,23 @@ namespace CruiseDesign.Services
 
         public bool SetDesignFilePathFromRecon(bool setIfNotExists = false)
         {
-            var reconPath = ReconFilePath;
-
-            return SetDesignFilePathFromRecon(reconPath, setIfNotExists);
+            return SetDesignFilePathFromRecon(ReconFilePath, setIfNotExists);
         }
 
         protected bool SetDesignFilePathFromRecon(string reconPath, bool setIfNotExists = false)
         {
-            var designPath = Path.ChangeExtension(reconPath, ".design");
+            var designPath = GetDesignFilePathFromRecon(reconPath);
             var designExists = File.Exists(designPath);
             if (designExists || setIfNotExists)
             {
                 DesignFilePath = designPath;
             }
             return designExists;
+        }
+
+        public static string GetDesignFilePathFromRecon(string reconPath)
+        {
+            return Path.ChangeExtension(reconPath, ".design");
         }
 
         public bool SetV3FilePathFromDesignFilePath()
@@ -116,8 +125,6 @@ namespace CruiseDesign.Services
         public bool OpenDesignFile(string designPath, ILogger logger, bool canCreateNew = false)
         {
             DesignFilePath = designPath;
-            SetReconFilePathFromDesign(designPath);
-
             return OpenDesignFile(logger, canCreateNew);
         }
 
@@ -170,6 +177,8 @@ namespace CruiseDesign.Services
 
             return err == 0;
         }
+
+
 
         public void Dispose()
         {

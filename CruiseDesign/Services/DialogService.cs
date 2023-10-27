@@ -1,4 +1,5 @@
 ﻿using CruiseDesign.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Windows.Forms;
 
@@ -7,11 +8,25 @@ namespace CruiseDesign.Services
     public class DialogService : IDialogService
     {
         public IWindowProvider WindowProvider { get; }
+        public IServiceProvider ServiceProvider { get; }
         public Form MainWindow => WindowProvider.MainWindow;
 
-        public DialogService(IWindowProvider windowProvider)
+        public DialogService(IWindowProvider windowProvider, IServiceProvider serviceProvider)
         {
             WindowProvider = windowProvider ?? throw new ArgumentNullException(nameof(windowProvider));
+            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        }
+
+        public DialogResult ShowDialog<TForm>() where TForm : Form
+        {
+            var form = ServiceProvider.GetRequiredService<TForm>();
+            return ShowDialog(form);
+        }
+
+        public DialogResult ShowDialog<TForm>(out TForm form) where TForm : Form
+        {
+            form = ServiceProvider.GetRequiredService<TForm>();
+            return ShowDialog(form);
         }
 
         protected DialogResult ShowDialog(Form form)
@@ -101,6 +116,10 @@ namespace CruiseDesign.Services
 
     public interface IDialogService
     {
+        DialogResult ShowDialog<TForm>() where TForm : Form;
+
+        DialogResult ShowDialog<TForm>(out TForm form) where TForm : Form;
+
         void ShowMessage(string message, string caption = "");
 
         string AskOpenV3TemplateFile(string initialDir = null);

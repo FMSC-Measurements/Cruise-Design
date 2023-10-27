@@ -1,13 +1,15 @@
-﻿using CruiseDesign.Design_Pages;
+﻿using CruiseDAL;
+using CruiseDAL.DataObjects;
+using CruiseDesign.Design_Pages;
 using CruiseDesign.Historical_setup;
 using CruiseDesign.ProductionDesign;
 using CruiseDesign.Services;
-using CruiseDesign.Strata_setup;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using System;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 
@@ -21,9 +23,11 @@ namespace CruiseDesign
 
         protected bool IsProductionFile => FileContext.IsProductionFile;
         public CruiseDesignFileContext FileContext => FileContextProvider.CurrentFileContext;
-        
+
+        public IDialogService DialogService { get; }
         public IServiceProvider ServiceProvider { get; }
         public ILogger Logger { get; }
+
         public ICruiseDesignFileContextProvider FileContextProvider
         {
             get => _fileContextProvider;
@@ -41,40 +45,15 @@ namespace CruiseDesign
             }
         }
 
-        private void OnFileContextChanged(object sender, EventArgs e)
-        {
-            var fileContextProvider = (ICruiseDesignFileContextProvider)sender;
-            var newFileContext = fileContextProvider.CurrentFileContext;
-            if (newFileContext != null)
-            {
-                if (newFileContext.DesignFilePath != null)
-                {
-                    Text = Path.GetFileName(newFileContext.DesignFilePath);
-
-                    buttonSetup.Enabled = true;
-                    buttonDesign.Enabled = true;
-                    buttonTools.Enabled = true;
-                }
-                else if (newFileContext.ReconFilePath != null)
-                {
-                    Text = Path.GetFileName(newFileContext.ReconFilePath);
-
-                    buttonSetup.Enabled = true;
-                    buttonDesign.Enabled = true;
-                    buttonTools.Enabled = true;
-                }
-            }
-        }
-
         protected CruiseDesignMain()
         {
             InitializeComponent();
         }
 
-        public CruiseDesignMain(string[] args, IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider)
+        public CruiseDesignMain(string[] args, IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider, IDialogService dialogService)
             : this(serviceProvider, logger, fileContextProvider)
         {
-
+            DialogService = dialogService;
             // to update version change the Version property in the project file
             var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
             this.Text = $"Cruise Design {version}";
@@ -108,6 +87,31 @@ namespace CruiseDesign
 
             var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
             this.Text = $"Cruise Design {version}";
+        }
+
+        private void OnFileContextChanged(object sender, EventArgs e)
+        {
+            var fileContextProvider = (ICruiseDesignFileContextProvider)sender;
+            var newFileContext = fileContextProvider.CurrentFileContext;
+            if (newFileContext != null)
+            {
+                if (newFileContext.DesignFilePath != null)
+                {
+                    Text = Path.GetFileName(newFileContext.DesignFilePath);
+
+                    buttonSetup.Enabled = true;
+                    buttonDesign.Enabled = true;
+                    buttonTools.Enabled = true;
+                }
+                else if (newFileContext.ReconFilePath != null)
+                {
+                    Text = Path.GetFileName(newFileContext.ReconFilePath);
+
+                    buttonSetup.Enabled = true;
+                    buttonDesign.Enabled = true;
+                    buttonTools.Enabled = true;
+                }
+            }
         }
 
         private void CruiseDesignMain_Load(object sender, EventArgs e)
@@ -397,90 +401,224 @@ namespace CruiseDesign
 
         public void CreateNewFileFromHistorical(string path)
         {
+            CreateNewFileFromHistorical(path, FileContextProvider, Logger, DialogService);
+        }
+
+        public static void CreateNewFileFromHistorical(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
+        {
             var newFileContext = new CruiseDesignFileContext();
 
-            newFileContext.DesignFilePath = path;
-
-            if (!newFileContext.OpenDesignFile(Logger, canCreateNew: true))
+            if (!newFileContext.OpenDesignFile(path, logger, canCreateNew: true))
             {
-                MessageBox.Show("Unable to create the design file", "Information");
+                dialogService.ShowMessage("Unable to create the design file", "Information");
                 return;
             }
 
-            FileContextProvider.CurrentFileContext = newFileContext;
-            using var setupPage = ServiceProvider.GetRequiredService<SaleSetupPage>();
-            if (setupPage.ShowDialog(this) != DialogResult.OK)
+            //need to set file context for dialog
+            fileContextProvider.CurrentFileContext = newFileContext;
+            if (dialogService.ShowDialog<SaleSetupPage>() != DialogResult.OK)
             {
                 // user exited dialog without clicking finish
-                FileContextProvider.CurrentFileContext = null;
+                fileContextProvider.CurrentFileContext = null;
             }
         }
 
         public void CreateNewFileFromRecon(string path)
         {
-            var newFileContext = new CruiseDesignFileContext();
+            Cursor.Current = Cursors.WaitCursor;
+
+            CreateNewFromRecon(path, FileContextProvider, Logger, DialogService);
+            Cursor.Current = this.Cursor;
+        }
+
+        public static void CreateNewFromRecon(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
+        {
+            var fileExtention = Path.GetExtension(path).ToLowerInvariant();
+
+            string reconFilePath = null;
 
             // check for cruise design database
             //check version 3
-            if (Path.GetExtension(path).Equals(".crz3", StringComparison.OrdinalIgnoreCase))
+            if (fileExtention == ".crz3")
             {
-                newFileContext.V3FilePath = path;
                 // if crz3, look for process file
-                if (newFileContext.SetProcessFilePathFromV3Cruise())
+                var processFilePath = CruiseDesignFileContext.GetProcessFilePathFromV3Cruise(path);
+                if (File.Exists(processFilePath))
                 {
-                    newFileContext.ReconFilePath = newFileContext.ProcessFilePath;
+                    reconFilePath = processFilePath;
                 }
                 else
                 {
-                    MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
+                    dialogService.ShowMessage("Cruise file not processed. Cannot continue.", "Warning");
                     return;
                 }
+            }
+            else if (fileExtention == ".cruise")
+            {
+                reconFilePath = path;
             }
             else
             {
-                newFileContext.ReconFilePath = path;
+                dialogService.ShowMessage("Invalid File Extension", "Warning");
+                return;
             }
 
-            // create design database for recon
-            // does filename with .design extension exist
-            if (newFileContext.SetDesignFilePathFromRecon(true))
+            var designPath = CruiseDesignFileContext.GetDesignFilePathFromRecon(reconFilePath);
+            if (!File.Exists(designPath))
             {
-                if (newFileContext.OpenDesignFile(Logger))
+                DAL reconDb;
+                try
                 {
-                    FileContextProvider.CurrentFileContext = newFileContext;
+                    reconDb = new DAL(reconFilePath);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Unable To Recon File:{reconFilePath}", reconFilePath);
                     return;
                 }
-                else
+
+                DAL designDb;
+                try
                 {
-                    MessageBox.Show("Design file exists but unable to open the file", "Information");
-                    FileContextProvider.CurrentFileContext = null;
+                    designDb = new DAL(designPath, true);
+                }
+                catch (Exception ex)
+                {
+
+                    logger.LogError(ex, "Unable To Create Design File:{designPath}", designPath);
+                    reconDb?.Dispose();
                     return;
+                }
+
+                try
+                {
+                    CopyReconToDesign(designDb, reconDb);
+                }
+                catch(Exception ex)
+                {
+                    logger.LogError(ex, "Error Copying Recon Data To Design File");
+                    File.Delete(designPath);
+                    return;
+                }
+                finally
+                {
+                    designDb?.Dispose();
+                    reconDb?.Dispose();
                 }
             }
-            else
+
+            OpenExistingDesignFile(designPath, fileContextProvider, logger, dialogService);
+        }
+
+        public static void CopyReconToDesign(DAL cdDAL, DAL rDAL)
+        {
+            cdDAL.BeginTransaction();
+            try
             {
-                FileContextProvider.CurrentFileContext = newFileContext;
+                // copy Sale table
+                var sale = rDAL.From<SaleDO>().Read().ToList();
+                foreach (SaleDO sl in sale)
+                {
+                    sl.DAL = cdDAL;
+                    sl.Save();
+                }
 
-                using WaitForm waitFrm = new WaitForm();
-                //Cursor.Current = Cursors.WaitCursor;
-                Cursor.Current = Cursors.WaitCursor;
-                waitFrm.Show();
+                //copy CuttingUnit table
+                foreach (CuttingUnitDO fld in rDAL.From<CuttingUnitDO>().Query())
+                {
+                    cdDAL.Insert(fld, "CuttingUnit", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
 
-                // copy limited data from cruise to design file
-                Working wDlg = ServiceProvider.GetRequiredService<Working>();
-                waitFrm.Close();
-                Cursor.Current = this.Cursor;
+                //copy TreeDefaultValues table
+                foreach (TreeDefaultValueDO fld in rDAL.From<TreeDefaultValueDO>().Query())
+                {
+                    cdDAL.Insert(fld, "TreeDefaultValue", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
 
-                wDlg.ShowDialog();
+                //copy globals table
+                foreach (GlobalsDO fld in rDAL.From<GlobalsDO>().Where("Block != 'Database'").Query())
+                {
+                    cdDAL.Insert(fld, "Globals", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy logfieldsetupdefault
+                foreach (LogFieldSetupDefaultDO fld in rDAL.From<LogFieldSetupDefaultDO>().Query())
+                {
+                    cdDAL.Insert(fld, "LogfieldSetupDefault", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy messagelog
+                foreach (MessageLogDO fld in rDAL.From<MessageLogDO>().Query())
+                {
+                    cdDAL.Insert(fld, "MessageLog", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy reports
+                foreach (ReportsDO fld in rDAL.From<ReportsDO>().Query())
+                {
+                    cdDAL.Insert(fld, "Reports", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy treefieldsetupdefault
+                foreach (TreeFieldSetupDefaultDO fld in rDAL.From<TreeFieldSetupDefaultDO>().Query())
+                {
+                    cdDAL.Insert(fld, "TreeFieldSetupDefault", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy volumeequations
+                foreach (VolumeEquationDO fld in rDAL.From<VolumeEquationDO>().Query())
+                {
+                    cdDAL.Insert(fld, "VolumeEquation", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy treeauditvalue
+                foreach (TreeAuditValueDO fld in rDAL.From<TreeAuditValueDO>().Query())
+                {
+                    cdDAL.Insert(fld, "TreeAuditValue", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy treedefaultvaluetreeauditvalue
+                foreach (TreeDefaultValueTreeAuditValueDO fld in rDAL.From<TreeDefaultValueTreeAuditValueDO>().Query())
+                {
+                    cdDAL.Insert(fld, "TreeDefaultValueTreeAuditValue", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                //copy tally
+                foreach (TallyDO fld in rDAL.From<TallyDO>().Query())
+                {
+                    cdDAL.Insert(fld, "Tally", Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                foreach (var lm in rDAL.From<LogMatrixDO>().Query())
+                {
+                    cdDAL.Insert(lm, option: Backpack.SqlBuilder.OnConflictOption.Replace);
+                }
+
+                cdDAL.LogMessage("Copied Data From Recon File: " + rDAL.Path);
+
+                cdDAL.CommitTransaction();
+            }
+            catch
+            {
+                cdDAL.RollbackTransaction();
+                throw;
             }
         }
 
         public void OpenExistingDesignFile(string path)
         {
+            OpenExistingDesignFile(path, FileContextProvider, Logger, DialogService);
+        }
+
+        public static void OpenExistingDesignFile(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
+        {
+            if (!File.Exists(path)) { dialogService.ShowMessage("Selected File Does Not Exist", "Warning"); }
+            //if(File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
+            //{ dialogService.ShowMessage("Selected File Is Read Only"); }
+
             var fileExtention = Path.GetExtension(path).ToLower();
 
             var newFileContext = new CruiseDesignFileContext();
-            bool canCreateNew = false;
 
             // check for design file vs production cruise
             if (fileExtention is ".cruise")
@@ -493,14 +631,12 @@ namespace CruiseDesign
                 newFileContext.V3FilePath = path;
                 if (newFileContext.SetProcessFilePathFromV3Cruise())
                 {
-
                     newFileContext.DesignFilePath = newFileContext.ProcessFilePath;
                     newFileContext.IsProductionFile = true;
-                    canCreateNew = false;
                 }
                 else
                 {
-                    MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
+                    dialogService.ShowMessage("Cruise file not processed. Cannot continue.", "Warning");
                     return;
                 }
             }
@@ -513,20 +649,20 @@ namespace CruiseDesign
             else
             {
                 var message = "Unable to open file. Unrecognized extension";
-                Logger.LogWarning(message);
-                MessageBox.Show(message, "Information");
-                FileContextProvider.CurrentFileContext = null;
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Information");
+                fileContextProvider.CurrentFileContext = null;
                 return;
             }
 
-            if (newFileContext.OpenDesignFile(Logger, canCreateNew: canCreateNew))
+            if (newFileContext.OpenDesignFile(logger))
             {
-                FileContextProvider.CurrentFileContext = newFileContext;
+                fileContextProvider.CurrentFileContext = newFileContext;
             }
             else
             {
-                FileContextProvider.CurrentFileContext = null;
-                MessageBox.Show("Unable to open the file.", "Information");
+                fileContextProvider.CurrentFileContext = null;
+                dialogService.ShowMessage("Unable to open the file.", "Information");
             }
         }
 
