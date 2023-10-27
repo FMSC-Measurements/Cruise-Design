@@ -101,7 +101,7 @@ namespace CruiseDesign.Strata_setup
             }
             //copy globals table
             //cdDAL.DirectCopy(rDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
-            foreach (GlobalsDO fld in rDAL.From<GlobalsDO>().Query())
+            foreach (GlobalsDO fld in rDAL.From<GlobalsDO>().Where("Block != 'Database'").Query())
             {
                 cdDAL.Insert(fld, "Globals", Backpack.SqlBuilder.OnConflictOption.Replace);
             }
