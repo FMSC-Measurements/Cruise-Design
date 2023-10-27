@@ -22,6 +22,7 @@ namespace CruiseDesign.Design_Pages
         }
 
         public DesignMain(ICruiseDesignFileContextProvider contextProvider, IServiceProvider serviceProvider)
+            : this()
         {
             ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
