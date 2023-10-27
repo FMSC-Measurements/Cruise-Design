@@ -183,7 +183,7 @@
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
             this.tableLayoutPanel1.RowCount = 6;
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 38F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle());
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 40F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 60F));
@@ -232,7 +232,7 @@
             this.tagDataGridViewTextBoxColumn1});
             this.dataGridViewSG.DataSource = this.bindingSourceSgStats;
             this.dataGridViewSG.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dataGridViewSG.Location = new System.Drawing.Point(3, 68);
+            this.dataGridViewSG.Location = new System.Drawing.Point(3, 71);
             this.dataGridViewSG.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.dataGridViewSG.MultiSelect = false;
             this.dataGridViewSG.Name = "dataGridViewSG";
@@ -240,7 +240,7 @@
             this.dataGridViewSG.RowTemplate.Height = 24;
             this.dataGridViewSG.RowTemplate.Resizable = System.Windows.Forms.DataGridViewTriState.False;
             this.dataGridViewSG.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.dataGridViewSG.Size = new System.Drawing.Size(645, 133);
+            this.dataGridViewSG.Size = new System.Drawing.Size(645, 132);
             this.dataGridViewSG.TabIndex = 0;
             this.dataGridViewSG.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewSG_CellValueChanged);
             this.dataGridViewSG.RowEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewSG_RowEnter);
@@ -620,10 +620,10 @@
             this.panel8.Controls.Add(this.buttonFinish);
             this.panel8.Controls.Add(this.buttonUnits);
             this.panel8.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel8.Location = new System.Drawing.Point(3, 438);
+            this.panel8.Location = new System.Drawing.Point(3, 439);
             this.panel8.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel8.Name = "panel8";
-            this.panel8.Size = new System.Drawing.Size(645, 35);
+            this.panel8.Size = new System.Drawing.Size(645, 34);
             this.panel8.TabIndex = 7;
             // 
             // buttonViewStr
@@ -657,7 +657,7 @@
             this.buttonFinish.Location = new System.Drawing.Point(546, 0);
             this.buttonFinish.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonFinish.Name = "buttonFinish";
-            this.buttonFinish.Size = new System.Drawing.Size(99, 35);
+            this.buttonFinish.Size = new System.Drawing.Size(99, 34);
             this.buttonFinish.TabIndex = 1;
             this.buttonFinish.Text = "Finish";
             this.buttonFinish.UseVisualStyleBackColor = false;
@@ -670,7 +670,7 @@
             this.buttonUnits.Location = new System.Drawing.Point(0, 0);
             this.buttonUnits.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonUnits.Name = "buttonUnits";
-            this.buttonUnits.Size = new System.Drawing.Size(133, 35);
+            this.buttonUnits.Size = new System.Drawing.Size(133, 34);
             this.buttonUnits.TabIndex = 0;
             this.buttonUnits.Text = "<< Strata Page";
             this.buttonUnits.UseVisualStyleBackColor = false;
@@ -681,10 +681,10 @@
             this.panel7.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Center;
             this.panel7.Controls.Add(this.selectedItemsGridViewTDV);
             this.panel7.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel7.Location = new System.Drawing.Point(3, 233);
+            this.panel7.Location = new System.Drawing.Point(3, 235);
             this.panel7.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel7.Name = "panel7";
-            this.panel7.Size = new System.Drawing.Size(645, 201);
+            this.panel7.Size = new System.Drawing.Size(645, 200);
             this.panel7.TabIndex = 6;
             // 
             // selectedItemsGridViewTDV
@@ -729,7 +729,7 @@
             this.selectedItemsGridViewTDV.RowTemplate.Height = 24;
             this.selectedItemsGridViewTDV.SelectedItems = null;
             this.selectedItemsGridViewTDV.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.CellSelect;
-            this.selectedItemsGridViewTDV.Size = new System.Drawing.Size(645, 201);
+            this.selectedItemsGridViewTDV.Size = new System.Drawing.Size(645, 200);
             this.selectedItemsGridViewTDV.TabIndex = 0;
             this.selectedItemsGridViewTDV.VirtualMode = true;
             // 
@@ -929,6 +929,7 @@
             // 
             // panel6
             // 
+            this.panel6.AutoSize = true;
             this.panel6.BackColor = System.Drawing.Color.LemonChiffon;
             this.panel6.Controls.Add(this.buttonDelete);
             this.panel6.Controls.Add(this.buttonAddNew);
@@ -936,15 +937,15 @@
             this.panel6.Location = new System.Drawing.Point(3, 40);
             this.panel6.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel6.Name = "panel6";
-            this.panel6.Size = new System.Drawing.Size(645, 24);
+            this.panel6.Size = new System.Drawing.Size(645, 27);
             this.panel6.TabIndex = 5;
             // 
             // buttonDelete
             // 
-            this.buttonDelete.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.buttonDelete.AutoSize = true;
             this.buttonDelete.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonDelete.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonDelete.Location = new System.Drawing.Point(524, -4);
+            this.buttonDelete.Location = new System.Drawing.Point(525, -1);
             this.buttonDelete.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonDelete.Name = "buttonDelete";
             this.buttonDelete.Size = new System.Drawing.Size(117, 26);
@@ -955,12 +956,13 @@
             // 
             // buttonAddNew
             // 
+            this.buttonAddNew.AutoSize = true;
             this.buttonAddNew.BackColor = System.Drawing.SystemColors.ButtonFace;
             this.buttonAddNew.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonAddNew.Location = new System.Drawing.Point(3, -4);
+            this.buttonAddNew.Location = new System.Drawing.Point(3, 0);
             this.buttonAddNew.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.buttonAddNew.Name = "buttonAddNew";
-            this.buttonAddNew.Size = new System.Drawing.Size(158, 41);
+            this.buttonAddNew.Size = new System.Drawing.Size(158, 25);
             this.buttonAddNew.TabIndex = 0;
             this.buttonAddNew.Text = "Add New SG";
             this.buttonAddNew.UseVisualStyleBackColor = false;
@@ -971,7 +973,7 @@
             this.panel1.BackColor = System.Drawing.Color.LemonChiffon;
             this.panel1.Controls.Add(this.buttonNewTDV);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel1.Location = new System.Drawing.Point(3, 205);
+            this.panel1.Location = new System.Drawing.Point(3, 207);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(645, 24);
@@ -1300,6 +1302,7 @@
             this.Size = new System.Drawing.Size(650, 475);
             this.Load += new System.EventHandler(this.StrataSetupPage_Load);
             this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewSG)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourcePPlist)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceSgStats)).EndInit();
@@ -1310,6 +1313,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.selectedItemsGridViewTDV)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceTDV)).EndInit();
             this.panel6.ResumeLayout(false);
+            this.panel6.PerformLayout();
             this.panel1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.bindingSourceCurrentSgStats)).EndInit();
             this.ResumeLayout(false);
