@@ -58,6 +58,10 @@ namespace CruiseDesign
                 else if (newFileContext.ReconFilePath != null)
                 {
                     Text = Path.GetFileName(newFileContext.ReconFilePath);
+
+                    buttonSetup.Enabled = true;
+                    buttonDesign.Enabled = true;
+                    buttonTools.Enabled = true;
                 }
             }
         }
@@ -67,7 +71,6 @@ namespace CruiseDesign
             InitializeComponent();
         }
 
-            : this()
         public CruiseDesignMain(string[] args, IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider)
             : this(serviceProvider, logger, fileContextProvider)
         {
@@ -421,18 +424,15 @@ namespace CruiseDesign
             //check version 3
             if (Path.GetExtension(path).Equals(".crz3", StringComparison.OrdinalIgnoreCase))
             {
+                newFileContext.V3FilePath = path;
                 // if crz3, look for process file
-                if (newFileContext.SetProcessFilePathFromV3Cruise(path))
+                if (newFileContext.SetProcessFilePathFromV3Cruise())
                 {
-                    newFileContext.ReconFilePath = path;
-                    newFileContext.V3FilePath = path;
+                    newFileContext.ReconFilePath = newFileContext.ProcessFilePath;
                 }
                 else
                 {
                     MessageBox.Show("Cruise file not processed. Cannot continue.", "Warning");
-                    buttonSetup.Enabled = false;
-                    buttonDesign.Enabled = false;
-                    buttonTools.Enabled = false;
                     return;
                 }
             }
@@ -443,7 +443,7 @@ namespace CruiseDesign
 
             // create design database for recon
             // does filename with .design extension exist
-            if (newFileContext.SetDesignFilePathFromRecon())
+            if (newFileContext.SetDesignFilePathFromRecon(true))
             {
                 if (newFileContext.OpenDesignFile(Logger))
                 {
@@ -459,7 +459,6 @@ namespace CruiseDesign
             }
             else
             {
-                newFileContext.CanCreateNew = true;
                 FileContextProvider.CurrentFileContext = newFileContext;
 
                 using WaitForm waitFrm = new WaitForm();
@@ -481,6 +480,7 @@ namespace CruiseDesign
             var fileExtention = Path.GetExtension(path).ToLower();
 
             var newFileContext = new CruiseDesignFileContext();
+            bool canCreateNew = false;
 
             // check for design file vs production cruise
             if (fileExtention is ".cruise")
@@ -490,12 +490,13 @@ namespace CruiseDesign
             }
             else if (fileExtention is ".crz3")
             {
-                if (newFileContext.SetProcessFilePathFromV3Cruise(path))
+                newFileContext.V3FilePath = path;
+                if (newFileContext.SetProcessFilePathFromV3Cruise())
                 {
-                    newFileContext.V3FilePath = path;
+
                     newFileContext.DesignFilePath = newFileContext.ProcessFilePath;
                     newFileContext.IsProductionFile = true;
-                    newFileContext.CanCreateNew = true;
+                    canCreateNew = false;
                 }
                 else
                 {
@@ -505,7 +506,9 @@ namespace CruiseDesign
             }
             else if (fileExtention == ".design")
             {
-                newFileContext.SetReconFilePathFromDesign(path);
+                newFileContext.DesignFilePath = path;
+                newFileContext.SetV3FilePathFromDesignFilePath();
+                newFileContext.SetReconFilePathFromDesign();
             }
             else
             {
@@ -516,7 +519,7 @@ namespace CruiseDesign
                 return;
             }
 
-            if (newFileContext.OpenDesignFile(Logger))
+            if (newFileContext.OpenDesignFile(Logger, canCreateNew: canCreateNew))
             {
                 FileContextProvider.CurrentFileContext = newFileContext;
             }

@@ -23,8 +23,15 @@ namespace CruiseDesign.Design_Pages
         protected ILogger Logger { get; }
         protected IDialogService DialogService { get; }
 
-        public bool IsUsingV3File { get; protected set; }
-        public string V3FilePath { get; protected set; }
+        public CruiseDesignFileContext FileContext { get; }
+
+        public bool IsUsingV3File => FileContext.IsUsingV3File;
+        public string V3FilePath => FileContext.V3FilePath;
+        private string ReconFilePath => FileContext.ReconFilePath;
+        public DAL DesignDb => FileContext.DesignDb;
+
+        private string _destPath;
+        private string _defaultProductionFileName;
 
         protected CreateProduction()
         {
@@ -37,12 +44,7 @@ namespace CruiseDesign.Design_Pages
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             DialogService = dialogService ?? throw new ArgumentNullException(nameof(dialogService));
 
-            var fileContext = contextProvider.CurrentFileContext;
-
-            IsUsingV3File = fileContext.IsUsingV3File;
-            V3FilePath = fileContext.V3FilePath;
-            DesignDb = fileContext.DesignDb;
-            _reconPath = fileContext.ReconFilePath;
+            var fileContext = FileContext = contextProvider.CurrentFileContext;
 
             var curSale = DesignDb.From<SaleDO>().Query().First();
             string saleNumber = curSale.SaleNumber;
@@ -54,17 +56,9 @@ namespace CruiseDesign.Design_Pages
             reconStrataSelectedItemsGridView.SelectedItems = new List<StratumStatsDO>();
         }
 
-        private string _destPath;
-        private string _reconPath;
-        private string _defaultProductionFileName;
-
-        public DAL DesignDb { get; set; }
-
-        public class DataFiles
+        public class CreateProdParams
         {
-            public string ReconFilePath;
             public string ProductionFilePath;
-            public DAL DesignDb { get; set; }
             public string[] SelectedStratumCodes;
         };
 
@@ -110,7 +104,7 @@ namespace CruiseDesign.Design_Pages
         {
             var destPath = DialogService.AskSaveProductionFilePath(IsUsingV3File, _defaultProductionFileName);
 
-            if (destPath != null && destPath == _reconPath)
+            if (destPath != null && destPath == ReconFilePath)
             {
                 DialogService.ShowMessage("Cannot overwrite the Recon file.\nPlease select a different file name.");
                 destPath = null;
@@ -133,10 +127,8 @@ namespace CruiseDesign.Design_Pages
                 return;
             }
 
-            var dataFiles = new DataFiles
+            var dataFiles = new CreateProdParams
             {
-                DesignDb = DesignDb,
-                ReconFilePath = _reconPath,
                 ProductionFilePath = _destPath,
                 SelectedStratumCodes = reconStrataSelectedItemsGridView.SelectedItems
                   .OfType<StratumStatsDO>()
@@ -169,15 +161,15 @@ namespace CruiseDesign.Design_Pages
             Close();
         }
 
-        public Task CreateProductionFileAsync(DataFiles dataFiles, bool useFreqSelected, bool useBigBAFFPSSelected)
+        public Task CreateProductionFileAsync(CreateProdParams dataFiles, bool useFreqSelected, bool useBigBAFFPSSelected)
         {
-            return Task.Run(() => CreateProductionFile(dataFiles, useFreqSelected, useBigBAFFPSSelected, DialogService, Logger, this));
+            return Task.Run(() => CreateProductionFile(dataFiles, FileContext, useFreqSelected, useBigBAFFPSSelected, DialogService, Logger));
         }
 
-        public static void CreateProductionFile(DataFiles dataFiles, bool useFreqSelected, bool useBigBAFFPSSelected, IDialogService dialogService, ILogger logger, Form thisForm)
+        public static void CreateProductionFile(CreateProdParams dataFiles, CruiseDesignFileContext fileContext, bool useFreqSelected, bool useBigBAFFPSSelected, IDialogService dialogService, ILogger logger)
         {
             var hasReconData = dataFiles.SelectedStratumCodes.Any()
-                && File.Exists(dataFiles.ReconFilePath);
+                && File.Exists(fileContext.ReconFilePath);
 
             var prodFilePath = dataFiles.ProductionFilePath;
             var prodExtention = Path.GetExtension(prodFilePath).ToLower();
@@ -186,8 +178,8 @@ namespace CruiseDesign.Design_Pages
             string v3TemplateSource = null;
             if (isCreateingV3ProdFile)
             {
-                
-                v3TemplateSource = (string)thisForm.Invoke(new Action(() => dialogService.AskSelectCreateProductionV3Template(dataFiles.ReconFilePath)));
+
+                v3TemplateSource = dialogService.AskSelectCreateProductionV3Template(fileContext.V3FilePath);
             }
 
 
@@ -202,7 +194,7 @@ namespace CruiseDesign.Design_Pages
                 {
                     try
                     {
-                        reconDb = new DAL(dataFiles.ReconFilePath, false);
+                        reconDb = new DAL(fileContext.ReconFilePath, false);
                     }
                     catch(IOException ex)
                     {
@@ -213,9 +205,9 @@ namespace CruiseDesign.Design_Pages
                     }
                 }
 
-                copyTablesToFScruise(dataFiles.DesignDb, productionDb);
+                copyTablesToFScruise(fileContext.DesignDb, productionDb);
 
-                copyPopulations(dataFiles.DesignDb,
+                copyPopulations(fileContext.DesignDb,
                    reconDb,
                    productionDb,
                    hasReconData,
@@ -242,45 +234,25 @@ namespace CruiseDesign.Design_Pages
                         var migrator = new Migrator();
                         migrator.MigrateFromV2ToV3(tmpV2Db, v3Db, Environment.UserName);
 
-
-                        if(v3TemplateSource != null)
+                        if (!string.IsNullOrEmpty(v3TemplateSource) && File.Exists(v3TemplateSource))
                         {
-                            var templateSourceDb = new CruiseDatastore_V3(v3TemplateSource);
-                            var sourceCruiseID  =  templateSourceDb.From<CruiseDAL.V3.Models.Cruise>().Query().First().CruiseID;
-                            var destCruiseID = v3Db.From<CruiseDAL.V3.Models.Cruise>().Query().First().CruiseID;
-
-                            if(true)
-                            {
-                                v3Db.Execute("DELETE FROM " + nameof(TreeFieldHeading) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(LogFieldHeading) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(StratumTemplateTreeFieldSetup) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(StratumTemplateLogFieldSetup) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(StratumTemplate) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(TreeDefaultValue) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(TreeAuditRuleSelector) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(TreeAuditRule) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(LogGradeAuditRule) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(CruiseDAL.V3.Models.Reports) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(VolumeEquation) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(ValueEquation) + ";");
-                                v3Db.Execute("DELETE FROM " + nameof(BiomassEquation) + ";");
-                            }
-
-                            var templateCopier = new TemplateCopier() { DefaultOnConflictOption = Backpack.SqlBuilder.OnConflictOption.Replace };
-                            templateCopier.Copy(templateSourceDb, v3Db, sourceCruiseID, destCruiseID);
+                            CopyV3TemplateData(v3TemplateSource, v3Db);
                         }
+
+                        
 
                         v3Db.BackupDatabase(prodFilePath);
                     }
                     catch (FMSC.ORM.ConstraintException e)
                     {
                         var message = "Data Error. Ensure cruise has been processed using latest version of Cruise Processing";
-                        dialogService.ShowMessage(message);
                         logger.LogError(e, message);
+                        dialogService.ShowMessage(message);
                     }
                     catch (Exception e)
                     {
                         var message = "Create Production: Migrate Error (" + e.GetType().Name + ")";
+                        logger.LogError(e, message);
                         dialogService.ShowMessage(message);
                         throw;
                     }
@@ -300,6 +272,33 @@ namespace CruiseDesign.Design_Pages
                 reconDb?.Dispose();
                 productionDb?.Dispose();
             }
+        }
+
+        private static void CopyV3TemplateData(string v3TemplateSource, CruiseDatastore_V3 v3Db)
+        {
+            var templateSourceDb = new CruiseDatastore_V3(v3TemplateSource);
+            var sourceCruiseID = templateSourceDb.From<CruiseDAL.V3.Models.Cruise>().Query().First().CruiseID;
+            var destCruiseID = v3Db.From<CruiseDAL.V3.Models.Cruise>().Query().First().CruiseID;
+
+            if (true)
+            {
+                v3Db.Execute("DELETE FROM " + nameof(TreeFieldHeading) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(LogFieldHeading) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(StratumTemplateTreeFieldSetup) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(StratumTemplateLogFieldSetup) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(StratumTemplate) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(TreeDefaultValue) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(TreeAuditRuleSelector) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(TreeAuditRule) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(LogGradeAuditRule) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(CruiseDAL.V3.Models.Reports) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(VolumeEquation) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(ValueEquation) + ";");
+                v3Db.Execute("DELETE FROM " + nameof(BiomassEquation) + ";");
+            }
+
+            var templateCopier = new TemplateCopier() { DefaultOnConflictOption = Backpack.SqlBuilder.OnConflictOption.Replace };
+            templateCopier.Copy(templateSourceDb, v3Db, sourceCruiseID, destCruiseID);
         }
 
         private static void copyTablesToFScruise(DAL fromDb, DAL toDb)
