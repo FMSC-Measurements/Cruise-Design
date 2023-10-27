@@ -39,7 +39,7 @@
             this.tableLayoutPanel6 = new System.Windows.Forms.TableLayoutPanel();
             this._browseTemplateButton = new System.Windows.Forms.Button();
             this._templatePathTextBox = new System.Windows.Forms.TextBox();
-            this.tableLayoutPanel5 = new System.Windows.Forms.TableLayoutPanel();
+            this._reconSelectionPanel = new System.Windows.Forms.TableLayoutPanel();
             this._useReconFileRadioButton = new System.Windows.Forms.RadioButton();
             this._reconFilePathTextBox = new System.Windows.Forms.TextBox();
             this.tableLayoutPanel1.SuspendLayout();
@@ -47,7 +47,7 @@
             this.tableLayoutPanel3.SuspendLayout();
             this.tableLayoutPanel4.SuspendLayout();
             this.tableLayoutPanel6.SuspendLayout();
-            this.tableLayoutPanel5.SuspendLayout();
+            this._reconSelectionPanel.SuspendLayout();
             this.SuspendLayout();
             // 
             // tableLayoutPanel1
@@ -107,7 +107,7 @@
             this.tableLayoutPanel3.ColumnCount = 1;
             this.tableLayoutPanel3.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tableLayoutPanel3.Controls.Add(this.tableLayoutPanel4, 0, 0);
-            this.tableLayoutPanel3.Controls.Add(this.tableLayoutPanel5, 0, 1);
+            this.tableLayoutPanel3.Controls.Add(this._reconSelectionPanel, 0, 1);
             this.tableLayoutPanel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel3.Location = new System.Drawing.Point(3, 3);
             this.tableLayoutPanel3.Name = "tableLayoutPanel3";
@@ -180,21 +180,21 @@
             this._templatePathTextBox.Size = new System.Drawing.Size(362, 20);
             this._templatePathTextBox.TabIndex = 1;
             // 
-            // tableLayoutPanel5
+            // _reconSelectionPanel
             // 
-            this.tableLayoutPanel5.AutoSize = true;
-            this.tableLayoutPanel5.ColumnCount = 1;
-            this.tableLayoutPanel5.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel5.Controls.Add(this._useReconFileRadioButton, 0, 0);
-            this.tableLayoutPanel5.Controls.Add(this._reconFilePathTextBox, 0, 1);
-            this.tableLayoutPanel5.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel5.Location = new System.Drawing.Point(3, 67);
-            this.tableLayoutPanel5.Name = "tableLayoutPanel5";
-            this.tableLayoutPanel5.RowCount = 2;
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel5.RowStyles.Add(new System.Windows.Forms.RowStyle());
-            this.tableLayoutPanel5.Size = new System.Drawing.Size(455, 49);
-            this.tableLayoutPanel5.TabIndex = 1;
+            this._reconSelectionPanel.AutoSize = true;
+            this._reconSelectionPanel.ColumnCount = 1;
+            this._reconSelectionPanel.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this._reconSelectionPanel.Controls.Add(this._useReconFileRadioButton, 0, 0);
+            this._reconSelectionPanel.Controls.Add(this._reconFilePathTextBox, 0, 1);
+            this._reconSelectionPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._reconSelectionPanel.Location = new System.Drawing.Point(3, 67);
+            this._reconSelectionPanel.Name = "_reconSelectionPanel";
+            this._reconSelectionPanel.RowCount = 2;
+            this._reconSelectionPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this._reconSelectionPanel.RowStyles.Add(new System.Windows.Forms.RowStyle());
+            this._reconSelectionPanel.Size = new System.Drawing.Size(455, 49);
+            this._reconSelectionPanel.TabIndex = 1;
             // 
             // _useReconFileRadioButton
             // 
@@ -235,8 +235,8 @@
             this.tableLayoutPanel4.PerformLayout();
             this.tableLayoutPanel6.ResumeLayout(false);
             this.tableLayoutPanel6.PerformLayout();
-            this.tableLayoutPanel5.ResumeLayout(false);
-            this.tableLayoutPanel5.PerformLayout();
+            this._reconSelectionPanel.ResumeLayout(false);
+            this._reconSelectionPanel.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -251,7 +251,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel4;
         private System.Windows.Forms.RadioButton _useTemplateFileRadioButton;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel6;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel5;
+        private System.Windows.Forms.TableLayoutPanel _reconSelectionPanel;
         private System.Windows.Forms.RadioButton _useReconFileRadioButton;
         private System.Windows.Forms.Button _browseTemplateButton;
         private System.Windows.Forms.TextBox _templatePathTextBox;

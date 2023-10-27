@@ -44,7 +44,16 @@ namespace CruiseDesign.Dialogs
             set
             {
                 _reconFilePath = value;
-                _reconFilePathTextBox.Text = value?.ToString();
+                if (value != null)
+                {
+                    _reconFilePathTextBox.Text = value?.ToString();
+                }
+                else
+                {
+                    _reconFilePathTextBox.Text = null;
+                    _reconSelectionPanel.Enabled = false;
+                    _useTemplateFileRadioButton.Checked = true;
+                }
             }
         }
 
