@@ -25,7 +25,7 @@ namespace CruiseDesign.Historical_setup
             InitializeComponent();
         }
 
-        public SaleSetupPage(ICruiseDesignFileContextProvider fileContextProvider, ILogger logger)
+        public SaleSetupPage(ICruiseDesignFileContextProvider fileContextProvider, ILogger<SaleSetupPage> logger)
               : this()
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -180,7 +180,7 @@ namespace CruiseDesign.Historical_setup
             }
             //copy globals table
             //df.cdDAL.DirectCopy(df.tmpDAL, CruiseDAL.Schema.GLOBALS._NAME, null, OnConflictOption.Ignore);
-            foreach (GlobalsDO fld in df.TemplateDb.From<GlobalsDO>().Query())
+            foreach (GlobalsDO fld in df.TemplateDb.From<GlobalsDO>().Where("Block != 'Database'").Query())
             {
                 df.cdDAL.Insert(fld, "Globals", Backpack.SqlBuilder.OnConflictOption.Replace);
             }

@@ -41,7 +41,7 @@ namespace CruiseDesign.Strata_setup
             }
             else
             {
-                if (!fileContext.OpenDesignFile(logger))
+                if (!fileContext.OpenDesignFile(logger, canCreateNew: true))
                 {
                     MessageBox.Show("Unable to create the design file", "Information");
                 }
