@@ -66,7 +66,7 @@ namespace CruiseDesign.Services.Logging
             }
             else
             {
-                Analytics.TrackEvent(eventId.Name, properties);
+                Analytics.TrackEvent(CategoryName + ":" + eventId.Name, properties);
             }
         }
 

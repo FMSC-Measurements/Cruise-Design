@@ -32,7 +32,7 @@ namespace CruiseDesign
             InitializeComponent();
         }
 
-        public HistoricalSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger logger)
+        public HistoricalSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger<HistoricalSetupWizard> logger)
             : this()
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));

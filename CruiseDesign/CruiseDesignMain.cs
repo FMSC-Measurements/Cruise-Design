@@ -19,9 +19,9 @@ namespace CruiseDesign
 
         private int ButtonSelect { get; set; } = 1;
 
-        public CruiseDesignFileContext FileContext => FileContextProvider.CurrentFileContext;
         protected bool IsProductionFile => FileContext.IsProductionFile;
-
+        public CruiseDesignFileContext FileContext => FileContextProvider.CurrentFileContext;
+        
         public IServiceProvider ServiceProvider { get; }
         public ILogger Logger { get; }
         public ICruiseDesignFileContextProvider FileContextProvider
@@ -67,12 +67,10 @@ namespace CruiseDesign
             InitializeComponent();
         }
 
-        public CruiseDesignMain(string[] args)
             : this()
+        public CruiseDesignMain(string[] args, IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider)
+            : this(serviceProvider, logger, fileContextProvider)
         {
-            ServiceProvider = Program.ServiceProvider;
-            Logger = ServiceProvider.GetRequiredService<ILogger<CruiseDesignMain>>();
-            FileContextProvider = ServiceProvider.GetRequiredService<ICruiseDesignFileContextProvider>();
 
             // to update version change the Version property in the project file
             var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
@@ -85,7 +83,7 @@ namespace CruiseDesign
 
                 newFileContext.SetReconFilePathFromDesign();
 
-                if (newFileContext.OpenDesignFile(ServiceProvider.GetRequiredService<ILogger>()))
+                if (newFileContext.OpenDesignFile(Logger))
                 {
                     FileContextProvider.CurrentFileContext = newFileContext;
                 }
@@ -94,6 +92,19 @@ namespace CruiseDesign
                     MessageBox.Show("Unable to open the design file", "Information");
                 }
             }
+
+            Logger.LogInformation("Program Started");
+        }
+
+        public CruiseDesignMain(IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider)
+            : this()
+        {
+            ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+            Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            FileContextProvider = fileContextProvider ?? throw new ArgumentNullException(nameof(fileContextProvider));
+
+            var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
+            this.Text = $"Cruise Design {version}";
         }
 
         private void CruiseDesignMain_Load(object sender, EventArgs e)

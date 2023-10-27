@@ -19,7 +19,7 @@ namespace CruiseDesign.Services
             var mainWindow = MainWindow;
             if(mainWindow != null && mainWindow.InvokeRequired)
             {
-                return (DialogResult)mainWindow.Invoke(new Action(() =>  ShowDialog(form)));
+                return (DialogResult)mainWindow.Invoke(new Func<DialogResult>(() =>  ShowDialog(form)));
             }
             else
             {
@@ -32,7 +32,7 @@ namespace CruiseDesign.Services
             var mainWindow = MainWindow;
             if (mainWindow != null && mainWindow.InvokeRequired)
             {
-                return (DialogResult)mainWindow.Invoke(new Action(() => ShowDialog(form)));
+                return (DialogResult)mainWindow.Invoke(new Func<DialogResult>(() => ShowDialog(form)));
             }
             else
             {

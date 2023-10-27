@@ -29,7 +29,7 @@ namespace CruiseDesign.Strata_setup
             InitializeComponent();
         }
 
-        public Working(ICruiseDesignFileContextProvider fileContextProvider, ILogger logger)
+        public Working(ICruiseDesignFileContextProvider fileContextProvider, ILogger<Working> logger)
             : this()
         {
             var fileContext = fileContextProvider.CurrentFileContext;

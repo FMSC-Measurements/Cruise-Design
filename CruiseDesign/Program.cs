@@ -1,5 +1,4 @@
-﻿using CruiseDAL.V3.Sync.Syncers;
-using CruiseDesign.Design_Pages;
+﻿using CruiseDesign.Design_Pages;
 using CruiseDesign.Historical_setup;
 using CruiseDesign.ProductionDesign;
 using CruiseDesign.Reports;
@@ -12,13 +11,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Windows.Forms;
 
 namespace CruiseDesign
 {
-    static class Program
+    internal static class Program
     {
         public static IServiceProvider ServiceProvider { get; private set; }
 
@@ -26,10 +23,8 @@ namespace CruiseDesign
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-            
-
 #if !DEBUG
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEDESIGN_APPCENTER_KEY_WINDOWS,
                                typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes));
@@ -42,8 +37,6 @@ namespace CruiseDesign
                 .ConfigureServices((context, services) => ConfigureServices(context, services, windowProvider))
                 .ConfigureLogging(ConfigureLogging).Build();
             ServiceProvider = host.Services;
-
-            
 
             //if (args.Length != 0)
             //{
@@ -63,7 +56,10 @@ namespace CruiseDesign
             //    }
             //}
 
-            windowProvider.MainWindow = new CruiseDesignMain(args);
+            windowProvider.MainWindow = new CruiseDesignMain(args,
+                ServiceProvider,
+                ServiceProvider.GetRequiredService<ILogger<CruiseDesignMain>>(),
+                ServiceProvider.GetRequiredService<ICruiseDesignFileContextProvider>());
 
             Application.Run(windowProvider.MainWindow);
         }
@@ -110,8 +106,6 @@ namespace CruiseDesign
             services.AddSingleton<IDialogService, DialogService>();
             services.AddSingleton<ICruiseDesignFileContextProvider, CruiseDesignFileContextProvider>();
             services.AddSingleton<IWindowProvider>(windowProvider);
-
         }
-
     }
 }

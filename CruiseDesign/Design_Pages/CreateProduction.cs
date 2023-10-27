@@ -31,7 +31,7 @@ namespace CruiseDesign.Design_Pages
             InitializeComponent();
         }
 
-        public CreateProduction(ICruiseDesignFileContextProvider contextProvider, ILogger logger, IDialogService dialogService)
+        public CreateProduction(ICruiseDesignFileContextProvider contextProvider, ILogger<CreateProduction> logger, IDialogService dialogService)
             : this()
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
