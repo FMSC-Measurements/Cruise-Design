@@ -17,6 +17,8 @@ csharp_style_expression_bodied_lambdas = true:silent
 csharp_style_expression_bodied_local_functions = false:silent
 csharp_style_throw_expression = true:suggestion
 csharp_space_around_binary_operators = before_and_after
+vsspell_section_id = 5c8b32ce3a334591b792850533f7c39c
+vsspell_ignored_words_5c8b32ce3a334591b792850533f7c39c = Recon
 
 [*.xml]
 indent_style = space
