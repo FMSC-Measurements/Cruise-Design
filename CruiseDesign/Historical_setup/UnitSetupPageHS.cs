@@ -102,7 +102,7 @@ namespace CruiseDesign.Historical_setup
            }
 
            // determine if Stratum Code is entered
-           if (Owner.currentStratum.Code.Length <= 0)
+           if (string.IsNullOrEmpty(Owner.currentStratum.Code))
            {
               MessageBox.Show("Enter Stratum Code", "Information");
               return(-1);

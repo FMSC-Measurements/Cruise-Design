@@ -19,13 +19,23 @@
 	<ItemGroup Condition="$(IsTestProject) == 'true'">
 		<Content Include="$(MSBuildThisFileDirectory)xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
 	</ItemGroup>
+	<!--<ItemGroup>
+	  <None Remove="DatabaseInitializer_V2.cs~" />
+	  <None Remove="DatabaseInitializer_V3.cs~" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Include="DatabaseInitializer_V2.cs~" />
+	  <Compile Include="DatabaseInitializer_V3.cs~" />
+	</ItemGroup>-->
 
 	<ItemGroup>
 		<PackageReference Include="AutoBogus" Version="2.13.1" />
 		<PackageReference Include="Bogus" Version="34.0.2" />
-		<PackageReference Include="CruiseDAL.V2.Models" Version="2.7.3.104" />
-		<PackageReference Include="CruiseDAL.V3.Models" Version="3.5.2.104" />
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.2" />
+		<PackageReference Include="CruiseDAL.V2.Models" Version="*" />
+		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.5.12200" />
+		<PackageReference Include="CruiseDAL.V3.Models" Version="*" />
+		<PackageReference Include="NSubstitute" Version="5.1.0" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="*" />
 		<PackageReference Include="FluentAssertions" Version="6.6.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
 		<PackageReference Include="xunit" Version="2.4.1" />

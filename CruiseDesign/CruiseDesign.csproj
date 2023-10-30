@@ -58,12 +58,14 @@
 	</ItemGroup>	
 
 	<ItemGroup>
-		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.116" />
-		<PackageReference Include="CruiseDAL.V3" Version="3.6.1.116" />
-		<PackageReference Include="CruiseDAL.V3.UpConvert" Version="3.6.1.11601" />
-		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="4.1.0" />
-		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="4.1.0" />
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.0.2" />
+		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.122" />
+		<PackageReference Include="CruiseDAL.V3" Version="3.6.5.122" />
+		<PackageReference Include="CruiseDAL.V3.Sync" Version="3.6.5.12200" />
+		<PackageReference Include="CruiseDAL.V3.UpConvert" Version="3.6.5.12200" />
+		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.3" />
+		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.3" />
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />
+		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="2.1.6" />
 	</ItemGroup>
 
 	<Target Name="GenerateSecrets" BeforeTargets="CoreBuild">

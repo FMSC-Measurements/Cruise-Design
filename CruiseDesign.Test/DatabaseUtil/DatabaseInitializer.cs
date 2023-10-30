@@ -1,13 +1,13 @@
 ﻿using CruiseDAL;
-using CruiseDesign.Test.Util;
 using CruiseDAL.V3.Models;
+using CruiseDesign.Test.Util;
 using System;
 using System.Linq;
 
-namespace CruiseDesign.Test
+namespace CruiseDesign.Test.DatabaseUtil
 {
     public class DatabaseInitializer_V3
-   {
+    {
         public string CruiseID { get; set; }
         public string SaleID { get; set; }
         public string SaleNumber { get; set; }
@@ -16,6 +16,7 @@ namespace CruiseDesign.Test
         public Stratum[] Strata { get; set; }
         public CuttingUnit_Stratum[] UnitStrata { get; set; }
         public string[] Species { get; set; }
+        public string[][] SpProds { get; set; }
         public SampleGroup[] SampleGroups { get; set; }
         public TreeDefaultValue[] TreeDefaults { get; set; }
         public SubPopulation[] Subpops { get; set; }
@@ -56,6 +57,12 @@ namespace CruiseDesign.Test
             };
 
             var species = Species = new string[] { "sp1", "sp2", "sp3" };
+
+            var spProds = SpProds = new string[][] {
+                new[] { "sp1", "sp1" },
+                new[] { "sp2", "sp2" },
+                new[] { "sp3", "sp3" }
+            };
 
             var sampleGroups = SampleGroups = new[]
             {
@@ -176,6 +183,33 @@ namespace CruiseDesign.Test
             return database;
         }
 
+        public CruiseDatastore_V3 CreateDatabaseFileWithAllTables(string path, string cruiseID = null, string saleID = null, string saleNumber = null)
+        {
+            cruiseID = cruiseID ?? CruiseID;
+            saleID = saleID ?? SaleID;
+            saleNumber = saleNumber ?? SaleNumber;
+
+            var units = Units;
+
+            var strata = Strata;
+
+            var unitStrata = UnitStrata;
+
+            var sampleGroups = SampleGroups;
+
+            var species = Species;
+
+            var tdvs = TreeDefaults;
+
+            var subPops = Subpops;
+
+            var database = new CruiseDatastore_V3(path, true);
+
+            InitializeDatabaseAllTables(database, cruiseID, saleID, saleNumber, units, strata, unitStrata, sampleGroups, species, tdvs, subPops);
+
+            return database;
+        }
+
         public CruiseDatastore_V3 CreateDatabaseFile(string path, string cruiseID = null, string saleID = null, string saleNumber = null)
         {
             cruiseID = cruiseID ?? CruiseID;
@@ -198,12 +232,20 @@ namespace CruiseDesign.Test
 
             var database = new CruiseDatastore_V3(path, true);
 
-            InitializeDatabase(database, cruiseID, saleID, saleNumber, units, strata, unitStrata, sampleGroups, species, tdvs, subPops);
+            InitializeDatabase(database, cruiseID, saleID, saleNumber,
+                units,
+                strata,
+                unitStrata,
+                sampleGroups,
+                species,
+                tdvs,
+                subPops,
+                spProds: SpProds);
 
             return database;
         }
 
-        public static void InitializeDatabase(CruiseDatastore_V3 db,
+        public static void InitializeDatabase(CruiseDatastore db,
             string cruiseID,
             string saleID,
             string saleNumber,
@@ -213,7 +255,8 @@ namespace CruiseDesign.Test
             CruiseDAL.V3.Models.SampleGroup[] sampleGroups,
             string[] species,
             CruiseDAL.V3.Models.TreeDefaultValue[] tdvs,
-            CruiseDAL.V3.Models.SubPopulation[] subPops)
+            CruiseDAL.V3.Models.SubPopulation[] subPops,
+            string[][] spProds = null)
         {
             db.Insert(new Sale()
             {
@@ -270,6 +313,11 @@ namespace CruiseDesign.Test
                 db.Execute($"INSERT INTO Species (CruiseID, SpeciesCode) VALUES ('{cruiseID}', '{sp}');");
             }
 
+            foreach (var spProd in spProds.OrEmpty())
+            {
+                db.Insert(new Species_Product { CruiseID = cruiseID, SpeciesCode = spProd[0], ContractSpecies = spProd[1] });
+            }
+
             foreach (var tdv in tdvs.OrEmpty())
             {
                 tdv.CruiseID = cruiseID;
@@ -284,7 +332,7 @@ namespace CruiseDesign.Test
             }
         }
 
-        public static void InitializeDatabaseAllTables(CruiseDatastore_V3 db,
+        public static void InitializeDatabaseAllTables(CruiseDatastore db,
             string cruiseID,
             string saleID,
             string saleNumber,
@@ -294,7 +342,8 @@ namespace CruiseDesign.Test
             CruiseDAL.V3.Models.SampleGroup[] sampleGroups,
             string[] species,
             CruiseDAL.V3.Models.TreeDefaultValue[] tdvs,
-            CruiseDAL.V3.Models.SubPopulation[] subPops)
+            CruiseDAL.V3.Models.SubPopulation[] subPops,
+            string[][] spProds = null)
         {
             InitializeDatabase(db,
                 cruiseID,
@@ -306,9 +355,10 @@ namespace CruiseDesign.Test
                 sampleGroups,
                 species,
                 tdvs,
-                subPops);
+                subPops,
+                spProds);
 
-            foreach(var st in strata)
+            foreach (var st in strata)
             {
                 var treeFieldSetup = new TreeFieldSetup()
                 {
@@ -341,7 +391,6 @@ namespace CruiseDesign.Test
             {
                 CruiseID = cruiseID,
                 TreeAuditRuleID = tar.TreeAuditRuleID,
-
             };
             db.Insert(tars);
 
@@ -353,7 +402,6 @@ namespace CruiseDesign.Test
                 SpeciesCode = "sp1",
             };
             db.Insert(lgar);
-
 
             var unit = units[0];
 
@@ -396,8 +444,6 @@ namespace CruiseDesign.Test
                 StratumCode = stratumCode,
                 SampleGroupCode = "sg1",
                 SpeciesCode = "sp1",
-                
-                
             };
             db.Insert(plotTree);
 
@@ -439,25 +485,24 @@ namespace CruiseDesign.Test
             var treeMeasurment = new TreeMeasurment()
             {
                 TreeID = tree.TreeID,
-                
             };
             db.Insert(treeMeasurment);
 
-            var treeField = new TreeField()
-            {
-                Field = "something",
-                DbType = "TEXT",
-                DefaultHeading = "something",
-            };
-            db.Insert(treeField);
+            //var treeField = new TreeField()
+            //{
+            //    Field = "something",
+            //    DbType = "TEXT",
+            //    DefaultHeading = "something",
+            //};
+            //db.Insert(treeField);
 
-            var treeFieldValue = new TreeFieldValue()
-            {
-                TreeID = tree.TreeID,
-                Field = "something",
-                ValueText = "somevalue",
-            };
-            db.Insert(treeFieldValue);
+            //var treeFieldValue = new TreeFieldValue()
+            //{
+            //    TreeID = tree.TreeID,
+            //    Field = "something",
+            //    ValueText = "somevalue",
+            //};
+            //db.Insert(treeFieldValue);
 
             var tares = new TreeAuditResolution()
             {
@@ -487,14 +532,14 @@ namespace CruiseDesign.Test
             };
             db.Insert(stem);
 
-         var report = new CruiseDAL.V3.Models.Reports()
-         {
-            CruiseID = cruiseID,
-            ReportID = Guid.NewGuid().ToString(),
-         };
-         db.Insert(report);
+            var report = new CruiseDAL.V3.Models.Reports()
+            {
+                CruiseID = cruiseID,
+                ReportID = Guid.NewGuid().ToString(),
+            };
+            db.Insert(report);
 
-         var volumeEquation = new VolumeEquation()
+            var volumeEquation = new VolumeEquation()
             {
                 CruiseID = cruiseID,
                 VolumeEquationNumber = "something",
@@ -526,6 +571,5 @@ namespace CruiseDesign.Test
             };
             db.Insert(stlfs);
         }
-
     }
 }
