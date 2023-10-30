@@ -7,6 +7,9 @@ namespace CruiseDesign.Test.DatabaseUtil
 {
     public class DatabaseInitializer_V2
     {
+        public string SaleNumber { get; set; }
+        public string SaleName { get; set; }
+
         public string[] Units { get; set; }
         public Stratum[] Strata { get; set; }
         public (string UnitCode, string StCode)[] UnitStrata { get; set; }
@@ -17,6 +20,9 @@ namespace CruiseDesign.Test.DatabaseUtil
 
         public DatabaseInitializer_V2()
         {
+            SaleNumber = "12345";
+            SaleName = "someSale";
+
             var units = Units = new string[] { "u1", "u2" };
 
             var plotStrata = PlotStrata = new[]
@@ -75,7 +81,7 @@ namespace CruiseDesign.Test.DatabaseUtil
 
             var database = new DAL();
 
-            InitializeDatabase(database, units, strata, unitStrata, sampleGroups, tdvs);
+            InitializeDatabase(database, SaleName, SaleName, units, strata, unitStrata, sampleGroups, tdvs);
 
             return database;
         }
@@ -94,18 +100,30 @@ namespace CruiseDesign.Test.DatabaseUtil
 
             var database = new DAL(path, true);
 
-            InitializeDatabase(database, units, strata, unitStrata, sampleGroups, tdvs);
+            InitializeDatabase(database, SaleName, SaleName, units, strata, unitStrata, sampleGroups, tdvs);
 
             return database;
         }
 
         public void InitializeDatabase(DAL db,
-            string[] units,
-            CruiseDAL.V2.Models.Stratum[] strata,
-            (string UnitCode, string StCode)[] unitStrata,
-            (string SgCode, string StCode, int Freq)[] sampleGroups,
-            CruiseDAL.V2.Models.TreeDefaultValue[] tdvs)
+           string saleNumber,
+           string saleName,
+           string[] units,
+           CruiseDAL.V2.Models.Stratum[] strata,
+           (string UnitCode, string StCode)[] unitStrata,
+           (string SgCode, string StCode, int Freq)[] sampleGroups,
+           CruiseDAL.V2.Models.TreeDefaultValue[] tdvs)
         {
+            var sale = new Sale
+            {
+                SaleNumber = saleNumber,
+                Name = saleName,
+                Region = "01",
+                Forest = "01",
+                District = "01",
+            };
+            db.Insert(sale);
+
             //Cutting Units
             foreach (var unit in units.OrEmpty())
             {
