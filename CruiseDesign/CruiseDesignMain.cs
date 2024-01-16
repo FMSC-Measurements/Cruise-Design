@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using System.Windows.Forms;
 
 namespace CruiseDesign
@@ -612,7 +613,43 @@ namespace CruiseDesign
 
         public static void OpenExistingDesignFile(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
         {
-            if (!File.Exists(path)) { dialogService.ShowMessage("Selected File Does Not Exist", "Warning"); }
+            try
+            {
+                path = Path.GetFullPath(path);
+            }
+            catch (PathTooLongException ex)
+            {
+                var message = "File Path Too Long";
+                logger.LogError(ex, message);
+                dialogService.ShowMessage(message, "Error");
+                return;
+            }
+            catch (SecurityException ex)
+            {
+                var message = "Can Not Open File Due To File Permissions";
+                logger.LogError(ex, message);
+                dialogService.ShowMessage(message, "Error");
+                return;
+            }
+            catch (ArgumentException ex)
+            {
+                var message = (!string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+                    ? "Path Contains Invalid Characters" : "Invalid File Path";
+                logger.LogError(ex, message);
+                dialogService.ShowMessage(message, "Error");
+                return;
+            }
+
+
+            if (!File.Exists(path))
+            {
+                var message = "Selected File Does Not Exist";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return;
+            }
+
+            
             //if(File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
             //{ dialogService.ShowMessage("Selected File Is Read Only"); }
 
@@ -650,7 +687,7 @@ namespace CruiseDesign
             {
                 var message = "Unable to open file. Unrecognized extension";
                 logger.LogWarning(message);
-                dialogService.ShowMessage(message, "Information");
+                dialogService.ShowMessage(message, "Warning");
                 fileContextProvider.CurrentFileContext = null;
                 return;
             }
