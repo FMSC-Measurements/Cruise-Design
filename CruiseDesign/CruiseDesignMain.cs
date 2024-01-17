@@ -616,6 +616,16 @@ namespace CruiseDesign
             try
             {
                 path = Path.GetFullPath(path);
+
+                // in net6.2 and later long paths are supported by default.
+                // however it can still cause issue. So we need to manual check the
+                // directory length
+                // 
+                var dirName = Path.GetDirectoryName(path);
+                if (dirName.Length >= 248 || path.Length >= 260)
+                {
+                    throw new PathTooLongException("The supplied path is too long");
+                }
             }
             catch (PathTooLongException ex)
             {
