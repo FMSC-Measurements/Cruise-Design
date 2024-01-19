@@ -35,7 +35,6 @@
 		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.5.12200" />
 		<PackageReference Include="CruiseDAL.V3.Models" Version="*" />
 		<PackageReference Include="NSubstitute" Version="5.1.0" />
-		<PackageReference Include="SQLitePCLRaw.bundle_green" Version="*" />
 		<PackageReference Include="FluentAssertions" Version="6.6.0" />
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
 		<PackageReference Include="xunit" Version="2.4.1" />
