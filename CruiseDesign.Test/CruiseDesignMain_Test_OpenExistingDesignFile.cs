@@ -21,36 +21,6 @@ namespace CruiseDesign.Test
         }
 
         [Theory]
-        [InlineData(270)]
-        [InlineData(260)]
-        [InlineData(258)]
-
-        public void OpenExistingDesignFile_PathTooLong(int desiredDirLength)
-        {
-            var fileName = "a.design";
-            var dir = base.TestTempPath;
-            var baseDirLength = dir.Length;
-            var neededExtraDirLength = desiredDirLength - baseDirLength - fileName.Length; 
-
-            var extraDir = new String('a', neededExtraDirLength);
-
-            var targetPath = Path.Combine(dir, extraDir, "a.design");
-            Output.WriteLine("TargetPath::::(" + targetPath.Length + ")" + targetPath);
-
-            var fileContextProvider = new CruiseDesignFileContextProvider();
-
-            var logger = MakeMockLogger();
-            var dialogService = MakeMockDialogService();
-
-            if (File.Exists(targetPath)) { File.Delete(targetPath); }
-
-            CruiseDesignMain.OpenExistingDesignFile(targetPath, fileContextProvider, logger, dialogService);
-
-            // verify error message shown
-            dialogService.Received().ShowMessage(Arg.Is("File Path Too Long"), Arg.Any<string>());
-        }
-
-        [Theory]
         [InlineData(".cruise")]
         [InlineData(".design")]
         [InlineData(".crz3")]

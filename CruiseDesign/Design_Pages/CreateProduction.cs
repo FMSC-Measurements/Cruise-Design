@@ -110,6 +110,11 @@ namespace CruiseDesign.Design_Pages
                 destPath = null;
             }
 
+            if (!CruiseDesignFileContext.EnsurePathValid(destPath, Logger, DialogService))
+            {
+                return;
+            }
+
             _destPath = destPath;
             textBoxFile.Text = _destPath;
         }

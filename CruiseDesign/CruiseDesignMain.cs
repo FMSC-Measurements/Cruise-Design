@@ -613,53 +613,11 @@ namespace CruiseDesign
 
         public static void OpenExistingDesignFile(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
         {
-            try
+            if(!CruiseDesignFileContext.EnsurePathValid(path, logger, dialogService))
             {
-                path = Path.GetFullPath(path);
-
-                // in net6.2 and later long paths are supported by default.
-                // however it can still cause issue. So we need to manual check the
-                // directory length
-                // 
-                var dirName = Path.GetDirectoryName(path);
-                if (dirName.Length >= 248 || path.Length >= 260)
-                {
-                    throw new PathTooLongException("The supplied path is too long");
-                }
-            }
-            catch (PathTooLongException ex)
-            {
-                var message = "File Path Too Long";
-                logger.LogError(ex, message);
-                dialogService.ShowMessage(message, "Error");
-                return;
-            }
-            catch (SecurityException ex)
-            {
-                var message = "Can Not Open File Due To File Permissions";
-                logger.LogError(ex, message);
-                dialogService.ShowMessage(message, "Error");
-                return;
-            }
-            catch (ArgumentException ex)
-            {
-                var message = (!string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
-                    ? "Path Contains Invalid Characters" : "Invalid File Path";
-                logger.LogError(ex, message);
-                dialogService.ShowMessage(message, "Error");
                 return;
             }
 
-
-            if (!File.Exists(path))
-            {
-                var message = "Selected File Does Not Exist";
-                logger.LogWarning(message);
-                dialogService.ShowMessage(message, "Warning");
-                return;
-            }
-
-            
             //if(File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
             //{ dialogService.ShowMessage("Selected File Is Read Only"); }
 
