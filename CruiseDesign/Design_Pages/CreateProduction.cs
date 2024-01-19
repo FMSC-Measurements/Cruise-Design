@@ -110,6 +110,11 @@ namespace CruiseDesign.Design_Pages
                 destPath = null;
             }
 
+            if (!CruiseDesignFileContext.EnsurePathValid(destPath, Logger, DialogService))
+            {
+                return;
+            }
+
             _destPath = destPath;
             textBoxFile.Text = _destPath;
         }
@@ -297,7 +302,7 @@ namespace CruiseDesign.Design_Pages
                 v3Db.Execute("DELETE FROM " + nameof(BiomassEquation) + ";");
             }
 
-            var templateCopier = new TemplateCopier() { DefaultOnConflictOption = Backpack.SqlBuilder.OnConflictOption.Replace };
+            var templateCopier = new TemplateCopier() { DefaultOnConflictOption = Backpack.SqlBuilder.OnConflictOption.Ignore };
             templateCopier.Copy(templateSourceDb, v3Db, sourceCruiseID, destCruiseID);
         }
 

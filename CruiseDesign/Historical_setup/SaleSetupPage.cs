@@ -17,6 +17,7 @@ namespace CruiseDesign.Historical_setup
     public partial class SaleSetupPage : Form
     {
         public ILogger Logger { get; }
+        public IDialogService DialogService { get; }
 
         #region Constructor
 
@@ -25,10 +26,11 @@ namespace CruiseDesign.Historical_setup
             InitializeComponent();
         }
 
-        public SaleSetupPage(ICruiseDesignFileContextProvider fileContextProvider, ILogger<SaleSetupPage> logger)
+        public SaleSetupPage(ICruiseDesignFileContextProvider fileContextProvider, ILogger<SaleSetupPage> logger, IDialogService dialogService)
               : this()
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            DialogService = dialogService;
 
             var fileContext = fileContextProvider.CurrentFileContext;
             df.cdDAL = fileContext.DesignDb;
@@ -64,7 +66,10 @@ namespace CruiseDesign.Historical_setup
             openFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\CruiseFiles\\Templates";
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                templateFilePath = openFileDialog1.FileName;
+                var path = openFileDialog1.FileName;
+                if (!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)) return;
+
+                templateFilePath = path;
 
                 textBoxFile.Text = openFileDialog1.SafeFileName;
 

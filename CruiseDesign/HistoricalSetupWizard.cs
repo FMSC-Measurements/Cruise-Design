@@ -32,11 +32,13 @@ namespace CruiseDesign
             InitializeComponent();
         }
 
-        public HistoricalSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger<HistoricalSetupWizard> logger)
+        public HistoricalSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger<HistoricalSetupWizard> logger, IDialogService dialogService)
             : this()
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             var fileContext = fileContextProvider.CurrentFileContext;
+
+            DialogService = dialogService;
 
             cdDAL = fileContext.DesignDb;
             setSalePurpose();
@@ -51,6 +53,8 @@ namespace CruiseDesign
 
         public ArrayList selectedUnits = new ArrayList();
         public String UOM;
+
+        public IDialogService DialogService { get; }
 
         // add the binding lists
         public DAL cdDAL { get; set; }
@@ -104,6 +108,8 @@ namespace CruiseDesign
 
         public void OpenHistoricalCruiseFile(string path)
         {
+            if(!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)) return;
+
             //open new cruise DAL
             if (!string.IsNullOrEmpty(path) && File.Exists(path))
             {

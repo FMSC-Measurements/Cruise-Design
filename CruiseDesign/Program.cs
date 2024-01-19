@@ -7,10 +7,12 @@ using CruiseDesign.Services.Logging;
 using CruiseDesign.Stats;
 using CruiseDesign.Strata_setup;
 using FMSC.Controls;
+using Microsoft.AppCenter;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace CruiseDesign
@@ -28,6 +30,13 @@ namespace CruiseDesign
 #if !DEBUG
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEDESIGN_APPCENTER_KEY_WINDOWS,
                                typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes));
+#else
+            ApplicationLifecycleHelper.Instance.UnhandledExceptionOccurred += Instance_UnhandledExceptionOccurred;
+
+            static void Instance_UnhandledExceptionOccurred(object sender, Microsoft.AppCenter.Utils.UnhandledExceptionOccurredEventArgs e)
+            {
+                Debug.WriteLine("UNHANDLED APPLICATION EXCEPTION::::\r\n" + e.Exception);
+            }
 #endif
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

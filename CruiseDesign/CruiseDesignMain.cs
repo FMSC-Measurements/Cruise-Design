@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using System.Windows.Forms;
 
 namespace CruiseDesign
@@ -612,7 +613,11 @@ namespace CruiseDesign
 
         public static void OpenExistingDesignFile(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
         {
-            if (!File.Exists(path)) { dialogService.ShowMessage("Selected File Does Not Exist", "Warning"); }
+            if(!CruiseDesignFileContext.EnsurePathValid(path, logger, dialogService))
+            {
+                return;
+            }
+
             //if(File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
             //{ dialogService.ShowMessage("Selected File Is Read Only"); }
 
@@ -650,7 +655,7 @@ namespace CruiseDesign
             {
                 var message = "Unable to open file. Unrecognized extension";
                 logger.LogWarning(message);
-                dialogService.ShowMessage(message, "Information");
+                dialogService.ShowMessage(message, "Warning");
                 fileContextProvider.CurrentFileContext = null;
                 return;
             }

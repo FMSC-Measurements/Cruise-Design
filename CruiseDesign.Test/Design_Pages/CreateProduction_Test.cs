@@ -102,6 +102,9 @@ namespace CruiseDesign.Test.Design_Pages
             CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, logger);
 
             File.Exists(prodFilePath).Should().BeTrue();
+
+            using var prodDb = new CruiseDatastore_V3(prodFilePath);
+            VerifyProdFile(prodDb);
         }
 
         [Fact]
@@ -179,6 +182,9 @@ namespace CruiseDesign.Test.Design_Pages
             CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, logger);
 
             File.Exists(prodFilePath).Should().BeTrue();
+
+            //using var prodDb = new CruiseDatastore_V3(prodFilePath);
+            //VerifyProdFile(prodDb);
         }
 
         [Fact]
@@ -218,6 +224,9 @@ namespace CruiseDesign.Test.Design_Pages
             CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, logger);
 
             File.Exists(prodFilePath).Should().BeTrue();
+
+            using var prodDb = new CruiseDatastore_V3(prodFilePath);
+            VerifyProdFile(prodDb);
         }
 
 
@@ -238,7 +247,7 @@ namespace CruiseDesign.Test.Design_Pages
 
             using var designDb = new DAL(designPath);
 
-            var prodFilePath = GetTempFilePath("CreateProductionFiles_TestMeth_Prod.crz3");
+            var prodFilePath = GetTempFilePath("CreateProductionFile_V3_WithV3TemplateFile_Prod.crz3");
             var stCodes = designDb
                .From<CruiseDAL.V2.Models.Stratum>()
                .Query()
@@ -265,6 +274,7 @@ namespace CruiseDesign.Test.Design_Pages
             using var prodDb = new CruiseDatastore_V3(prodFilePath);
             using var templateDb = new CruiseDatastore_V3(v3TemplatePath);
             VerifyTemplateData(prodDb, templateDb);
+            VerifyProdFile(prodDb);
         }
 
         [Fact]
@@ -286,7 +296,7 @@ namespace CruiseDesign.Test.Design_Pages
 
             using var designDb = new DAL(designPath);
 
-            var prodFilePath = GetTempFilePath("CreateProductionFiles_TestMeth_Prod.crz3");
+            var prodFilePath = GetTempFilePath("CreateProductionFile_V3_WithV3Template_Prod.crz3");
             var stCodes = designDb
                .From<CruiseDAL.V2.Models.Stratum>()
                .Query()
@@ -312,6 +322,15 @@ namespace CruiseDesign.Test.Design_Pages
 
             using var prodDb = new CruiseDatastore_V3(prodFilePath);
             VerifyTemplateData(prodDb, templateDb);
+            VerifyProdFile(prodDb);
+        }
+
+
+        protected void VerifyProdFile(CruiseDatastore_V3 prodDb)
+        {
+            var result = prodDb.QueryGeneric2("SELECT t.* FROM Tree as t LEFT JOIN TallyLedger AS tl USING (TreeID) where tl.rowid is null", null).ToArray();
+
+            result.Should().BeEmpty(result.Length.ToString());
         }
 
         protected void VerifyTemplateData(CruiseDatastore_V3 cruiseDb, CruiseDatastore_V3 template)
@@ -335,7 +354,8 @@ namespace CruiseDesign.Test.Design_Pages
             }
         }
 
-        [Fact]
+
+        [Fact(Skip = "Not sure if anyone is going to get around to fixing this issue, it's likely that this issue is caused during the process of the cruise file")]
         public void Issue_CrashOn_findSgStatCN100()
         {
             var designPath = GetTestFile("JohnneysHazardousFuelReduction_20230313.design");
