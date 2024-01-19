@@ -27,8 +27,6 @@ namespace CruiseDesign
         [STAThread]
         private static void Main(string[] args)
         {
-            SQLitePCL.Batteries_V2.Init();
-
 #if !DEBUG
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEDESIGN_APPCENTER_KEY_WINDOWS,
                                typeof(Microsoft.AppCenter.Analytics.Analytics), typeof(Microsoft.AppCenter.Crashes.Crashes));
