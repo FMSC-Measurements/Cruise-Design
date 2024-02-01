@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -68,7 +69,9 @@ namespace CruiseDesign.Historical_setup
             {
                 var path = openFileDialog1.FileName;
                 if (!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)
-                    && !CruiseDesignFileContext.EnsurePathExists(path, Logger, DialogService)) return;
+                    && !CruiseDesignFileContext.EnsurePathExistsAndCanWrite(path, Logger, DialogService)) return;
+
+
 
                 templateFilePath = path;
 

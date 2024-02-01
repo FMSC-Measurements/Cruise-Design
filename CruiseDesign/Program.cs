@@ -25,7 +25,7 @@ namespace CruiseDesign
         /// The main entry point for the application.
         /// </summary>
         [STAThread]
-        private static void Main(string[] args)
+        internal static void Main(string[] args)
         {
 #if !DEBUG
             Microsoft.AppCenter.AppCenter.Start(Secrets.CRUISEDESIGN_APPCENTER_KEY_WINDOWS,

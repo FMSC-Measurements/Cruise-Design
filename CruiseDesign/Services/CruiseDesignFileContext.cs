@@ -221,11 +221,19 @@ namespace CruiseDesign.Services
             return true;
         }
 
-        public static bool EnsurePathExists(string path, ILogger logger, IDialogService dialogService)
+        public static bool EnsurePathExistsAndCanWrite(string path, ILogger logger, IDialogService dialogService)
         {
             if (!File.Exists(path))
             {
                 var message = "Selected File Does Not Exist";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return false;
+            }
+
+            if (File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
+            {
+                var message = "Selected File Is Read Only.\r\nIf opening file from non-local location, please copy file to a location on your PC before opening.";
                 logger.LogWarning(message);
                 dialogService.ShowMessage(message, "Warning");
                 return false;

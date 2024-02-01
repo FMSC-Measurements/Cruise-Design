@@ -2,6 +2,7 @@
 using CruiseDAL.DataObjects;
 using CruiseDesign.Historical_setup;
 using CruiseDesign.Services;
+using FMSC.ORM.Core;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
@@ -109,7 +110,32 @@ namespace CruiseDesign
         public void OpenHistoricalCruiseFile(string path)
         {
             if(!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)
-                && !CruiseDesignFileContext.EnsurePathExists(path, Logger, DialogService)) return;
+                && !CruiseDesignFileContext.EnsurePathExistsAndCanWrite(path, Logger, DialogService)) return;
+
+            var fileExtention = Path.GetExtension(path).Trim();
+            if(fileExtention == ".crz3")
+            {
+                var processFilePath = CruiseDesignFileContext.GetProcessFilePathFromV3Cruise(path);
+
+                if(!CruiseDesignFileContext.EnsurePathValid(processFilePath, Logger, DialogService)) { return; }
+                if (!File.Exists(processFilePath))
+                {
+                    var message = ".process File Does Not Exist for V3 Cruise.\r\nPlease process file first.";
+                    Logger.LogWarning(message);
+                    DialogService.ShowMessage(message, "Warning");
+                    return;
+                }
+
+                if (File.GetAttributes(processFilePath).HasFlag(FileAttributes.ReadOnly))
+                {
+                    var message = ".process File Is Read Only.\r\nIf opening file from non-local location, please copy file to a location on your PC before opening.";
+                    Logger.LogWarning(message);
+                    DialogService.ShowMessage(message, "Warning");
+                    return;
+                }
+
+                path = processFilePath;
+            }
 
             //open new cruise DAL
             try

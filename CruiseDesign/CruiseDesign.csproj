@@ -17,6 +17,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<InternalsVisibleTo Include="CruiseDesign.Test" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<EmbeddedResource Remove="StrataSetup.resx" />
 		<EmbeddedResource Remove="Strata_setup\CuttingUnitsPage.resx" />
 		<EmbeddedResource Remove="Strata_setup\Form1.resx" />
@@ -58,7 +62,8 @@
 	</ItemGroup>	
 
 	<ItemGroup>
-		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.5"  />
+		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.5.12200" />
+		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.5" />
 		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.122" />
 		<PackageReference Include="CruiseDAL.V3" Version="3.6.5.122" />
 		<PackageReference Include="CruiseDAL.V3.Sync" Version="3.6.5.12200" />
