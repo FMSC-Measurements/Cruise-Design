@@ -96,7 +96,7 @@ namespace CruiseDesign.Services
         {
             var designFilePath = DesignFilePath;
             var v3FilePath = Path.ChangeExtension(designFilePath, ".crz3");
-            if(File.Exists(v3FilePath))
+            if (File.Exists(v3FilePath))
             {
                 V3FilePath = v3FilePath;
                 return true;
@@ -218,7 +218,11 @@ namespace CruiseDesign.Services
                 return false;
             }
 
+            return true;
+        }
 
+        public static bool EnsurePathExists(string path, ILogger logger, IDialogService dialogService)
+        {
             if (!File.Exists(path))
             {
                 var message = "Selected File Does Not Exist";

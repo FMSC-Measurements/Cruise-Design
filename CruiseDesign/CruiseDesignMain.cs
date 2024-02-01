@@ -613,7 +613,8 @@ namespace CruiseDesign
 
         public static void OpenExistingDesignFile(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
         {
-            if(!CruiseDesignFileContext.EnsurePathValid(path, logger, dialogService))
+            if(!CruiseDesignFileContext.EnsurePathValid(path, logger, dialogService)
+                && !CruiseDesignFileContext.EnsurePathExists(path, logger, dialogService))
             {
                 return;
             }

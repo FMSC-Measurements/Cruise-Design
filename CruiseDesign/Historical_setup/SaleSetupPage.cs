@@ -67,7 +67,8 @@ namespace CruiseDesign.Historical_setup
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 var path = openFileDialog1.FileName;
-                if (!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)) return;
+                if (!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)
+                    && !CruiseDesignFileContext.EnsurePathExists(path, Logger, DialogService)) return;
 
                 templateFilePath = path;
 

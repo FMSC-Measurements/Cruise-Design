@@ -108,27 +108,21 @@ namespace CruiseDesign
 
         public void OpenHistoricalCruiseFile(string path)
         {
-            if(!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)) return;
+            if(!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)
+                && !CruiseDesignFileContext.EnsurePathExists(path, Logger, DialogService)) return;
 
             //open new cruise DAL
-            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+            try
             {
-                try
-                {
-                    hDAL = new DAL(path);
-                }
-                catch (System.IO.IOException ie)
-                {
-                    Logger.LogError(ie, "");
-                }
-                catch (System.Exception ie)
-                {
-                    Logger.LogError(ie, "");
-                }
+                hDAL = new DAL(path);
             }
-            else
+            catch (System.IO.IOException ie)
             {
-                return;
+                Logger.LogError(ie, "");
+            }
+            catch (System.Exception ie)
+            {
+                Logger.LogError(ie, "");
             }
 
             Sale = new SaleDO(hDAL.From<SaleDO>().Read().FirstOrDefault());
