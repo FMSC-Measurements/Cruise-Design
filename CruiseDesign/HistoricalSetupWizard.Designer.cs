@@ -46,9 +46,7 @@ namespace CruiseDesign
          // 
          // openFileDialog1
          // 
-         this.openFileDialog1.DefaultExt = "cruise";
-         this.openFileDialog1.FileName = "*.cruise";
-         this.openFileDialog1.Filter = "Cruise files|*.cruise|All files|*.*";
+         this.openFileDialog1.Filter = "Cruise files|*.cruise;*.crz3|All files|*.*";
          // 
          // pageHost2
          // 

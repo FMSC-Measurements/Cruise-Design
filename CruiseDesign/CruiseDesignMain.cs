@@ -11,7 +11,6 @@ using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security;
 using System.Windows.Forms;
 
 namespace CruiseDesign
@@ -46,48 +45,60 @@ namespace CruiseDesign
             }
         }
 
+        public string[] OpenArgs { get; }
+
         protected CruiseDesignMain()
         {
             InitializeComponent();
         }
 
         public CruiseDesignMain(string[] args, IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider, IDialogService dialogService)
-            : this(serviceProvider, logger, fileContextProvider)
+            : this(serviceProvider, logger, fileContextProvider, dialogService)
         {
-            DialogService = dialogService;
-            // to update version change the Version property in the project file
-            var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
-            this.Text = $"Cruise Design {version}";
-
-            if (args.Length != 0)
-            {
-                var newFileContext = new CruiseDesignFileContext()
-                { DesignFilePath = Convert.ToString(args[0]) };
-
-                newFileContext.SetReconFilePathFromDesign();
-
-                if (newFileContext.OpenDesignFile(Logger))
-                {
-                    FileContextProvider.CurrentFileContext = newFileContext;
-                }
-                else
-                {
-                    MessageBox.Show("Unable to open the design file", "Information");
-                }
-            }
-
-            Logger.LogInformation("Program Started");
+            OpenArgs = args;
         }
 
-        public CruiseDesignMain(IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider)
+        protected CruiseDesignMain(IServiceProvider serviceProvider, ILogger<CruiseDesignMain> logger, ICruiseDesignFileContextProvider fileContextProvider, IDialogService dialogService)
             : this()
         {
+            DialogService = dialogService;
             ServiceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             FileContextProvider = fileContextProvider ?? throw new ArgumentNullException(nameof(fileContextProvider));
 
-            var version = Assembly.GetEntryAssembly().GetName().Version?.ToString(3);
+            var version = Assembly.GetEntryAssembly()?.GetName().Version?.ToString(3);
             this.Text = $"Cruise Design {version}";
+
+            Logger.LogInformation("Program Started");
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            var args = OpenArgs;
+            if (args != null && args.Length != 0)
+            {
+                var filePath = Convert.ToString(args[0]);
+                if (CruiseDesignFileContext.EnsurePathValid(filePath, Logger, DialogService)
+                && CruiseDesignFileContext.EnsurePathExistsAndCanWrite(filePath, Logger, DialogService))
+                {
+                    var newFileContext = new CruiseDesignFileContext()
+                    { DesignFilePath = filePath };
+
+                    newFileContext.SetReconFilePathFromDesign();
+
+                    if (newFileContext.OpenDesignFile(Logger))
+                    {
+                        FileContextProvider.CurrentFileContext = newFileContext;
+                    }
+                    else
+                    {
+                        MessageBox.Show("Unable to open the design file", "Information");
+                    }
+                }
+            }
+
         }
 
         private void OnFileContextChanged(object sender, EventArgs e)
@@ -613,7 +624,8 @@ namespace CruiseDesign
 
         public static void OpenExistingDesignFile(string path, ICruiseDesignFileContextProvider fileContextProvider, ILogger logger, IDialogService dialogService)
         {
-            if(!CruiseDesignFileContext.EnsurePathValid(path, logger, dialogService))
+            if(!CruiseDesignFileContext.EnsurePathValid(path, logger, dialogService)
+                && !CruiseDesignFileContext.EnsurePathExistsAndCanWrite(path, logger, dialogService))
             {
                 return;
             }

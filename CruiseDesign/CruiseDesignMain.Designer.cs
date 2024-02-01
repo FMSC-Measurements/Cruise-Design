@@ -388,7 +388,6 @@
             // 
             // openFileDialogCruise
             // 
-            this.openFileDialogCruise.DefaultExt = "cruise";
             this.openFileDialogCruise.DereferenceLinks = false;
             this.openFileDialogCruise.FilterIndex = 3;
             this.openFileDialogCruise.Filter = "All Files|*.cruise;*.crz3;*.design|Design files|*.design|Cruise files|*.cruise;*.crz3";
@@ -396,13 +395,11 @@
             // 
             // openFileDialogDesign
             // 
-            this.openFileDialogDesign.FileName = "*.design";
             this.openFileDialogDesign.Filter = "All Files|*.cruise;*.crz3;*.design|Design files|*.design|Cruise files|*.cruise;*.crz3";
             // 
             // saveFileDialogDesign
             // 
-            this.saveFileDialogDesign.DefaultExt = "*.design";
-            this.saveFileDialogDesign.FileName = "*.design";
+            this.saveFileDialogDesign.DefaultExt = "design";
             this.saveFileDialogDesign.Filter = "Cruise Design files|*.design|All files|*.*";
             // 
             // CruiseDesignMain

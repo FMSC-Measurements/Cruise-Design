@@ -96,7 +96,7 @@ namespace CruiseDesign.Services
         {
             var designFilePath = DesignFilePath;
             var v3FilePath = Path.ChangeExtension(designFilePath, ".crz3");
-            if(File.Exists(v3FilePath))
+            if (File.Exists(v3FilePath))
             {
                 V3FilePath = v3FilePath;
                 return true;
@@ -218,10 +218,22 @@ namespace CruiseDesign.Services
                 return false;
             }
 
+            return true;
+        }
 
+        public static bool EnsurePathExistsAndCanWrite(string path, ILogger logger, IDialogService dialogService)
+        {
             if (!File.Exists(path))
             {
                 var message = "Selected File Does Not Exist";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return false;
+            }
+
+            if (File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
+            {
+                var message = "Selected File Is Read Only.\r\nIf opening file from non-local location, please copy file to a location on your PC before opening.";
                 logger.LogWarning(message);
                 dialogService.ShowMessage(message, "Warning");
                 return false;
