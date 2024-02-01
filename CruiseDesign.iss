@@ -1,5 +1,5 @@
 #define MsBuildOutputDir ".\CruiseDesign\bin\Release\net472"
-#define VERSION "2024.02.01"
+#define VERSION "2024.02.02"
 
 #define APP "Cruise Design"
 #define EXEName "CruiseDesign.exe"
