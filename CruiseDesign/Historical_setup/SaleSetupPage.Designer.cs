@@ -270,9 +270,7 @@
          // 
          // openFileDialog1
          // 
-         this.openFileDialog1.DefaultExt = "cut";
-         this.openFileDialog1.FileName = "*.cut";
-         this.openFileDialog1.Filter = "Cruise template|*.cut|All files|*.*";
+         this.openFileDialog1.Filter = "Cruise template|*.cut;*.crz3t|All files|*.*";
          // 
          // labelWorking
          // 
