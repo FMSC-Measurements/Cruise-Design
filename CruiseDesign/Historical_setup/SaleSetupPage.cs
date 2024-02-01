@@ -159,9 +159,25 @@ namespace CruiseDesign.Historical_setup
 
         private void createNewDatabase(dataFiles df)
         {
+            var templatePath = df.TemplateFilePath;
+            DAL templateDb = null;
             try
             {
-                using var templateDb = new DAL(df.TemplateFilePath);
+
+                var fileExtention = Path.GetExtension(templatePath);
+                if (fileExtention == ".crz3" || fileExtention == ".crz3t")
+                {
+                    using var v3Db = new CruiseDatastore_V3(templateFilePath);
+                    var cruiseID = v3Db.ExecuteScalar<string>("SELECT CruiseID FROM Cruise LIMIT 1;");
+                    templateDb = new DAL();
+
+                    var migrator = new CruiseDAL.DownMigrator();
+                    migrator.MigrateFromV3ToV2(cruiseID, v3Db, templateDb, "CruiseDesign.SaleSetupPage");
+                }
+                else
+                {
+                    templateDb = new DAL(df.TemplateFilePath);
+                }
 
                 df.TemplateDb = templateDb;
 
@@ -176,6 +192,10 @@ namespace CruiseDesign.Historical_setup
             catch (System.Exception ie)
             {
                 Logger.LogError(ie, "");
+            }
+            finally
+            {
+                templateDb?.Dispose();
             }
         }
 
