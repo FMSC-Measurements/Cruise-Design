@@ -68,11 +68,19 @@ namespace CruiseDesign.Test.Design_Pages
             lmAgain.Should().BeEquivalentTo(lm);
         }
 
+        private IDialogService MakeMockDialogService(string? v3TemplatePath)
+        {
+            var mockDialogService = Substitute.For<IDialogService>();
+            mockDialogService.AskSelectCreateProductionV3Template(Arg.Any<string>()).Returns(v3TemplatePath);
+            return mockDialogService;
+        }
+
         [Fact]
         public void CreateProductionFiles_Test_V3()
         {
-            var mockDialogService = Substitute.For<IDialogService>();
-            mockDialogService.AskSelectCreateProductionV3Template(Arg.Any<string>());
+            // setup mock dialog service to return null for V3 template path
+            var mockDialogService = MakeMockDialogService(null);
+
             var logger = Substitute.For<ILogger>();
 
             var cruisePath = GetTempFilePath("CreateProduction_Test_V3_Cruise.cruise");
@@ -104,6 +112,99 @@ namespace CruiseDesign.Test.Design_Pages
             File.Exists(prodFilePath).Should().BeTrue();
 
             using var prodDb = new CruiseDatastore_V3(prodFilePath);
+            VerifyProdFile(prodDb);
+        }
+
+        [Fact]
+        public void CreateProductionFile_V3_WithV3TemplateFile()
+        {
+            var v3TemplatePath = GetTestFile("R2 Template 2017.02.28.crz3");
+
+            var mockDialogService = MakeMockDialogService(v3TemplatePath);
+
+            var mockLogger = Substitute.For<ILogger>();
+
+
+            var designPath = GetTestFile("99996_TestMeth_Timber_Sale_08072021.design");
+            var reconPath = GetTestFile("99996_TestMeth_TS.cruise");
+
+            using var designDb = new DAL(designPath);
+
+            var prodFilePath = GetTempFilePath("CreateProductionFile_V3_WithV3TemplateFile_Prod.crz3");
+            var stCodes = designDb
+               .From<CruiseDAL.V2.Models.Stratum>()
+               .Query()
+               .Select(x => x.Code).ToArray();
+
+            var dataFiles = new CreateProduction.CreateProdParams
+            {
+                ProductionFilePath = prodFilePath,
+                SelectedStratumCodes = stCodes,
+            };
+
+            var fileContext = new CruiseDesignFileContext
+            {
+                DesignDb = designDb,
+                ReconFilePath = reconPath,
+            };
+
+            if (File.Exists(prodFilePath)) File.Delete(prodFilePath);
+
+            CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, mockLogger);
+
+            File.Exists(prodFilePath).Should().BeTrue();
+
+            using var prodDb = new CruiseDatastore_V3(prodFilePath);
+            using var templateDb = new CruiseDatastore_V3(v3TemplatePath);
+            VerifyTemplateData(prodDb, templateDb);
+            VerifyProdFile(prodDb);
+        }
+
+        [Fact]
+        public void CreateProductionFile_V3_WithV3Template()
+        {
+            var v3TemplatePath = GetTempFilePath(nameof(CreateProductionFile_V3_WithV3Template) + ".crz3t");
+            var templateInit = new TemplateDatabaseInitializer();
+            using var templateDb = templateInit.CreateDatabaseFile(v3TemplatePath);
+
+            var mockDialogService = Substitute.For<IDialogService>();
+            mockDialogService.AskSelectCreateProductionV3Template(Arg.Any<string>())
+                .Returns(v3TemplatePath);
+
+            var mockLogger = Substitute.For<ILogger>();
+
+
+            var designPath = GetTestFile("99996_TestMeth_Timber_Sale_08072021.design");
+            var reconPath = GetTestFile("99996_TestMeth_TS.cruise");
+
+            using var designDb = new DAL(designPath);
+
+            var prodFilePath = GetTempFilePath("CreateProductionFile_V3_WithV3Template_Prod.crz3");
+            var stCodes = designDb
+               .From<CruiseDAL.V2.Models.Stratum>()
+               .Query()
+               .Select(x => x.Code).ToArray();
+
+            var dataFiles = new CreateProduction.CreateProdParams
+            {
+                ProductionFilePath = prodFilePath,
+                SelectedStratumCodes = stCodes,
+            };
+
+            var fileContext = new CruiseDesignFileContext
+            {
+                DesignDb = designDb,
+                ReconFilePath = reconPath,
+            };
+
+            if (File.Exists(prodFilePath)) File.Delete(prodFilePath);
+
+            CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, mockLogger);
+
+            File.Exists(prodFilePath).Should().BeTrue();
+
+            using var prodDb = new CruiseDatastore_V3(prodFilePath);
+            VerifyTemplateData(prodDb, templateDb);
             VerifyProdFile(prodDb);
         }
 
@@ -230,100 +331,7 @@ namespace CruiseDesign.Test.Design_Pages
         }
 
 
-        [Fact]
-        public void CreateProductionFile_V3_WithV3TemplateFile()
-        {
-            var v3TemplatePath = GetTestFile("R2 Template 2017.02.28.crz3");
-
-            var mockDialogService = Substitute.For<IDialogService>();
-            mockDialogService.AskSelectCreateProductionV3Template(Arg.Any<string>())
-                .Returns(v3TemplatePath);
-
-            var mockLogger = Substitute.For<ILogger>();
-
-
-            var designPath = GetTestFile("99996_TestMeth_Timber_Sale_08072021.design");
-            var reconPath = GetTestFile("99996_TestMeth_TS.cruise");
-
-            using var designDb = new DAL(designPath);
-
-            var prodFilePath = GetTempFilePath("CreateProductionFile_V3_WithV3TemplateFile_Prod.crz3");
-            var stCodes = designDb
-               .From<CruiseDAL.V2.Models.Stratum>()
-               .Query()
-               .Select(x => x.Code).ToArray();
-
-            var dataFiles = new CreateProduction.CreateProdParams
-            {
-                ProductionFilePath = prodFilePath,
-                SelectedStratumCodes = stCodes,
-            };
-
-            var fileContext = new CruiseDesignFileContext
-            {
-                DesignDb = designDb,
-                ReconFilePath = reconPath,
-            };
-
-            if (File.Exists(prodFilePath)) File.Delete(prodFilePath);
-
-            CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, mockLogger);
-
-            File.Exists(prodFilePath).Should().BeTrue();
-
-            using var prodDb = new CruiseDatastore_V3(prodFilePath);
-            using var templateDb = new CruiseDatastore_V3(v3TemplatePath);
-            VerifyTemplateData(prodDb, templateDb);
-            VerifyProdFile(prodDb);
-        }
-
-        [Fact]
-        public void CreateProductionFile_V3_WithV3Template()
-        {
-            var v3TemplatePath = GetTempFilePath(nameof(CreateProductionFile_V3_WithV3Template) + ".crz3t");
-            var templateInit = new TemplateDatabaseInitializer();
-            using var templateDb = templateInit.CreateDatabaseFile(v3TemplatePath);
-
-            var mockDialogService = Substitute.For<IDialogService>();
-            mockDialogService.AskSelectCreateProductionV3Template(Arg.Any<string>())
-                .Returns(v3TemplatePath);
-
-            var mockLogger = Substitute.For<ILogger>();
-
-
-            var designPath = GetTestFile("99996_TestMeth_Timber_Sale_08072021.design");
-            var reconPath = GetTestFile("99996_TestMeth_TS.cruise");
-
-            using var designDb = new DAL(designPath);
-
-            var prodFilePath = GetTempFilePath("CreateProductionFile_V3_WithV3Template_Prod.crz3");
-            var stCodes = designDb
-               .From<CruiseDAL.V2.Models.Stratum>()
-               .Query()
-               .Select(x => x.Code).ToArray();
-
-            var dataFiles = new CreateProduction.CreateProdParams
-            {
-                ProductionFilePath = prodFilePath,
-                SelectedStratumCodes = stCodes,
-            };
-
-            var fileContext = new CruiseDesignFileContext
-            {
-                DesignDb = designDb,
-                ReconFilePath = reconPath,
-            };
-
-            if (File.Exists(prodFilePath)) File.Delete(prodFilePath);
-
-            CreateProduction.CreateProductionFile(dataFiles, fileContext, true, false, mockDialogService, mockLogger);
-
-            File.Exists(prodFilePath).Should().BeTrue();
-
-            using var prodDb = new CruiseDatastore_V3(prodFilePath);
-            VerifyTemplateData(prodDb, templateDb);
-            VerifyProdFile(prodDb);
-        }
+        
 
 
         protected void VerifyProdFile(CruiseDatastore_V3 prodDb)
@@ -352,6 +360,14 @@ namespace CruiseDesign.Test.Design_Pages
             {
                 cruiseDb.From<StratumTemplate>().Where("StratumTemplateName = @p1").Count(stt.StratumTemplateName).Should().Be(1);
             }
+
+            var tempTarIDs = template.From<TreeAuditRule>().Query().Select(x => x.TreeAuditRuleID).ToHashSet();
+            var prodTarIDs = cruiseDb.From<TreeAuditRule>().Query().Select(x => x.TreeAuditRuleID).ToHashSet();
+
+            var stuff = tempTarIDs.Intersect(prodTarIDs).ToArray();
+            stuff.Should().BeEmpty();
+
+            prodTarIDs.Should().NotIntersectWith(tempTarIDs);
         }
 
 
