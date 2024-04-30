@@ -12,53 +12,45 @@ using CruiseDAL.DataObjects;
 
 namespace CruiseDesign.Strata_setup
 {
-   public partial class TDV_Select : Form
-   {
-      public TDV_Select(StrataSetupPage Owner)
-      {
-         this.Owner = Owner;
+    public partial class TDV_Select : Form
+    {
+        public TDV_Select(DAL dal)
+        {
+            InitializeComponent();
 
-         InitializeComponent();
+            SelectedTDV = new List<TreeDefaultValueDO>();
+            TreeDefaultValues = new BindingList<TreeDefaultValueDO>(dal.From<TreeDefaultValueDO>().OrderBy("Species").Read().ToList());
 
-         InitializeDataBindings();
-      }
-      
-      new public StrataSetupPage Owner { get; set; }                        // used to be a warning w/o new
-      List<TreeDefaultValueDO> selectedTDV = new List<TreeDefaultValueDO>();
+            InitializeDataBindings();
+        }
+        public List<TreeDefaultValueDO> SelectedTDV { get; }
+        BindingList<TreeDefaultValueDO> TreeDefaultValues { get; }
 
-      private void InitializeDataBindings()
-      {
-         // bindingSourceCurrentStratumStats.DataSource = Owner.currentStratumStats;
-        bindingSourceTreeDV.DataSource = Owner.newTDV;
-        selectedItemsGridView1.SelectedItems = selectedTDV;
-      }
+        private void InitializeDataBindings()
+        {
+            // bindingSourceCurrentStratumStats.DataSource = Owner.currentStratumStats;
+            bindingSourceTreeDV.DataSource = TreeDefaultValues;
+            selectedItemsGridView1.SelectedItems = SelectedTDV;
+        }
 
-      private void buttonNew_Click(object sender, EventArgs e)
-      {
-         TreeDefaultValueDO newSpecies = new TreeDefaultValueDO();
-         Owner.newTDV.Add(newSpecies);
-         bindingSourceTreeDV.DataSource = Owner.newTDV;
-      }
+        private void buttonNew_Click(object sender, EventArgs e)
+        {
+            TreeDefaultValueDO newSpecies = new TreeDefaultValueDO();
+            TreeDefaultValues.Add(newSpecies);
+            //bindingSourceTreeDV.DataSource = Owner.newTDV;
+        }
 
-      private void buttonReturn_Click(object sender, EventArgs e)
-      {
-         if (selectedTDV.Count > 0)
-         {
-            foreach (TreeDefaultValueDO tdv in selectedTDV)
+        private void buttonReturn_Click(object sender, EventArgs e)
+        {
+            if (SelectedTDV.Count > 0)
             {
-               if (!Owner.Owner.cdTreeDefaults.Contains(tdv))
-                  Owner.Owner.cdTreeDefaults.Add(tdv);
-
-               if (!Owner.Owner.myTreeDefaultList.Contains(tdv))
-                  Owner.Owner.myTreeDefaultList.Add(tdv);
+                this.DialogResult = DialogResult.OK;
+                this.Close();
             }
-            //Owner.bindingSourceTDV.DataSource = Owner.Owner.cdTreeDefaults;
-         }
-         else
-            return;
-
-         this.DialogResult = DialogResult.OK;
-         this.Close();
-      }
-   }
+            else
+            {
+                MessageBox.Show("No Tree Defaults Selected");
+            }
+        }
+    }
 }
