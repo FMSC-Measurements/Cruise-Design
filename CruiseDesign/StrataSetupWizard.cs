@@ -11,6 +11,8 @@ using CruiseDAL.DataObjects;
 using CruiseDesign.Strata_setup;
 using System.Collections;
 using CruiseDesign.Services;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace CruiseDesign
 {
@@ -21,6 +23,7 @@ namespace CruiseDesign
         public string sUOM;
 
         public CruiseDesignFileContext FileContext { get; }
+        public ILogger Logger { get; }
 
         #region Fields
         private UnitSetupPage unitPage = null;
@@ -35,12 +38,13 @@ namespace CruiseDesign
             InitializeComponent();
         }
 
-        public StrataSetupWizard(ICruiseDesignFileContextProvider fileContextProvider)
+        public StrataSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger<StrataSetupWizard> logger)
             : this()
         {
             var fileContext = FileContext = fileContextProvider.CurrentFileContext;
-
             this.cdDAL = fileContext.DesignDb;
+
+            Logger = logger;
 
             reconExists = fileContext.DoesReconExist;
             if (reconExists)
@@ -51,18 +55,21 @@ namespace CruiseDesign
                 }
                 catch (System.IO.IOException e)
                 {
-                    //FMSC.ORM.Core.Logger..Log.E(e);
-                    MessageBox.Show("Error: Cannot open recon file");
+                    var message = "Error: Cannot open recon file";
+                    Logger.LogError(e, message);
+                    MessageBox.Show(message);
                 }
                 catch (System.Exception e)
                 {
-                    //Logger.Log.E(e);
-                    MessageBox.Show("Error: Cannot open recon file");
+                    var message = "Error: Cannot open recon file";
+                    MessageBox.Show(message);
                 }
             }
             else
             {
-                MessageBox.Show("No Recon File Found.\nMake sure Recon file is in same Folder as the design file.\nDesign can still be created manually, but no Recon data will be used.", "Warning", MessageBoxButtons.OK);
+                var message = "No Recon File Found.\nMake sure Recon file is in same Folder as the design file.\nDesign can still be created manually, but no Recon data will be used.";
+                Logger.LogInformation(message);
+                MessageBox.Show(message, "Warning", MessageBoxButtons.OK);
             }
 
             //check for historical data
@@ -79,7 +86,7 @@ namespace CruiseDesign
         #region Properties
 
         //public ArrayList selectedUnits = new ArrayList();
-        public List<TreeDefaultValueDO> myTreeDefaultList;
+        //public List<TreeDefaultValueDO> myTreeDefaultList;
 
         // add the binding lists
         public DAL rDAL { get; set; }
@@ -106,6 +113,7 @@ namespace CruiseDesign
         #region Initialization
         private void InitializePages()
         {
+
             unitPage = new UnitSetupPage(this);
             pageHost1.Add(unitPage);
 
@@ -153,8 +161,7 @@ namespace CruiseDesign
             //currentStratumStats.Save();
             //setUsed(currentStratumStats.Stratum_CN);
 
-            myTreeDefaultList = new List<TreeDefaultValueDO>();
-            cdTreeDefaults.Clear();
+            
 
             // save the current stratum
             currentStratumStats.Save();
@@ -295,65 +302,71 @@ namespace CruiseDesign
 
         #endregion
 
-        private void getTreeDefaultSql()
-        {
-            //get list of selected cutting units (cu is design file, cur is recon file)
-            currentStratum.CuttingUnits.Populate();
-            if (reconExists)
-            {
-                foreach (CuttingUnitDO cu in currentStratum.CuttingUnits)
-                {
-                    CuttingUnitDO cur = rDAL.From<CuttingUnitDO>().Where("code = @p1").Read(cu.Code).FirstOrDefault();
-                    if (cur != null)
-                    {
-                        List<TreeDO> treer = rDAL.From<TreeDO>().Where("CuttingUnit_CN = @p1")
-                                               .GroupBy("TreeDefaultValue_CN").Read(cur.CuttingUnit_CN).ToList();
+        //private void getTreeDefaultSql()
+        //{
+        //    //get list of selected cutting units (cu is design file, cur is recon file)
+        //    currentStratum.CuttingUnits.Populate();
+        //    if (reconExists)
+        //    {
+        //        foreach (CuttingUnitDO cu in currentStratum.CuttingUnits)
+        //        {
+        //            CuttingUnitDO cur = rDAL.From<CuttingUnitDO>().Where("code = @p1").Read(cu.Code).FirstOrDefault();
+        //            if (cur != null)
+        //            {
+        //                List<TreeDO> treer = rDAL.From<TreeDO>().Where("CuttingUnit_CN = @p1")
+        //                                       .GroupBy("TreeDefaultValue_CN").Read(cur.CuttingUnit_CN).ToList();
 
-                        //myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
-                        foreach (TreeDO tree in treer)
-                        {
-                            // get the record from Design TDV where recon spec, prod, LD match.
-                            List<TreeDefaultValueDO> checkTDV = cdDAL.From<TreeDefaultValueDO>()
-                                     .Where("Species = @p1 AND PrimaryProduct = @p2 AND LiveDead = @p3")
-                                     .Read(tree.TreeDefaultValue.Species, tree.TreeDefaultValue.PrimaryProduct, tree.TreeDefaultValue.LiveDead).ToList();
-                            foreach (TreeDefaultValueDO myTDV in checkTDV)
-                                if (!myTreeDefaultList.Contains(myTDV))
-                                    myTreeDefaultList.Add(myTDV);
-                        }
-                    }
-                }
-                // check the selected list in cdSgStats for any additional values to add
-                if (cdSgStats.Count > 0)
-                {
-                    foreach (SampleGroupStatsDO mySgStats in cdSgStats)
-                    {
-                        mySgStats.TreeDefaultValueStats.Populate();
-                        foreach (TreeDefaultValueDO myTDV in mySgStats.TreeDefaultValueStats)
-                        {
-                            if (!myTreeDefaultList.Contains(myTDV))
-                                myTreeDefaultList.Add(myTDV);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // add all tree default values
-                myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
-            }
-            foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
-                cdTreeDefaults.Add(myTDV);
+        //                //myTreeDefaultList = new List<TreeDefaultValueDO>(cdDAL.Read<TreeDefaultValueDO>("TreeDefaultValue", null, null));
+        //                foreach (TreeDO tree in treer)
+        //                {
+        //                    // get the record from Design TDV where recon spec, prod, LD match.
+        //                    List<TreeDefaultValueDO> checkTDV = cdDAL.From<TreeDefaultValueDO>()
+        //                             .Where("Species = @p1 AND PrimaryProduct = @p2 AND LiveDead = @p3")
+        //                             .Read(tree.TreeDefaultValue.Species, tree.TreeDefaultValue.PrimaryProduct, tree.TreeDefaultValue.LiveDead).ToList();
+        //                    foreach (TreeDefaultValueDO myTDV in checkTDV)
+        //                        if (!myTreeDefaultList.Contains(myTDV))
+        //                            myTreeDefaultList.Add(myTDV);
+        //                }
+        //            }
+        //        }
+        //        // check the selected list in cdSgStats for any additional values to add
+        //        if (cdSgStats.Count > 0)
+        //        {
+        //            foreach (SampleGroupStatsDO mySgStats in cdSgStats)
+        //            {
+        //                mySgStats.TreeDefaultValueStats.Populate();
+        //                foreach (TreeDefaultValueDO myTDV in mySgStats.TreeDefaultValueStats)
+        //                {
+        //                    if (!myTreeDefaultList.Contains(myTDV))
+        //                        myTreeDefaultList.Add(myTDV);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        // add all tree default values
+        //        myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
+        //    }
+        //    foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
+        //        cdTreeDefaults.Add(myTDV);
 
-            return;
+        //    return;
 
-        }
+        //}
+
         private void fillTreeDefaultList()
         {
+            IList<TreeDefaultValueDO> treeDefaultValues;
+            cdTreeDefaults.Clear();
+
             //getTreeDefaultSql();
             //get list of selected cutting units (cu is design file, cur is recon file)
             currentStratum.CuttingUnits.Populate();
             if (reconExists)
             {
+                treeDefaultValues = new List<TreeDefaultValueDO>();
+
                 // check the selected list in cdSgStats for any additional values to add
                 if (cdSgStats.Count > 0)
                 {
@@ -362,8 +375,8 @@ namespace CruiseDesign
                         mySgStats.TreeDefaultValueStats.Populate();
                         foreach (TreeDefaultValueDO myTDV in mySgStats.TreeDefaultValueStats)
                         {
-                            if (!myTreeDefaultList.Contains(myTDV))
-                                myTreeDefaultList.Add(myTDV);
+                            if (!treeDefaultValues.Contains(myTDV))
+                                treeDefaultValues.Add(myTDV);
                         }
                     }
                 }
@@ -388,13 +401,13 @@ namespace CruiseDesign
                                                     .Read(myTDVr.TreeDefaultValue_CN).FirstOrDefault();
                                         //if (!myTreeDefaultList.Contains(checkTDV))
                                         int cnt = 0;
-                                        foreach (TreeDefaultValueDO check in myTreeDefaultList)
+                                        foreach (TreeDefaultValueDO check in treeDefaultValues)
                                         {
                                             if (checkTDV.TreeDefaultValue_CN == check.TreeDefaultValue_CN)
                                                 cnt++;
                                         }
-                                        if (cnt == 0 || myTreeDefaultList.Count() == 0)
-                                            myTreeDefaultList.Add(checkTDV);
+                                        if (cnt == 0 || treeDefaultValues.Count() == 0)
+                                            treeDefaultValues.Add(checkTDV);
                                     }
                                 }
                             }
@@ -405,9 +418,11 @@ namespace CruiseDesign
             else
             {
                 // add all tree default values
-                myTreeDefaultList = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
+                treeDefaultValues = cdDAL.From<TreeDefaultValueDO>().Read().ToList();
             }
-            foreach (TreeDefaultValueDO myTDV in myTreeDefaultList)
+
+
+            foreach (TreeDefaultValueDO myTDV in treeDefaultValues)
                 cdTreeDefaults.Add(myTDV);
 
             return;

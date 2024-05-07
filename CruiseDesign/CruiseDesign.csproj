@@ -62,12 +62,12 @@
 	</ItemGroup>	
 
 	<ItemGroup>
-		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.5.12200" />
+		<PackageReference Include="CruiseDAL.V3.DownConvert" Version="3.6.6.12402" />
 		<PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.1.5" />
-		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.122" />
-		<PackageReference Include="CruiseDAL.V3" Version="3.6.5.122" />
-		<PackageReference Include="CruiseDAL.V3.Sync" Version="3.6.5.12200" />
-		<PackageReference Include="CruiseDAL.V3.UpConvert" Version="3.6.5.12200" />
+		<PackageReference Include="CruiseDAL.V2" Version="2.7.4.124" />
+		<PackageReference Include="CruiseDAL.V3" Version="3.6.6.124" />
+		<PackageReference Include="CruiseDAL.V3.Sync" Version="3.6.6.12401" />
+		<PackageReference Include="CruiseDAL.V3.UpConvert" Version="3.6.6.12400" />
 		<PackageReference Include="Microsoft.AppCenter.Analytics" Version="5.0.3" />
 		<PackageReference Include="Microsoft.AppCenter.Crashes" Version="5.0.3" />
 		<PackageReference Include="Microsoft.Extensions.Hosting" Version="7.0.1" />

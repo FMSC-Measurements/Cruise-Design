@@ -966,7 +966,7 @@
             this.buttonAddNew.TabIndex = 0;
             this.buttonAddNew.Text = "Add New SG";
             this.buttonAddNew.UseVisualStyleBackColor = false;
-            this.buttonAddNew.Click += new System.EventHandler(this.buttonAddNew_Click);
+            this.buttonAddNew.Click += new System.EventHandler(this.buttonAddNewSG_Click);
             // 
             // panel1
             // 
