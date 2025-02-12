@@ -531,6 +531,8 @@ namespace CruiseDesign.Design_Pages
                     else if (stStat.Method == "FIXCNT")
                         method = "FIXCNT";
                 }
+                else if (stStat.Method == "FIXCNT")
+                    method = "FIXCNT";
 
                 var myPlots = new List<PlotDO>();
                 var myTree = new List<TreeDO>();
