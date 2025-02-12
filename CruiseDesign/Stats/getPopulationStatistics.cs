@@ -40,7 +40,7 @@ namespace CruiseDesign.Stats
       public List<PlotDO> myPlots;
       //      public List<TreeDO> currentTreeList;
       //      public SampleGroupDO sgStats;
-      public StratumStatsDO strStats;
+      public List<StratumStatsDO> strStats;
 
       public void getPopulationStats(string dalPathRecon, DAL cDAL, bool recExists, int err)
       {
@@ -133,7 +133,7 @@ namespace CruiseDesign.Stats
             usePNTstrCN = 0;
 
             // loop through stratum
-            foreach (StratumDO curStr in stratum)
+         foreach (StratumDO curStr in stratum)
          {
             // check if Stratum needs to be re-calculated (if method = 100, then it needs to be recalculated)
             usePNTstrCN = 0;
@@ -144,8 +144,8 @@ namespace CruiseDesign.Stats
 
             if (curStr.Method == "FIXCNT")
             {
-                strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1").Read(curStr.Stratum_CN).FirstOrDefault());
-                if (strStats.Used == 2)
+                strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1  AND Used = 2").Read(curStr.Stratum_CN).ToList());
+                if (strStats.Count() > 0)
                 {
                      totalAcres = 0;
                      foreach (CuttingUnitDO cu in curStr.CuttingUnits)
@@ -160,8 +160,9 @@ namespace CruiseDesign.Stats
             }
             else
             {
-                strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1 AND Method = @p2").Read(curStr.Stratum_CN, "100").FirstOrDefault());
-                if (strStats.Used == 2)
+                    //               strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1 AND Method = @p2").Read(curStr.Stratum_CN, "100").FirstOrDefault());
+                strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Used = 2").Read(curStr.Stratum_CN).ToList());
+                if (strStats.Count() > 0)
                 {
               
                    removePopulations(curStr.Stratum_CN);
@@ -278,8 +279,8 @@ namespace CruiseDesign.Stats
          // loop through stratum
          foreach (StratumDO curStr in stratum)
          {
-            strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND SgSet = 1 AND Method = @p2").Read(curStr.Stratum_CN, "100").FirstOrDefault());
-            if (curStr.Method == "100" && strStats.Used == 2)
+            strStats = (cdDAL.From<StratumStatsDO>().Where("Stratum_CN = @p1 AND Used = 2").Read(curStr.Stratum_CN).ToList());
+            if (strStats.Count() > 0)
             {
                curStr.CuttingUnits.Populate();
                // get total strata acres

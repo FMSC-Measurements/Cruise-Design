@@ -20,9 +20,6 @@ namespace CruiseDesign.Test
         {
         }
 
-
-
-
         [Theory]
         [InlineData(".cruise")]
         [InlineData(".design")]
@@ -42,7 +39,7 @@ namespace CruiseDesign.Test
 
             // verify error message shown
             dialogService.Received().ShowMessage(Arg.Is("Selected File Does Not Exist"), Arg.Any<string>());
-
+            dialogService.Received(1).ShowMessage(Arg.Any<string>(), Arg.Any<string>());
         }
 
         [Theory]

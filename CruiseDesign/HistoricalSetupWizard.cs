@@ -2,6 +2,7 @@
 using CruiseDAL.DataObjects;
 using CruiseDesign.Historical_setup;
 using CruiseDesign.Services;
+using FMSC.ORM.Core;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections;
@@ -32,11 +33,13 @@ namespace CruiseDesign
             InitializeComponent();
         }
 
-        public HistoricalSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger<HistoricalSetupWizard> logger)
+        public HistoricalSetupWizard(ICruiseDesignFileContextProvider fileContextProvider, ILogger<HistoricalSetupWizard> logger, IDialogService dialogService)
             : this()
         {
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
             var fileContext = fileContextProvider.CurrentFileContext;
+
+            DialogService = dialogService;
 
             cdDAL = fileContext.DesignDb;
             setSalePurpose();
@@ -51,6 +54,8 @@ namespace CruiseDesign
 
         public ArrayList selectedUnits = new ArrayList();
         public String UOM;
+
+        public IDialogService DialogService { get; }
 
         // add the binding lists
         public DAL cdDAL { get; set; }
@@ -104,25 +109,46 @@ namespace CruiseDesign
 
         public void OpenHistoricalCruiseFile(string path)
         {
-            //open new cruise DAL
-            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+            if(!CruiseDesignFileContext.EnsurePathValid(path, Logger, DialogService)
+                && !CruiseDesignFileContext.EnsurePathExistsAndCanWrite(path, Logger, DialogService)) return;
+
+            var fileExtention = Path.GetExtension(path).Trim();
+            if(fileExtention == ".crz3")
             {
-                try
+                var processFilePath = CruiseDesignFileContext.GetProcessFilePathFromV3Cruise(path);
+
+                if(!CruiseDesignFileContext.EnsurePathValid(processFilePath, Logger, DialogService)) { return; }
+                if (!File.Exists(processFilePath))
                 {
-                    hDAL = new DAL(path);
+                    var message = ".process File Does Not Exist for V3 Cruise.\r\nPlease process file first.";
+                    Logger.LogWarning(message);
+                    DialogService.ShowMessage(message, "Warning");
+                    return;
                 }
-                catch (System.IO.IOException ie)
+
+                if (File.GetAttributes(processFilePath).HasFlag(FileAttributes.ReadOnly))
                 {
-                    Logger.LogError(ie, "");
+                    var message = ".process File Is Read Only.\r\nIf opening file from non-local location, please copy file to a location on your PC before opening.";
+                    Logger.LogWarning(message);
+                    DialogService.ShowMessage(message, "Warning");
+                    return;
                 }
-                catch (System.Exception ie)
-                {
-                    Logger.LogError(ie, "");
-                }
+
+                path = processFilePath;
             }
-            else
+
+            //open new cruise DAL
+            try
             {
-                return;
+                hDAL = new DAL(path);
+            }
+            catch (System.IO.IOException ie)
+            {
+                Logger.LogError(ie, "");
+            }
+            catch (System.Exception ie)
+            {
+                Logger.LogError(ie, "");
             }
 
             Sale = new SaleDO(hDAL.From<SaleDO>().Read().FirstOrDefault());

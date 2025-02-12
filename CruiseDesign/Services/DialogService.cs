@@ -90,7 +90,7 @@ namespace CruiseDesign.Services
         {
             var fileDialog = new SaveFileDialog()
             {
-                DefaultExt = (defaultV3) ? ".crz3" : ".cruise",
+                DefaultExt = (defaultV3) ? "crz3" : "cruise",
                 Filter = "V2 Cruise File|*.cruise|V3 Cruise File|*.crz3",
                 FileName = defaultFileName,
             };

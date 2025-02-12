@@ -294,7 +294,7 @@
          // 
          // saveFileDialog1
          // 
-         this.saveFileDialog1.FileName = "*.xps";
+         this.saveFileDialog1.DefaultExt = "xps";
          this.saveFileDialog1.Filter = "Cruise Design Report|*.xps";
          // 
          // labelTime

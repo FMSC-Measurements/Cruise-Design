@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace CruiseDesign.Services
@@ -95,7 +96,7 @@ namespace CruiseDesign.Services
         {
             var designFilePath = DesignFilePath;
             var v3FilePath = Path.ChangeExtension(designFilePath, ".crz3");
-            if(File.Exists(v3FilePath))
+            if (File.Exists(v3FilePath))
             {
                 V3FilePath = v3FilePath;
                 return true;
@@ -176,6 +177,68 @@ namespace CruiseDesign.Services
             }
 
             return err == 0;
+        }
+
+        public static bool EnsurePathValid(string path, ILogger logger, IDialogService dialogService)
+        {
+            try
+            {
+                path = Path.GetFullPath(path);
+
+                // in net6.2 and later long paths are supported by default.
+                // however it can still cause issue. So we need to manual check the
+                // directory length
+                // 
+                var dirName = Path.GetDirectoryName(path);
+                if (dirName.Length >= 248 || path.Length >= 260)
+                {
+                    throw new PathTooLongException("The supplied path is too long");
+                }
+            }
+            catch (PathTooLongException ex)
+            {
+                var message = "File Path Too Long";
+                logger.LogError(ex, message);
+                dialogService.ShowMessage(message, "Error");
+                return false;
+            }
+            catch (SecurityException ex)
+            {
+                var message = "Can Not Open File Due To File Permissions";
+                logger.LogError(ex, message);
+                dialogService.ShowMessage(message, "Error");
+                return false;
+            }
+            catch (ArgumentException ex)
+            {
+                var message = (!string.IsNullOrEmpty(path) && path.IndexOfAny(Path.GetInvalidPathChars()) != -1)
+                    ? "Path Contains Invalid Characters" : "Invalid File Path";
+                logger.LogError(ex, message);
+                dialogService.ShowMessage(message, "Error");
+                return false;
+            }
+
+            return true;
+        }
+
+        public static bool EnsurePathExistsAndCanWrite(string path, ILogger logger, IDialogService dialogService)
+        {
+            if (!File.Exists(path))
+            {
+                var message = "Selected File Does Not Exist";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return false;
+            }
+
+            if (File.GetAttributes(path).HasFlag(FileAttributes.ReadOnly))
+            {
+                var message = "Selected File Is Read Only.\r\nIf opening file from non-local location, please copy file to a location on your PC before opening.";
+                logger.LogWarning(message);
+                dialogService.ShowMessage(message, "Warning");
+                return false;
+            }
+            return true;
         }
 
 
